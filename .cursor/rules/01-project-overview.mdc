@@ -1,0 +1,29 @@
+---
+alwaysApply: true
+---
+# Project Overview & Goals
+
+- Always remember this project is a **Star Wars: Galaxy of Heroes (SWGOH) Discord app**, inspired by **HotUtils**.
+- Always prioritise **read-only insights, analysis, and recommendations** over aggressive automation that might violate game Terms of Service.
+- Always focus on:
+  - Player roster insights and optimisation
+  - Farming and gearing recommendations
+  - Squad building and event preparation
+  - Guild-level visibility (TB, TW, raids, tickets, etc.)
+- Prefer features that:
+  - Help players understand their accounts better
+  - Reduce manual effort (checking rosters, requirements, event readiness)
+  - Are transparent and explain *why* a recommendation is made
+- Never design or suggest features that:
+  - Automate gameplay in a way likely to be against the SWGOH Terms of Service
+  - Attempt to circumvent game restrictions, monetisation, or anti-cheat mechanisms
+
+# Tech Stack & General Conventions
+
+- Default backend language: **TypeScript** on **Node.js**.
+- Default Discord library: **discord.js v14+**.
+- Default HTTP client: **axios** (or Node `fetch` if appropriate).
+- Use **npm** as the package manager unless explicitly changed.
+- Always keep code and comments in **UK English**.
+- Always use **environment variables** for secrets (Discord tokens, API keys, DB credentials).
+- Never hard-code secrets or tokens in the codebase.

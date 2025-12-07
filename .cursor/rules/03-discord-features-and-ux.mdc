@@ -1,0 +1,52 @@
+---
+alwaysApply: true
+---
+# Discord Commands & Features
+
+- Prefer **slash commands and context menus** over legacy prefix-based commands.
+- For each new command:
+  - Define a clear purpose and input parameters
+  - Implement logic in a service where possible
+  - Return a concise, readable response
+- Initial feature priorities:
+  1. Player-focused insights:
+     - `/register` or `/link` to connect Discord user ↔ ally code
+     - `/roster` for high-level account summary (GP, GLs, key squads)
+     - `/farms` for suggested farms / priorities
+     - Simple `/mods` checks for obviously wrong setups
+  2. GAC focused insights:
+     - `/compare gac` - for reviewing current opponent roster
+     - `/compare gac plan` - TBC - get your opponents defensive stategy based on their last round
+- Always design responses so they are easy to extend later with more detail.
+
+# Discord UX Guidelines
+
+- Use **embeds** for structured responses with:
+  - Clear titles and field headings
+  - Bullet points for readability
+- For longer results:
+  - Either paginate or provide a short summary plus a “detailed” follow-up
+- Use emojis sparingly to aid scanning (e.g. 🔹 for bullets, ⚠️ for warnings) without clutter.
+- User-facing errors must be:
+  - Friendly, short, and non-technical
+  - Suggest what the user can try next (e.g. “try `/register` first”)
+- Never expose stack traces, raw API errors, or sensitive IDs in Discord messages.
+
+# Security, Config, and Logging
+
+- Always read tokens and API keys from environment variables.
+- Never commit `.env` or real config secrets.
+- Log:
+  - High-level actions (commands used, integrations called)
+  - Errors with enough context to debug
+- Never log:
+  - Secrets, full tokens, or highly sensitive personal information.
+
+# AI Assistance Behaviour (for Cursor)
+
+- When generating or editing code:
+  - Follow the folder structure and naming conventions defined in these rules.
+  - Prefer incremental, minimal changes that fit with existing patterns.
+- When implementing a new feature:
+  - Suggest files and paths explicitly (e.g. `src/commands/roster.ts`, `src/services/rosterService.ts`).
+- All comments, docs, and user-facing strings must be written in **UK English**.
