@@ -225,7 +225,8 @@ export class GacStrategyService {
       const toUniqueUnit = (u: GacDefensiveSquadUnit): UniqueDefensiveSquadUnit => ({
         baseId: u.baseId,
         relicLevel: u.relicLevel,
-        portraitUrl: u.portraitUrl
+        // Ensure portrait URL is always set - use fallback if not provided
+        portraitUrl: u.portraitUrl || (u.baseId ? `https://swgoh.gg/static/img/assets/character-portrait/${u.baseId}.png` : null)
       });
 
       const leaderUnit = allUnits[0];
@@ -450,6 +451,17 @@ export class GacStrategyService {
     // Track all used characters across both offense and defense
     const usedCharacters = new Set<string>();
     const usedLeaders = new Set<string>();
+    
+    // CRITICAL: Ensure ALL GLs are used (either offense or defense)
+    // GLs are the strongest characters in the game and should NEVER be left unused
+    const allUserGLsForPlacement = new Set<string>();
+    if (userRoster) {
+      for (const unit of userRoster.units || []) {
+        if (unit.data.combat_type === 1 && unit.data.is_galactic_legend && this.isGalacticLegend(unit.data.base_id)) {
+          allUserGLsForPlacement.add(unit.data.base_id);
+        }
+      }
+    }
     
     // Calculate data-driven statistics from actual SWGOH.GG data
     // 1. Calculate max seen counts from defense suggestions (actual data from SWGOH.GG)
@@ -1215,17 +1227,6 @@ export class GacStrategyService {
         }
       }
     
-    // CRITICAL: Ensure ALL GLs are used (either offense or defense)
-    // GLs are the strongest characters in the game and should NEVER be left unused
-    const allUserGLsForPlacement = new Set<string>();
-    if (userRoster) {
-      for (const unit of userRoster.units || []) {
-        if (unit.data.combat_type === 1 && unit.data.is_galactic_legend && this.isGalacticLegend(unit.data.base_id)) {
-          allUserGLsForPlacement.add(unit.data.base_id);
-        }
-      }
-    }
-    
     const usedGLsForPlacement = new Set<string>();
     for (const offenseCounter of balancedOffense) {
       if (offenseCounter.offense.leader.baseId && this.isGalacticLegend(offenseCounter.offense.leader.baseId)) {
@@ -1245,14 +1246,35 @@ export class GacStrategyService {
         `GLs are the strongest characters in the game and should NEVER be left out.`
       );
       
+      // For balanced strategy, aim for roughly 50/50 split of GLs between offense and defense
+      const glsOnOffense = Array.from(usedGLsForPlacement).filter(gl => 
+        balancedOffense.some(c => c.offense.leader.baseId === gl)
+      ).length;
+      const glsOnDefense = Array.from(usedGLsForPlacement).filter(gl => 
+        balancedDefense.some(d => d.squad.leader.baseId === gl)
+      ).length;
+      const totalGLsUsed = glsOnOffense + glsOnDefense;
+      const targetGLsOnOffense = Math.ceil(allUserGLsForPlacement.size / 2);
+      const targetGLsOnDefense = Math.floor(allUserGLsForPlacement.size / 2);
+      
+      logger.info(
+        `[Balanced Strategy] GL distribution: ${glsOnOffense} on offense, ${glsOnDefense} on defense, ` +
+        `${unusedGLsForPlacement.length} unused. Target: ~${targetGLsOnOffense} offense, ~${targetGLsOnDefense} defense`
+      );
+      
       // Try to place unused GLs on offense first (they're better on offense for balanced strategy)
+      // For balanced strategy, prioritize offense if we're below target
       // Look for opponent defenses that could use these GLs as counters
       for (const unusedGL of unusedGLsForPlacement) {
         let glPlaced = false;
         
-        // First, try to place on offense by replacing ANY non-GL counter (GLs are always better)
-        for (const offenseCounter of offenseCounters) {
-          if (offenseCounter.offense.leader.baseId === unusedGL) {
+        // For balanced strategy, only try offense if we're below target
+        const shouldTryOffense = strategyPreference !== 'balanced' || glsOnOffense < targetGLsOnOffense;
+        
+        if (shouldTryOffense) {
+          // First, try to place on offense by replacing ANY non-GL counter (GLs are always better)
+          for (const offenseCounter of offenseCounters) {
+            if (offenseCounter.offense.leader.baseId === unusedGL) {
             // This GL is available as a counter for this opponent defense
             const existingCounterIndex = balancedOffense.findIndex(c => 
               c.defense.leader.baseId === offenseCounter.defense.leader.baseId
@@ -1326,48 +1348,212 @@ export class GacStrategyService {
             }
           }
         }
+        }
         
         // If still unused after trying offense, try to place on defense
+        // For balanced strategy, only place on defense if we don't already have too many GLs on defense
         if (!glPlaced && !usedGLsForPlacement.has(unusedGL) && !usedLeaders.has(unusedGL)) {
-          // Look for this GL in defense suggestions
-          for (const defenseSuggestion of sortedDefense) {
-            if (defenseSuggestion.squad.leader.baseId === unusedGL) {
-              const defenseUnits = [
-                defenseSuggestion.squad.leader.baseId,
-                ...defenseSuggestion.squad.members.map(m => m.baseId)
-              ];
-              
-              // Check if it conflicts with offense
-              const hasConflict = defenseUnits.some(unitId => usedCharacters.has(unitId));
-              
-              if (!hasConflict && balancedDefense.length < maxDefenseSquads) {
-                logger.info(
-                  `Placing unused GL ${unusedGL} on defense (Hold: ${defenseSuggestion.holdPercentage?.toFixed(1) ?? 'N/A'}%)`
-                );
-                balancedDefense.push(defenseSuggestion);
-                for (const unitId of defenseUnits) {
-                  usedCharacters.add(unitId);
+          // Recalculate GL counts
+          const currentGLsOnDefense = balancedDefense.filter(d => 
+            this.isGalacticLegend(d.squad.leader.baseId)
+          ).length;
+          
+          // For balanced strategy, only place on defense if we're below target
+          const shouldPlaceOnDefense = strategyPreference !== 'balanced' || 
+            currentGLsOnDefense < targetGLsOnDefense;
+          
+          if (shouldPlaceOnDefense) {
+            // Look for this GL in defense suggestions
+            for (const defenseSuggestion of sortedDefense) {
+              if (defenseSuggestion.squad.leader.baseId === unusedGL) {
+                const defenseUnits = [
+                  defenseSuggestion.squad.leader.baseId,
+                  ...defenseSuggestion.squad.members.map(m => m.baseId)
+                ];
+                
+                // Check if it conflicts with offense
+                const hasConflict = defenseUnits.some(unitId => usedCharacters.has(unitId));
+                
+                if (!hasConflict && balancedDefense.length < maxDefenseSquads) {
+                  logger.info(
+                    `Placing unused GL ${unusedGL} on defense (Hold: ${defenseSuggestion.holdPercentage?.toFixed(1) ?? 'N/A'}%)`
+                  );
+                  balancedDefense.push(defenseSuggestion);
+                  for (const unitId of defenseUnits) {
+                    usedCharacters.add(unitId);
+                  }
+                  usedLeaders.add(unusedGL);
+                  usedGLsForPlacement.add(unusedGL); // Update tracking
+                  glPlaced = true;
+                  break; // GL placed
                 }
-                usedLeaders.add(unusedGL);
-                usedGLsForPlacement.add(unusedGL); // Update tracking
-                glPlaced = true;
-                break; // GL placed
               }
             }
+          } else {
+            logger.info(
+              `Skipping defense placement for unused GL ${unusedGL} - already have ${currentGLsOnDefense} GL(s) on defense ` +
+              `(target: ${targetGLsOnDefense} for balanced strategy)`
+            );
           }
         }
         
         // If STILL unused, try to replace ANY defense squad with this GL (GLs are always better)
+        // But for balanced strategy, only if we're below target GLs on defense
         if (!glPlaced && !usedGLsForPlacement.has(unusedGL) && !usedLeaders.has(unusedGL)) {
-          // Find a defense squad with this GL as leader
-          for (const defenseSuggestion of sortedDefense) {
-            if (defenseSuggestion.squad.leader.baseId === unusedGL) {
-              // Try to find a non-GL defense squad to replace
+          // Recalculate GL counts
+          const currentGLsOnDefense = balancedDefense.filter(d => 
+            this.isGalacticLegend(d.squad.leader.baseId)
+          ).length;
+          
+          // For balanced strategy, only replace if we're below target
+          const shouldReplaceOnDefense = strategyPreference !== 'balanced' || 
+            currentGLsOnDefense < targetGLsOnDefense;
+          
+          if (shouldReplaceOnDefense) {
+            // Find a defense squad with this GL as leader
+            for (const defenseSuggestion of sortedDefense) {
+              if (defenseSuggestion.squad.leader.baseId === unusedGL) {
+                // Try to find a non-GL defense squad to replace
+                for (let i = 0; i < balancedDefense.length; i++) {
+                  const existingDefense = balancedDefense[i];
+                  const existingIsGL = this.isGalacticLegend(existingDefense.squad.leader.baseId);
+                  
+                  // Replace non-GL defense with GL defense
+                  if (!existingIsGL) {
+                    const existingDefenseUnits = [
+                      existingDefense.squad.leader.baseId,
+                      ...existingDefense.squad.members.map(m => m.baseId)
+                    ];
+                    
+                    // Remove existing defense
+                    for (const unitId of existingDefenseUnits) {
+                      usedCharacters.delete(unitId);
+                    }
+                    usedLeaders.delete(existingDefense.squad.leader.baseId);
+                    
+                    // Add GL defense
+                    const glDefenseUnits = [
+                      defenseSuggestion.squad.leader.baseId,
+                      ...defenseSuggestion.squad.members.map(m => m.baseId)
+                    ];
+                    
+                    // Check if GL defense conflicts with offense
+                    const hasConflict = glDefenseUnits.some(unitId => usedCharacters.has(unitId));
+                    
+                    if (!hasConflict) {
+                      logger.info(
+                        `Replacing non-GL defense ${existingDefense.squad.leader.baseId} with unused GL ${unusedGL} on defense ` +
+                        `(Hold: ${defenseSuggestion.holdPercentage?.toFixed(1) ?? 'N/A'}%)`
+                      );
+                      balancedDefense[i] = defenseSuggestion;
+                      for (const unitId of glDefenseUnits) {
+                        usedCharacters.add(unitId);
+                      }
+                      usedLeaders.add(unusedGL);
+                      usedGLsForPlacement.add(unusedGL);
+                      glPlaced = true;
+                      break;
+                    } else {
+                      // Restore existing defense if GL conflicts
+                      for (const unitId of existingDefenseUnits) {
+                        usedCharacters.add(unitId);
+                      }
+                      usedLeaders.add(existingDefense.squad.leader.baseId);
+                    }
+                  }
+                }
+              }
+              
+              if (glPlaced) break;
+            }
+          } else {
+            logger.info(
+              `Skipping defense replacement for unused GL ${unusedGL} - already have ${currentGLsOnDefense} GL(s) on defense ` +
+              `(target: ${targetGLsOnDefense} for balanced strategy)`
+            );
+          }
+        }
+        
+        // If STILL unused and not in defense suggestions, create a basic defense squad for this GL
+        // But for balanced strategy, only if we're below target GLs on defense
+        if (!glPlaced && !usedGLsForPlacement.has(unusedGL) && !usedLeaders.has(unusedGL) && userRoster) {
+          // Recalculate GL counts
+          const currentGLsOnDefense = balancedDefense.filter(d => 
+            this.isGalacticLegend(d.squad.leader.baseId)
+          ).length;
+          
+          // For balanced strategy, only create defense squad if we're below target
+          const shouldCreateDefense = strategyPreference !== 'balanced' || 
+            currentGLsOnDefense < targetGLsOnDefense;
+          
+          if (shouldCreateDefense) {
+          // Get available non-GL characters that aren't already used
+          const availableNonGLChars: string[] = [];
+          for (const unit of userRoster.units || []) {
+            if (unit.data.combat_type === 1 && 
+                unit.data.rarity >= 7 && 
+                !this.isGalacticLegend(unit.data.base_id) &&
+                unit.data.base_id !== unusedGL &&
+                !usedCharacters.has(unit.data.base_id)) {
+              availableNonGLChars.push(unit.data.base_id);
+            }
+          }
+          
+          const squadSize = format === '3v3' ? 3 : 5;
+          const membersNeeded = squadSize - 1;
+          
+          if (availableNonGLChars.length >= membersNeeded) {
+            // Get defense stats for this GL
+            const stats = await this.getDefenseStatsForSquad(unusedGL, seasonId);
+            
+            // Create a basic squad with the GL as leader and available non-GL members
+            const selectedMembers = availableNonGLChars.slice(0, membersNeeded);
+            
+            // Check if this squad conflicts with offense
+            const glDefenseUnits = [unusedGL, ...selectedMembers];
+            const hasConflict = glDefenseUnits.some(unitId => usedCharacters.has(unitId));
+            
+            if (!hasConflict && balancedDefense.length < maxDefenseSquads) {
+              // Create the defense squad
+              const glDefenseSquad: UniqueDefensiveSquad = {
+                leader: {
+                  baseId: unusedGL,
+                  relicLevel: null, // Will be populated from roster if needed
+                  portraitUrl: null
+                },
+                members: selectedMembers.map(memberId => ({
+                  baseId: memberId,
+                  relicLevel: null,
+                  portraitUrl: null
+                }))
+              };
+              
+              logger.info(
+                `Creating defense squad for unused GL ${unusedGL} on defense ` +
+                `(Hold: ${stats.holdPercentage?.toFixed(1) ?? 'N/A'}%, Members: ${selectedMembers.join(', ')})`
+              );
+              
+              balancedDefense.push({
+                squad: glDefenseSquad,
+                holdPercentage: stats.holdPercentage,
+                seenCount: stats.seenCount,
+                avgBanners: null,
+                score: (stats.holdPercentage ?? 0) * 0.5 + (stats.seenCount ? Math.log10(stats.seenCount + 1) / Math.log10(100000 + 1) * 100 * 0.4 : 0) + 10 + 5, // Basic scoring
+                reason: `Created for unused GL (Hold: ${stats.holdPercentage?.toFixed(1) ?? 'N/A'}%)`
+              });
+              
+              for (const unitId of glDefenseUnits) {
+                usedCharacters.add(unitId);
+              }
+              usedLeaders.add(unusedGL);
+              usedGLsForPlacement.add(unusedGL);
+              glPlaced = true;
+            } else if (balancedDefense.length < maxDefenseSquads) {
+              // Try to replace a non-GL defense with this GL
               for (let i = 0; i < balancedDefense.length; i++) {
                 const existingDefense = balancedDefense[i];
                 const existingIsGL = this.isGalacticLegend(existingDefense.squad.leader.baseId);
                 
-                // Replace non-GL defense with GL defense
                 if (!existingIsGL) {
                   const existingDefenseUnits = [
                     existingDefense.squad.leader.baseId,
@@ -1380,21 +1566,38 @@ export class GacStrategyService {
                   }
                   usedLeaders.delete(existingDefense.squad.leader.baseId);
                   
-                  // Add GL defense
-                  const glDefenseUnits = [
-                    defenseSuggestion.squad.leader.baseId,
-                    ...defenseSuggestion.squad.members.map(m => m.baseId)
-                  ];
-                  
                   // Check if GL defense conflicts with offense
+                  const glDefenseUnits = [unusedGL, ...selectedMembers];
                   const hasConflict = glDefenseUnits.some(unitId => usedCharacters.has(unitId));
                   
                   if (!hasConflict) {
+                    const glDefenseSquad: UniqueDefensiveSquad = {
+                      leader: {
+                        baseId: unusedGL,
+                        relicLevel: null,
+                        portraitUrl: null
+                      },
+                      members: selectedMembers.map(memberId => ({
+                        baseId: memberId,
+                        relicLevel: null,
+                        portraitUrl: null
+                      }))
+                    };
+                    
                     logger.info(
                       `Replacing non-GL defense ${existingDefense.squad.leader.baseId} with unused GL ${unusedGL} on defense ` +
-                      `(Hold: ${defenseSuggestion.holdPercentage?.toFixed(1) ?? 'N/A'}%)`
+                      `(Hold: ${stats.holdPercentage?.toFixed(1) ?? 'N/A'}%, Members: ${selectedMembers.join(', ')})`
                     );
-                    balancedDefense[i] = defenseSuggestion;
+                    
+                    balancedDefense[i] = {
+                      squad: glDefenseSquad,
+                      holdPercentage: stats.holdPercentage,
+                      seenCount: stats.seenCount,
+                      avgBanners: null,
+                      score: (stats.holdPercentage ?? 0) * 0.5 + (stats.seenCount ? Math.log10(stats.seenCount + 1) / Math.log10(100000 + 1) * 100 * 0.4 : 0) + 10 + 5,
+                      reason: `Created for unused GL (Hold: ${stats.holdPercentage?.toFixed(1) ?? 'N/A'}%)`
+                    };
+                    
                     for (const unitId of glDefenseUnits) {
                       usedCharacters.add(unitId);
                     }
@@ -1411,11 +1614,11 @@ export class GacStrategyService {
                   }
                 }
               }
-              
-              if (glPlaced) break;
             }
           }
         }
+      }
+      }
       }
     }
     
@@ -1646,7 +1849,6 @@ export class GacStrategyService {
         }
       }
       usedLeaders.add(defenseSuggestion.squad.leader.baseId);
-      }
     }
     
     // Log if we couldn't fill all defense slots
