@@ -70,29 +70,43 @@ export async function evaluateRosterForDefense(
       squad => squad.seenCount !== null && squad.seenCount >= MIN_SEEN_COUNT_FOR_PERCENT
     );
     
-    // Merge and deduplicate by leader baseId (keep unique squads)
-    // Prioritize 'count' sorted list - it's the primary source (proven usage)
+    // Keep ALL squad compositions from swgoh.gg (not just one per leader)
+    // This allows us to find alternative compositions when some have member conflicts
+    // Use leader + members as unique key to deduplicate exact duplicates only
     const allTopDefenseSquads = new Map<string, typeof topDefenseSquadsByCount[0]>();
     
-    // First, add all squads from 'count' sorted list (primary source)
+    // Helper to create unique key for a squad
+    const getSquadKey = (squad: typeof topDefenseSquadsByCount[0]) => {
+      const memberIds = squad.members.map(m => m.baseId).sort().join('_');
+      return `${squad.leader.baseId}|${memberIds}`;
+    };
+    
+    // Add all squads from 'count' sorted list (primary source)
     for (const squad of topDefenseSquadsByCount) {
-      allTopDefenseSquads.set(squad.leader.baseId, squad);
+      const key = getSquadKey(squad);
+      if (!allTopDefenseSquads.has(key)) {
+        allTopDefenseSquads.set(key, squad);
+      }
     }
     
-    // Then, add squads from 'percent' sorted list only if they:
-    // 1. Don't already exist (not in count list)
+    // Add squads from 'percent' sorted list if they:
+    // 1. Are a unique composition (different leader + members combo)
     // 2. Have sufficient seen count (filtered above)
     for (const squad of filteredPercentSquads) {
-      if (!allTopDefenseSquads.has(squad.leader.baseId)) {
-        allTopDefenseSquads.set(squad.leader.baseId, squad);
+      const key = getSquadKey(squad);
+      if (!allTopDefenseSquads.has(key)) {
+        allTopDefenseSquads.set(key, squad);
       }
     }
     
     const topDefenseSquads = Array.from(allTopDefenseSquads.values());
     
+    // Count unique leaders for logging
+    const uniqueLeaders = new Set(topDefenseSquads.map(s => s.leader.baseId)).size;
+    
     logger.info(
-      `Evaluating against ${topDefenseSquads.length} unique top defense squad(s) ` +
-      `(${topDefenseSquadsByCount.length} from count sort [primary], ` +
+      `Evaluating against ${topDefenseSquads.length} squad composition(s) from ${uniqueLeaders} unique leader(s) ` +
+      `(${topDefenseSquadsByCount.length} from count sort, ` +
       `${filteredPercentSquads.length} from percent sort [filtered: seen >= ${MIN_SEEN_COUNT_FOR_PERCENT}])`
     );
     
@@ -116,9 +130,9 @@ export async function evaluateRosterForDefense(
     // Count user's GLs (from full roster, not filtered)
     const userGLs = new Set<string>();
     for (const unit of filteredRoster.units || []) {
+      // Use our authoritative GL list OR the API flag
       if (unit.data.combat_type === 1 && // Only characters
-          unit.data.is_galactic_legend && 
-          isGalacticLegend(unit.data.base_id)) {
+          (isGalacticLegend(unit.data.base_id) || unit.data.is_galactic_legend)) {
         userGLs.add(unit.data.base_id);
       }
     }
@@ -225,34 +239,24 @@ export async function evaluateRosterForDefense(
       });
     }
     
-    // Step 2: Generate additional squads from roster
-    const generatedCandidates = await generateDefenseSquadsFromRoster(
-      filteredRoster,
-      seasonId,
-      format,
-      topDefenseSquads
-    ,
-      defenseClient,
-      defenseSquadStatsCache,
-      topDefenseSquadsCache);
+    // Step 2: We now ONLY use squads from swgoh.gg data
+    // Previously we generated random squad combinations from roster, but this created
+    // fake compositions that don't exist on swgoh.gg (e.g., GLREY + THIRDSISTER)
+    // Now we only use proven squad compositions from real data
     
-    // Step 3: Combine and deduplicate by leader + members
+    logger.info(
+      `Using only swgoh.gg data: ${candidates.length} matched squad(s) from top defense data ` +
+      `(not generating random combinations)`
+    );
+    
+    // Step 3: Deduplicate by leader + members (just use matched candidates)
     const allCandidates = new Map<string, typeof candidates[0]>();
     
-    // Add matched candidates first (they have better stats from swgoh.gg)
+    // Add matched candidates (they have real stats from swgoh.gg)
     for (const candidate of candidates) {
       const memberIds = candidate.squad.members.map(m => m.baseId).sort();
       const key = `${candidate.squad.leader.baseId}_${memberIds.join('_')}`;
       allCandidates.set(key, candidate);
-    }
-    
-    // Add generated candidates (only if not already present)
-    for (const candidate of generatedCandidates) {
-      const memberIds = candidate.squad.members.map(m => m.baseId).sort();
-      const key = `${candidate.squad.leader.baseId}_${memberIds.join('_')}`;
-      if (!allCandidates.has(key)) {
-        allCandidates.set(key, candidate);
-      }
     }
     
     // Sort by score and ensure we have a good mix of GL and non-GL candidates
@@ -313,8 +317,8 @@ export async function evaluateRosterForDefense(
     const nonGlCandidatesCount = finalCandidates.length - glCandidatesCount;
     
     logger.info(
-      `Combined defense candidates: ${candidates.length} matched from top squads, ${generatedCandidates.length} generated from roster, ` +
-      `${finalCandidates.length} unique candidates (top ${finalCandidates.length} will be used)`
+      `Defense candidates: ${candidates.length} matched from swgoh.gg top squads, ` +
+      `${finalCandidates.length} unique candidates (only using real data, no random combinations)`
     );
     logger.info(
       `Candidate breakdown: ${glCandidatesCount} GL candidate(s), ${nonGlCandidatesCount} non-GL candidate(s)`

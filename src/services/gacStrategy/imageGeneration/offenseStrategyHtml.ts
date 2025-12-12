@@ -1,0 +1,582 @@
+/**
+ * HTML generation for offense strategy view (standalone offense image).
+ * Shows offense counters vs opponent defense squads.
+ * Uses GL-style layout from player comparison for consistency.
+ */
+import { MatchedCounterSquad, UniqueDefensiveSquad, UniqueDefensiveSquadUnit } from '../../../types/gacStrategyTypes';
+import { SwgohGgFullPlayerResponse } from '../../../integrations/swgohGgApi';
+import { isGalacticLegend } from '../../../config/gacConstants';
+import { getCharacterPortraitUrl } from '../../../config/characterPortraits';
+import { logger } from '../../../utils/logger';
+
+// Base64 stat icons (same as player comparison for consistency)
+const SPEED_ICON = 'data:image/webp;base64,UklGRh4CAABXRUJQVlA4TBICAAAvH8AHEJVAbCRJkbT+Ox0PvbP3YEA9Qx1ESAIAsIykrm3b9v5s27Zt27Zt27Zt28b51pmAvKIQYCJCg50EY77S1Bhz7EIRuiW4BBhxE6dU49W2O/+AfbOIVuARYcFPsjpDFmx66irnlREsVFT40WKlwJqf+UnuoUS4R2XkESTUJ/4JauhLUPG5bmtPOlmU2h85whTsTrVRSKDhpMJGgFwNuo04AUYfRhW59uxAB8FEKVBRCVQcVNnwl6/H7Gfrtx1fbevTf5cysSVEvQIOUWcXDDRVrTAoVBV7bVvf3jxopKa3/c8iOvt1hiC5+vVo1znGFcg4uFFMoqqjj0FyDoJDiYv92+CFDnPD/gGese1Ax0ntIluzaadefXRWvkEBh0ec8OzCJcFeiHK9Zm0492vyh8gGnRQ2CjzaJrX/p0lQuR38J7BBJwQLDSEa7KqAUV0OwiXKkp9sNQZsuPMfGL3gO0SSMR+Fuiw68OB70r1Bx/+RJTARUfE4XZViOYLBg5+ScSQifQP1y7+29cgT7pocoPVbLhNHrXfWNC32sQkKSxeV/re9tVUNcYOQ8HLVtl7V4F0IRGbOb0DbT3QblASLQp9AW7eCYO4lZ0b6HAFlskEzKQNe29YS5YUkCAWIzSK9M9BWzFoClTC1Pw48RMhSol6jcmtAawXuGhjoqAnSZMqBtzDp6nQbsWI19lzR3qBXEQ==';
+const HEALTH_ICON = 'data:image/webp;base64,UklGRswAAABXRUJQVlA4TMAAAAAvH8AHEIXjRpIUqfx3Opau4egdATXbtmXZg7tFG8CzL8BBsi8yxHuQiFQGcKju0ojMQHJ3T/x6T0Doi1rBs9Q/QEhHR0dHucEHAGDwzcRr7i/9Ffj9gpOZmcILaEsxe4IuWajYUzIBBYLQhn+QCNV74G1YHCq/h1pV0y+Au3OrLAkA8nA3Co2KAgDGscDpA4CFFpjsAbDQFJmsrKwxABYao4E7FlqyCr2T3JKJYKhLhMPhcAIvPMSIQ5tsivShrwo=';
+const PROTECTION_ICON = 'data:image/webp;base64,UklGRsYAAABXRUJQVlA4TLoAAAAvH8AHEFU4bhvJkTb/pHm2u8++a3Yi3AYAQDbRpguSKaNHfGFfkDMwp1y78gGvbj/gAbYxAfmxBI2T+Aqkkq//mYWaQkjczofZiAmI0Nq/uIWrRTXzb4ZaI+mdg/qkiqn/aCq6M6koz6QimhFXuDOpYGd2BWQ3YQ+qRH1ipyyYWDWoc29Da1HsKaaJ9upkdSLtyBxAG2FVy+6F7FlZlEzSfJ6tnVm6yyMXeqYxJncrBzAPYuobZB/Afwk=';
+
+export function generateOffenseStrategyHtml(
+  opponentName: string,
+  offenseSquads: MatchedCounterSquad[],
+  format: string = '5v5',
+  maxSquads: number = 11,
+  userRoster?: SwgohGgFullPlayerResponse
+): string {
+  logger.info(`[Offense Image] Starting HTML generation vs ${opponentName} (${format} format)`);
+  logger.info(`[Offense Image] Input data: ${offenseSquads.length} offense squad(s)`);
+
+  const expectedSquadSize = format === '3v3' ? 3 : 5;
+  const visibleOffense = offenseSquads.slice(0, maxSquads);
+
+  // Create character stats AND relic mapping from FULL user roster (not just top 80)
+  const characterStatsMap = new Map<string, { speed: number; health: number; protection: number; relic: number | null }>();
+  if (userRoster && userRoster.units) {
+    // Use FULL roster to ensure all characters have stats
+    for (const unit of userRoster.units) {
+      if (unit.data && unit.data.base_id && unit.data.combat_type === 1) {
+        const stats = unit.data.stats || {};
+        const speed = Math.round(stats['5'] || 0);
+        const health = (stats['1'] || 0) / 1000;
+        const protection = (stats['28'] || 0) / 1000;
+        // Calculate relic level: if gear_level >= 13 and relic_tier exists, relic = relic_tier - 2
+        let relic: number | null = null;
+        if (unit.data.gear_level >= 13 && unit.data.relic_tier !== null && unit.data.relic_tier !== undefined) {
+          relic = Math.max(0, unit.data.relic_tier - 2);
+        }
+        characterStatsMap.set(unit.data.base_id, { speed, health, protection, relic });
+      }
+    }
+    logger.info(`[Offense Image] Built stats map for ${characterStatsMap.size} characters from full roster`);
+  }
+
+  // Log each offense squad for debugging
+  visibleOffense.forEach((match, idx) => {
+    const offLeaderBaseId = match.offense.leader.baseId;
+    const offLeaderRelic = match.offense.leader.relicLevel;
+    const offMemberIds = match.offense.members.map(m => `${m.baseId}(R${m.relicLevel ?? '?'})`).join(', ');
+    const defLeaderBaseId = match.defense.leader.baseId;
+    logger.info(`[Offense Image] Battle ${idx + 1}: Offense=${offLeaderBaseId}(R${offLeaderRelic ?? '?'}) [${offMemberIds}] vs Defense=${defLeaderBaseId}`);
+  });
+
+  const getCharacterStats = (baseId: string): { speed: number; health: number; protection: number; relic: number | null } | null => {
+    return characterStatsMap.get(baseId) || null;
+  };
+
+  const renderUnit = (unit: UniqueDefensiveSquadUnit | null, isOffense: boolean): string => {
+    if (!unit || !unit.baseId) {
+      return `
+        <div class="character-cell">
+          <div class="character-portrait empty ${isOffense ? 'offense' : 'defense'}">
+            <div class="character-placeholder"></div>
+          </div>
+          <div class="character-stats">
+            <div class="stat-row"><span class="stat-label"><img src="${SPEED_ICON}" class="stat-icon" alt="Speed">Spd</span><span class="stat-value">-</span></div>
+            <div class="stat-row"><span class="stat-label"><img src="${HEALTH_ICON}" class="stat-icon" alt="Health">HP</span><span class="stat-value">-</span></div>
+            <div class="stat-row"><span class="stat-label"><img src="${PROTECTION_ICON}" class="stat-icon" alt="Prot">Prt</span><span class="stat-value">-</span></div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Get stats from roster (for offense squads - we have their roster data)
+    const stats = isOffense ? getCharacterStats(unit.baseId) : null;
+    
+    // Use unit's relic level if available, otherwise fall back to roster data (for offense only)
+    const relicFromUnit = typeof unit.relicLevel === 'number' ? unit.relicLevel : null;
+    const relicFromRoster = isOffense ? (stats?.relic ?? null) : null;
+    const relicLevel = relicFromUnit ?? relicFromRoster;
+    const relic = relicLevel !== null ? Math.max(0, Math.min(10, relicLevel)) : '?';
+    
+    const portraitUrl = unit.portraitUrl || getCharacterPortraitUrl(unit.baseId);
+    const speedValue = stats ? stats.speed.toLocaleString() : '-';
+    const healthValue = stats ? stats.health.toFixed(1) + 'K' : '-';
+    const protValue = stats ? stats.protection.toFixed(1) + 'K' : '-';
+    const isGL = isGalacticLegend(unit.baseId);
+
+    // For opponent defense, show simpler stats (just relic from scraped data)
+    const statsHtml = isOffense ? `
+      <div class="character-stats">
+        <div class="stat-row"><span class="stat-label">Relic</span><span class="stat-value relic-value">R${relic}</span></div>
+        <div class="stat-row"><span class="stat-label"><img src="${SPEED_ICON}" class="stat-icon" alt="Speed">Spd</span><span class="stat-value">${speedValue}</span></div>
+        <div class="stat-row"><span class="stat-label"><img src="${HEALTH_ICON}" class="stat-icon" alt="Health">HP</span><span class="stat-value">${healthValue}</span></div>
+        <div class="stat-row"><span class="stat-label"><img src="${PROTECTION_ICON}" class="stat-icon" alt="Prot">Prt</span><span class="stat-value">${protValue}</span></div>
+      </div>
+    ` : `
+      <div class="character-stats defense-stats">
+        <div class="stat-row full-width"><span class="stat-value relic-value">R${relic}</span></div>
+      </div>
+    `;
+
+    return `
+      <div class="character-cell${isGL ? ' gl' : ''}">
+        <div class="character-portrait ${isOffense ? 'offense' : 'defense'}${isGL ? ' gl' : ''}">
+          <img src="${portraitUrl}" alt="${unit.baseId}" onerror="this.style.display='none';" />
+        </div>
+        ${statsHtml}
+      </div>
+    `;
+  };
+
+  const renderSquad = (squad: UniqueDefensiveSquad, isOffense: boolean): string => {
+    const allUnits = [squad.leader, ...squad.members];
+    const paddedUnits = [...allUnits];
+    while (paddedUnits.length < expectedSquadSize) {
+      paddedUnits.push({ baseId: '', relicLevel: null, portraitUrl: null });
+    }
+
+    return paddedUnits.map(u => renderUnit(u, isOffense)).join('');
+  };
+
+  const renderBattleRow = (match: MatchedCounterSquad, index: number): string => {
+    const winRate = match.adjustedWinPercentage ?? match.winPercentage;
+    const rawWinRate = match.winPercentage;
+    const winRateText = winRate !== null ? `${winRate.toFixed(0)}%` : 'N/A';
+    const seenCount = match.seenCount;
+    const seenText = seenCount !== null ? seenCount.toLocaleString() : 'N/A';
+    
+    // Determine confidence level based on seen count
+    let confidenceLevel = 'Low';
+    let confidenceColor = '#ef5350';
+    if (seenCount !== null) {
+      if (seenCount >= 1000) {
+        confidenceLevel = 'High';
+        confidenceColor = '#7cb342';
+      } else if (seenCount >= 100) {
+        confidenceLevel = 'Medium';
+        confidenceColor = '#fbbf24';
+      }
+    }
+
+    // Win rate coloring
+    const winRateColor = winRate !== null
+      ? (winRate >= 90 ? '#7cb342' : winRate >= 70 ? '#86efac' : winRate >= 50 ? '#fbbf24' : '#ef5350')
+      : '#8b7355';
+
+    // Build detailed relic analysis
+    let relicAnalysisHtml = '';
+    let overallAssessment = '';
+    let assessmentColor = '#8b7355';
+    let assessmentIcon = '⚖️';
+
+    if (match.keyMatchups) {
+      const km = match.keyMatchups;
+      const teamDelta = km.teamAverage.delta;
+      const leaderDelta = km.leaderVsLeader.delta;
+      const highestDelta = km.highestOffenseVsHighestDefense.delta;
+      
+      // Format delta with sign
+      const fmtDelta = (d: number) => d >= 0 ? `+${d.toFixed(1)}` : d.toFixed(1);
+      
+      // Leader vs Leader comparison
+      const leaderColor = leaderDelta >= 1 ? '#7cb342' : leaderDelta >= 0 ? '#fbbf24' : '#ef5350';
+      
+      // Team average comparison
+      const teamColor = teamDelta >= 1 ? '#7cb342' : teamDelta >= 0 ? '#fbbf24' : '#ef5350';
+      
+      // Damage modifiers
+      const damageBoost = ((km.teamAverage.attackerDamageMultiplier - 1) * 100);
+      const damageReduction = ((1 - km.teamAverage.defenderDamageMultiplier) * 100);
+      
+      // Overall assessment
+      if (teamDelta >= 3) {
+        overallAssessment = 'Dominant Advantage';
+        assessmentColor = '#7cb342';
+        assessmentIcon = '🔥';
+      } else if (teamDelta >= 1) {
+        overallAssessment = 'Favourable Matchup';
+        assessmentColor = '#86efac';
+        assessmentIcon = '✅';
+      } else if (teamDelta >= 0) {
+        overallAssessment = 'Even Matchup';
+        assessmentColor = '#fbbf24';
+        assessmentIcon = '⚖️';
+      } else if (teamDelta >= -2) {
+        overallAssessment = 'Challenging Matchup';
+        assessmentColor = '#fbbf24';
+        assessmentIcon = '⚠️';
+      } else {
+        overallAssessment = 'High Risk';
+        assessmentColor = '#ef5350';
+        assessmentIcon = '❌';
+      }
+
+      relicAnalysisHtml = `
+        <div class="analysis-grid">
+          <div class="analysis-item">
+            <span class="analysis-label">Leader vs Leader</span>
+            <span class="analysis-value" style="color: ${leaderColor};">${fmtDelta(leaderDelta)} relics</span>
+          </div>
+          <div class="analysis-item">
+            <span class="analysis-label">Team Average</span>
+            <span class="analysis-value" style="color: ${teamColor};">${fmtDelta(teamDelta)} relics</span>
+          </div>
+          <div class="analysis-item">
+            <span class="analysis-label">Your Damage</span>
+            <span class="analysis-value" style="color: ${damageBoost >= 5 ? '#7cb342' : damageBoost > 0 ? '#86efac' : '#f5deb3'};">${damageBoost >= 0 ? '+' : ''}${damageBoost.toFixed(0)}%</span>
+          </div>
+          <div class="analysis-item">
+            <span class="analysis-label">Enemy Damage</span>
+            <span class="analysis-value" style="color: ${damageReduction >= 5 ? '#7cb342' : damageReduction > 0 ? '#86efac' : '#f5deb3'};">${damageReduction >= 0 ? '-' : '+'}${Math.abs(damageReduction).toFixed(0)}%</span>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="battle-row">
+        <div class="battle-header">
+          <div class="battle-title">
+            <span class="battle-number">Battle ${index + 1}</span>
+            <span class="battle-assessment" style="background: ${assessmentColor};">${assessmentIcon} ${overallAssessment}</span>
+          </div>
+        </div>
+        <div class="battle-main">
+          <div class="battle-content">
+            <div class="squad-section offense-section">
+              <div class="section-label offense-label">YOUR OFFENSE</div>
+              <div class="squad-characters">
+                ${renderSquad(match.offense, true)}
+              </div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="squad-section defense-section">
+              <div class="section-label defense-label">OPPONENT DEFENSE</div>
+              <div class="squad-characters">
+                ${renderSquad(match.defense, false)}
+              </div>
+            </div>
+          </div>
+          <div class="battle-analysis">
+            <div class="analysis-header">BATTLE ANALYSIS</div>
+            <div class="analysis-stats">
+              <div class="stat-box win-box" style="border-color: ${winRateColor};">
+                <div class="stat-box-label">Win Rate</div>
+                <div class="stat-box-value" style="color: ${winRateColor};">${winRateText}</div>
+                ${rawWinRate !== winRate && rawWinRate !== null ? `<div class="stat-box-note">Base: ${rawWinRate.toFixed(0)}%</div>` : ''}
+              </div>
+              <div class="stat-box seen-box">
+                <div class="stat-box-label">Data Points</div>
+                <div class="stat-box-value">${seenText}</div>
+                <div class="stat-box-note" style="color: ${confidenceColor};">${confidenceLevel} Confidence</div>
+              </div>
+            </div>
+            ${relicAnalysisHtml}
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  const battleRows = visibleOffense.map((match, idx) => renderBattleRow(match, idx)).join('');
+
+  // Calculate width based on format (wider to accommodate analysis panel)
+  const containerWidth = format === '3v3' ? 1200 : 1600;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GAC Offense Strategy</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #1a1a1a;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      width: ${containerWidth}px;
+      background: #2a2a2a;
+      border: 2px solid #c4a35a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #3a2a1a 0%, #1a1410 100%);
+      padding: 16px 20px;
+      text-align: center;
+      color: #f5deb3;
+      font-size: 22px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      border-bottom: 2px solid #c4a35a;
+    }
+    .header-subtitle {
+      font-size: 14px;
+      color: #c4a35a;
+      margin-top: 4px;
+      font-weight: normal;
+    }
+    .battle-row {
+      background: #d4b56a;
+      border-bottom: 2px solid #8b7355;
+      padding: 12px 16px;
+    }
+    .battle-row:nth-child(even) {
+      background: #b8935a;
+    }
+    .battle-row:last-child {
+      border-bottom: none;
+    }
+    .battle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #8b7355;
+    }
+    .battle-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .battle-number {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+    .battle-assessment {
+      font-size: 12px;
+      font-weight: bold;
+      color: #1a1a1a;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+    .battle-main {
+      display: flex;
+      gap: 16px;
+    }
+    .battle-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      flex: 1;
+    }
+    .battle-analysis {
+      width: 200px;
+      flex-shrink: 0;
+      background: #2a2a2a;
+      border: 2px solid #c4a35a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .analysis-header {
+      background: #c4a35a;
+      color: #1a1a1a;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      padding: 6px;
+    }
+    .analysis-stats {
+      display: flex;
+      gap: 1px;
+      background: #8b7355;
+    }
+    .stat-box {
+      flex: 1;
+      background: #1a1a1a;
+      padding: 8px 6px;
+      text-align: center;
+      border-left: 3px solid transparent;
+    }
+    .stat-box-label {
+      font-size: 9px;
+      color: #8b7355;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .stat-box-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #f5deb3;
+    }
+    .stat-box-note {
+      font-size: 9px;
+      color: #8b7355;
+      margin-top: 2px;
+    }
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: #8b7355;
+    }
+    .analysis-item {
+      background: #1a1a1a;
+      padding: 6px;
+      text-align: center;
+    }
+    .analysis-label {
+      display: block;
+      font-size: 8px;
+      color: #8b7355;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .analysis-value {
+      font-size: 12px;
+      font-weight: bold;
+      color: #f5deb3;
+    }
+    .squad-section {
+      flex: 1;
+    }
+    .section-label {
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .offense-label {
+      background: #4ade80;
+      color: #1a1a1a;
+    }
+    .defense-label {
+      background: #c4a35a;
+      color: #1a1a1a;
+    }
+    .vs-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #1a1a1a;
+      padding: 0 8px;
+      margin-top: 24px;
+    }
+    .squad-characters {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    .character-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: ${format === '3v3' ? 120 : 100}px;
+    }
+    .character-cell.gl .character-portrait {
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+    }
+    .character-portrait {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 3px solid #c4a35a;
+      position: relative;
+      overflow: hidden;
+      background: #4a4a4a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .character-portrait.offense {
+      border-color: #4ade80;
+    }
+    .character-portrait.offense.gl {
+      border-color: #fbbf24;
+    }
+    .character-portrait.defense {
+      border-color: #c4a35a;
+    }
+    .character-portrait.defense.gl {
+      border-color: #fbbf24;
+    }
+    .character-portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .character-portrait.empty {
+      border-style: dashed;
+      border-color: #8b7355;
+    }
+    .character-placeholder {
+      width: 100%;
+      height: 100%;
+      background: rgba(74, 74, 74, 0.3);
+      border-radius: 50%;
+    }
+    .relic-value {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000 !important;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .character-stats {
+      background: #2a2a2a;
+      border: 1px solid #8b7355;
+      border-radius: 4px;
+      padding: 4px;
+      width: 100%;
+    }
+    .character-stats.defense-stats {
+      background: #1a1a1a;
+      text-align: center;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 4px;
+      background: #1a1a1a;
+      border-radius: 2px;
+      margin-bottom: 1px;
+      font-size: 10px;
+    }
+    .stat-row.full-width {
+      justify-content: center;
+      padding: 4px;
+    }
+    .stat-row:last-child {
+      margin-bottom: 0;
+    }
+    .stat-label {
+      color: #8b7355;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .stat-icon {
+      width: 12px;
+      height: 12px;
+    }
+    .stat-value {
+      color: #f5deb3;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      ⚔️ OFFENSE STRATEGY vs ${opponentName}
+      <div class="header-subtitle">${format} • ${visibleOffense.length} Battle${visibleOffense.length !== 1 ? 's' : ''}</div>
+    </div>
+    ${battleRows}
+  </div>
+</body>
+</html>`;
+
+  logger.info(`[Offense Image] HTML generation complete: ${visibleOffense.length} battle(s)`);
+  return html;
+}
+
+

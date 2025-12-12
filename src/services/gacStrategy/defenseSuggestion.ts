@@ -84,9 +84,9 @@ export async function suggestDefenseSquads(
     // For defensive strategy, we want all GLs available, not just those in top 80 by GP
     const userGLs = new Set<string>();
     for (const unit of userRoster.units || []) {
+      // Use our authoritative GL list OR the API flag
       if (unit.data.combat_type === 1 && // Only characters
-          unit.data.is_galactic_legend && 
-          isGalacticLegend(unit.data.base_id)) {
+          (isGalacticLegend(unit.data.base_id) || unit.data.is_galactic_legend)) {
         userGLs.add(unit.data.base_id);
       }
     }
@@ -170,7 +170,7 @@ export async function suggestDefenseSquads(
     };
     
     // Sort GL candidates by score to prioritize best GLs first
-    // Group by GL leader to ensure we get unique GL leaders, not just unique squad compositions
+    // Group by GL leader to enable trying alternative compositions when best has conflicts
     const glCandidatesByLeader = new Map<string, typeof glCandidates>();
     for (const candidate of glCandidates) {
       const leaderId = candidate.squad.leader.baseId;
@@ -180,89 +180,73 @@ export async function suggestDefenseSquads(
       glCandidatesByLeader.get(leaderId)!.push(candidate);
     }
     
-    // Sort each leader's candidates by score, then get best candidate per leader
-    const bestGlCandidatesPerLeader: typeof glCandidates = [];
+    // Sort each leader's candidates by score (best first)
     for (const [leaderId, leaderCandidates] of glCandidatesByLeader.entries()) {
-      const bestCandidate = leaderCandidates.sort((a, b) => b.score - a.score)[0];
-      bestGlCandidatesPerLeader.push(bestCandidate);
+      leaderCandidates.sort((a, b) => b.score - a.score);
     }
     
-    // Sort by score to prioritize best GLs first
-    const sortedGlCandidates = bestGlCandidatesPerLeader.sort((a, b) => b.score - a.score);
+    // Get leaders sorted by their best candidate's score
+    const sortedGlLeaders = Array.from(glCandidatesByLeader.entries())
+      .map(([leaderId, candidates]) => ({ leaderId, candidates, bestScore: candidates[0]?.score ?? 0 }))
+      .sort((a, b) => b.bestScore - a.bestScore);
     
     logger.info(
-      `GL candidates: ${glCandidates.length} total, ${glCandidatesByLeader.size} unique GL leaders, ` +
-      `selecting best candidate per leader`
+      `GL candidates: ${glCandidates.length} total compositions, ${glCandidatesByLeader.size} unique GL leaders, ` +
+      `will try alternative compositions if best has conflicts`
     );
     
-    for (const candidate of sortedGlCandidates) {
+    // For each GL leader, try each composition until we find one without conflicts
+    for (const { leaderId, candidates } of sortedGlLeaders) {
       if (glDefenseCount >= targetGLDefense) break;
-      
-      const allUnits = [candidate.squad.leader, ...candidate.squad.members];
-      const allUnitIds = allUnits.map(u => u.baseId);
-      
-      // Calculate conflicts first (needed for both checking and later use)
-      const characterConflicts = allUnitIds.filter(id => usedCharacters.has(id));
-      const offenseConflicts = allUnitIds.filter(id => offenseUnits.has(id));
-      
-      // Check conflicts with detailed logging
-      if (usedLeaders.has(candidate.squad.leader.baseId)) {
+      if (usedLeaders.has(leaderId)) {
         glSkippedReasons.alreadyUsed++;
-        logger.debug(`Skipping GL ${candidate.squad.leader.baseId} - leader already used`);
         continue;
       }
-      
-      // For defensive strategy, be more lenient about character conflicts
-      // Only skip if there are MANY conflicts (>= 3 characters) - let balance logic handle minor conflicts
-      if (characterConflicts.length > 0) {
-        if (strategyPreference === 'defensive') {
-          // For defensive strategy, only skip if 3+ characters conflict
-          if (characterConflicts.length >= 3) {
-            glSkippedReasons.characterConflict++;
-            logger.debug(`Skipping GL ${candidate.squad.leader.baseId} - ${characterConflicts.length} character conflicts (>= 3): ${characterConflicts.join(', ')}`);
-            continue;
-          } else {
-            // Allow GL squads with 1-2 character conflicts - balance logic will handle it
-            logger.debug(`Allowing GL ${candidate.squad.leader.baseId} with ${characterConflicts.length} minor character conflict(s): ${characterConflicts.join(', ')}`);
-          }
-        } else {
-          // For balanced/offensive, skip if any conflicts
-          glSkippedReasons.characterConflict++;
-          logger.debug(`Skipping GL ${candidate.squad.leader.baseId} - character conflicts: ${characterConflicts.join(', ')}`);
-          continue;
-        }
-      }
-      
-      // Check offense conflicts - be lenient for defensive strategy
-      if (offenseConflicts.length > 0) {
-        if (strategyPreference === 'defensive') {
-          // For defensive strategy, only skip if 3+ characters conflict with offense
-          if (offenseConflicts.length >= 3) {
-            glSkippedReasons.offenseConflict++;
-            logger.debug(`Skipping GL ${candidate.squad.leader.baseId} - ${offenseConflicts.length} offense conflicts (>= 3): ${offenseConflicts.join(', ')}`);
-            continue;
-          } else {
-            // Allow GL squads with 1-2 offense conflicts - balance logic will handle it
-            logger.debug(`Allowing GL ${candidate.squad.leader.baseId} with ${offenseConflicts.length} minor offense conflict(s): ${offenseConflicts.join(', ')}`);
-          }
-        } else {
-          // For balanced/offensive, skip if any conflicts
-          glSkippedReasons.offenseConflict++;
-          logger.debug(`Skipping GL ${candidate.squad.leader.baseId} - offense conflicts: ${offenseConflicts.join(', ')}`);
-          continue;
-        }
-      }
-      
-      // Check if user actually has this GL (from FULL roster)
-      if (!userGLs.has(candidate.squad.leader.baseId)) {
+      if (!userGLs.has(leaderId)) {
         glSkippedReasons.notInUserRoster++;
-        logger.debug(`Skipping GL ${candidate.squad.leader.baseId} - not in user's roster`);
         continue;
       }
       
-      // Add this GL squad
-      const hasMinorConflicts = (characterConflicts.length > 0 && characterConflicts.length < 3) || 
-                                (offenseConflicts.length > 0 && offenseConflicts.length < 3);
+      let foundValidComposition = false;
+      
+      // Try each composition for this leader until we find one that works
+      for (const candidate of candidates) {
+        const allUnits = [candidate.squad.leader, ...candidate.squad.members];
+        const allUnitIds = allUnits.map(u => u.baseId);
+        
+        // Calculate conflicts
+        const characterConflicts = allUnitIds.filter(id => usedCharacters.has(id));
+        const offenseConflicts = allUnitIds.filter(id => offenseUnits.has(id));
+        
+        // Check if this composition has too many conflicts
+        const hasCharConflict = characterConflicts.length > 0;
+        const hasOffenseConflict = offenseConflicts.length > 0;
+        
+        // For defensive strategy, be more lenient about conflicts
+        let shouldSkip = false;
+        if (strategyPreference === 'defensive') {
+          // Skip if 3+ characters conflict
+          if (characterConflicts.length >= 3 || offenseConflicts.length >= 3) {
+            shouldSkip = true;
+          }
+        } else {
+          // For balanced/offensive, skip if any conflicts
+          if (hasCharConflict || hasOffenseConflict) {
+            shouldSkip = true;
+          }
+        }
+        
+        if (shouldSkip) {
+          // Try next composition for this leader
+          logger.debug(
+            `GL ${leaderId} composition [${candidate.squad.members.map(m => m.baseId).join(', ')}] has conflicts - trying alternative`
+          );
+          continue;
+        }
+        
+        // Found a valid composition!
+        const hasMinorConflicts = (characterConflicts.length > 0 && characterConflicts.length < 3) || 
+                                  (offenseConflicts.length > 0 && offenseConflicts.length < 3);
       
       suggestedSquads.push({
         squad: candidate.squad,
@@ -274,43 +258,46 @@ export async function suggestDefenseSquads(
           ? `${candidate.reason} (GL, ${characterConflicts.length} char conflict(s), ${offenseConflicts.length} offense conflict(s) - balance logic will filter)`
           : candidate.reason + ' (GL)'
       });
-      
-      usedLeaders.add(candidate.squad.leader.baseId);
-      // For defensive strategy, be very lenient with character tracking
-      // Don't mark characters as used if we're trying to get all GLs on defense
-      // This allows multiple GL squads even if they share some characters
-      if (strategyPreference === 'defensive') {
-        // For defensive strategy, only mark the leader as used
-        // Don't mark members as used - this allows GL squads to share members
-        // The balance logic will handle final conflict resolution
+        usedLeaders.add(leaderId);
+        
+        // Mark characters as used
         usedCharacters.add(candidate.squad.leader.baseId);
-        // Only mark non-conflicting members if there are no conflicts at all
-        if (characterConflicts.length === 0 && offenseConflicts.length === 0) {
-      for (const id of allUnitIds) {
-            if (id !== candidate.squad.leader.baseId) {
-        usedCharacters.add(id);
+        if (strategyPreference === 'defensive') {
+          // Only mark non-conflicting members if there are no conflicts at all
+          if (characterConflicts.length === 0 && offenseConflicts.length === 0) {
+            for (const id of allUnitIds) {
+              if (id !== candidate.squad.leader.baseId) {
+                usedCharacters.add(id);
+              }
             }
           }
-        }
-      } else if (hasMinorConflicts) {
-        // For balanced/offensive with minor conflicts, only mark non-conflicting characters
-        for (const id of allUnitIds) {
-          if (!characterConflicts.includes(id) && !offenseConflicts.includes(id)) {
+        } else if (hasMinorConflicts) {
+          // For balanced/offensive with minor conflicts, only mark non-conflicting characters
+          for (const id of allUnitIds) {
+            if (!characterConflicts.includes(id) && !offenseConflicts.includes(id)) {
+              usedCharacters.add(id);
+            }
+          }
+        } else {
+          // Mark all characters as used (normal behavior for balanced/offensive)
+          for (const id of allUnitIds) {
             usedCharacters.add(id);
           }
         }
-      } else {
-        // Mark all characters as used (normal behavior for balanced/offensive)
-        for (const id of allUnitIds) {
-          usedCharacters.add(id);
-        }
+        glDefenseCount++;
+        foundValidComposition = true;
+        
+        logger.info(
+          `Added GL squad ${leaderId} with [${candidate.squad.members.map(m => m.baseId).join(', ')}] ` +
+          `(${glDefenseCount}/${targetGLDefense}) - Hold: ${candidate.holdPercentage?.toFixed(1) ?? 'N/A'}%`
+        );
+        break; // Found valid composition for this leader, move to next leader
       }
-      glDefenseCount++;
       
-      logger.info(
-        `Added GL squad ${candidate.squad.leader.baseId} (${glDefenseCount}/${targetGLDefense}) ` +
-        `- Hold: ${candidate.holdPercentage?.toFixed(1) ?? 'N/A'}%, Score: ${candidate.score.toFixed(1)}`
-      );
+      if (!foundValidComposition) {
+        glSkippedReasons.characterConflict++;
+        logger.debug(`GL ${leaderId} - no valid composition found (all have conflicts)`);
+      }
     }
     
     logger.info(

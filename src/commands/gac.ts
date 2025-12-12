@@ -365,25 +365,27 @@ export const gacCommand = {
         resolvedOpponentAllyCode = opponentAllyCode;
       }
     } else {
-      // Show next opponent (lowest rank above you, or highest rank below you)
+      // Use Swiss-system matchmaking to find best opponent:
+      // 1. Filter by same score (Swiss-system requirement)
+      // 2. Sort by closest Top 80 Character GP
       const yourPlayer = bracketData.bracket_players.find(p => p.ally_code.toString() === yourAllyCode);
       if (!yourPlayer) {
         throw new Error('You are not found in this bracket.');
       }
 
-      // Find next opponent by rank
-      const nextOpponent = bracketData.bracket_players
-        .filter(p => p.ally_code.toString() !== yourAllyCode)
-        .sort((a, b) => a.bracket_rank - b.bracket_rank)
-        .find(p => p.bracket_rank > yourPlayer.bracket_rank) ||
-        bracketData.bracket_players
-          .filter(p => p.ally_code.toString() !== yourAllyCode)
-          .sort((a, b) => b.bracket_rank - a.bracket_rank)
-          .find(p => p.bracket_rank < yourPlayer.bracket_rank);
-
-      if (nextOpponent) {
-        opponentBracketPlayer = nextOpponent;
-        resolvedOpponentAllyCode = nextOpponent.ally_code.toString();
+      // Fetch your roster first (needed for Top 80 GP calculation)
+      const yourPlayerData = await swgohGgApiClient.getFullPlayer(yourAllyCode);
+      
+      // Find best opponent using Swiss-system matching
+      const bestMatch = await gacService.findBestOpponent(bracketData, yourAllyCode, yourPlayerData);
+      
+      if (bestMatch) {
+        opponentBracketPlayer = bestMatch.opponent;
+        resolvedOpponentAllyCode = bestMatch.opponent.ally_code.toString();
+        logger.info(
+          `Swiss-system matched opponent: ${bestMatch.opponent.player_name} ` +
+          `(Score: ${bestMatch.opponent.bracket_score}, Top 80 GP: ${bestMatch.top80GP.toLocaleString()})`
+        );
       }
     }
 
@@ -572,6 +574,9 @@ export const gacCommand = {
       // League is optional - will use default max if unavailable
       opponentLeague = null;
     } else {
+      // Use Swiss-system matchmaking to find best opponent:
+      // 1. Filter by same score (Swiss-system requirement)
+      // 2. Sort by closest Top 80 Character GP
       const bracketData = await gacService.getBracketForAllyCode(yourAllyCode);
       const yourPlayer = bracketData.bracket_players.find(
         p => p.ally_code.toString() === yourAllyCode
@@ -584,21 +589,27 @@ export const gacCommand = {
       // Use the bracket's league (all players in a bracket are in the same league)
       opponentLeague = bracketData.league;
 
-      const nextOpponent = bracketData.bracket_players
-        .filter(p => p.ally_code.toString() !== yourAllyCode)
-        .sort((a, b) => a.bracket_rank - b.bracket_rank)
-        .find(p => p.bracket_rank > yourPlayer.bracket_rank) ||
-        bracketData.bracket_players
-          .filter(p => p.ally_code.toString() !== yourAllyCode)
-          .sort((a, b) => b.bracket_rank - a.bracket_rank)
-          .find(p => p.bracket_rank < yourPlayer.bracket_rank);
+      if (updateStatus) {
+        await updateStatus('🔍 Finding your best opponent match using Swiss-system matchmaking...');
+      }
 
-      if (!nextOpponent) {
+      // Fetch your roster for Top 80 GP calculation
+      const yourPlayerData = await swgohGgApiClient.getFullPlayer(yourAllyCode);
+      
+      // Find best opponent using Swiss-system matching
+      const bestMatch = await gacService.findBestOpponent(bracketData, yourAllyCode, yourPlayerData);
+      
+      if (!bestMatch) {
         throw new Error('Could not determine your next GAC opponent.');
       }
 
-      targetAllyCode = nextOpponent.ally_code.toString();
-      targetName = nextOpponent.player_name;
+      targetAllyCode = bestMatch.opponent.ally_code.toString();
+      targetName = bestMatch.opponent.player_name;
+      
+      logger.info(
+        `Swiss-system matched opponent for strategy: ${targetName} ` +
+        `(Score: ${bestMatch.opponent.bracket_score}, Top 80 GP: ${bestMatch.top80GP.toLocaleString()})`
+      );
     }
 
     if (!targetAllyCode) {
@@ -1025,42 +1036,57 @@ export const gacCommand = {
     }
 
     if (updateStatus) {
-      await updateStatus('🎨 Generating strategy image...');
+      await updateStatus('🎨 Generating strategy images...');
     }
 
     // Use opponent's name if available, otherwise fall back to ally code
     const opponentName = targetName || targetAllyCode;
 
-    // Step 4: Generate image with three columns: my-defense || my offense vs opponents defence
-    const imageBuffer = await gacStrategyService.generateBalancedStrategyImage(
+    // Generate split images: one for defense, one for offense
+    const { defenseImage, offenseImage } = await gacStrategyService.generateSplitStrategyImages(
       opponentName,
       balancedOffense,
       balancedDefense,
-      squads,
       format,
       maxDefenseSquads,
       userRoster,
       strategyPreference
     );
 
-    const attachment = new AttachmentBuilder(imageBuffer, { name: 'gac-strategy.png' });
+    const defenseAttachment = new AttachmentBuilder(defenseImage, { name: 'gac-defense.png' });
+    const offenseAttachment = new AttachmentBuilder(offenseImage, { name: 'gac-offense.png' });
 
     const offenseCount = balancedOffense.filter(m => m.offense.leader.baseId).length;
     const defenseCount = balancedDefense.length;
     const strategyLabel = strategyPreference === 'defensive' ? 'Defensive' : strategyPreference === 'offensive' ? 'Offensive' : 'Balanced';
-    const embed = new EmbedBuilder()
-      .setTitle('🛡 GAC Strategy')
+
+    // Create embed for defense image
+    const defenseEmbed = new EmbedBuilder()
+      .setTitle('🛡️ Your Defense')
       .setDescription(
-        `${strategyLabel} strategy vs **${opponentName}**.\n` +
-        `**Offense:** ${offenseCount} squad${offenseCount !== 1 ? 's' : ''} | **Defense:** ${defenseCount} squad${defenseCount !== 1 ? 's' : ''}\n` +
-        'Squads are balanced to avoid character reuse, ensuring GAC rules are followed.'
+        `${strategyLabel} strategy vs **${opponentName}**\n` +
+        `**${defenseCount}** defense squad${defenseCount !== 1 ? 's' : ''}`
       )
-      .setImage('attachment://gac-strategy.png')
-      .setColor(0x0099ff)
-      .setFooter({ text: `League: ${league || 'Unknown'} | Format: ${format} | Strategy: ${strategyLabel}` });
+      .setImage('attachment://gac-defense.png')
+      .setColor(0xc4a35a)
+      .setFooter({ text: `League: ${league || 'Unknown'} | Format: ${format}` });
+
+    // Create embed for offense image
+    const offenseEmbed = new EmbedBuilder()
+      .setTitle('⚔️ Your Offense')
+      .setDescription(
+        `Counter squads vs opponent's defense\n` +
+        `**${offenseCount}** offense squad${offenseCount !== 1 ? 's' : ''}`
+      )
+      .setImage('attachment://gac-offense.png')
+      .setColor(0x4ade80)
+      .setFooter({ text: `Strategy: ${strategyLabel} | Squads balanced to avoid character reuse` });
 
     try {
-      await interaction.editReply({ embeds: [embed], files: [attachment] });
+      await interaction.editReply({ 
+        embeds: [defenseEmbed, offenseEmbed], 
+        files: [defenseAttachment, offenseAttachment] 
+      });
     } finally {
       await gacStrategyService.closeBrowser();
     }

@@ -422,13 +422,15 @@ export   function generateGalacticLegends(
     const otherGlMap = new Map<string, SwgohGgUnit>();
     
     for (const u of player.units) {
-      if (u.data.is_galactic_legend && GALACTIC_LEGEND_IDS.includes(u.data.base_id)) {
+      // Use our authoritative GL list OR the API flag
+      if (GALACTIC_LEGEND_IDS.includes(u.data.base_id) || u.data.is_galactic_legend) {
         glMap.set(u.data.base_id, u);
       }
     }
     
     for (const u of otherPlayer.units) {
-      if (u.data.is_galactic_legend && GALACTIC_LEGEND_IDS.includes(u.data.base_id)) {
+      // Use our authoritative GL list OR the API flag
+      if (GALACTIC_LEGEND_IDS.includes(u.data.base_id) || u.data.is_galactic_legend) {
         otherGlMap.set(u.data.base_id, u);
       }
     }

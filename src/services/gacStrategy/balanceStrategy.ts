@@ -121,7 +121,8 @@ export async function balanceOffenseAndDefense(
     const allUserGLsForPlacement = new Set<string>();
     if (userRoster) {
       for (const unit of userRoster.units || []) {
-        if (unit.data.combat_type === 1 && unit.data.is_galactic_legend && isGalacticLegend(unit.data.base_id)) {
+        // Use our authoritative GL list OR the API flag (some newer GLs may not have the flag yet)
+        if (unit.data.combat_type === 1 && (isGalacticLegend(unit.data.base_id) || unit.data.is_galactic_legend)) {
           allUserGLsForPlacement.add(unit.data.base_id);
         }
       }
@@ -1170,31 +1171,117 @@ export async function balanceOffenseAndDefense(
             // Get defense stats for this GL
             const stats = await getDefenseStatsForSquad(unusedGL, seasonId, defenseClient, defenseSquadStatsCache, topDefenseSquadsCache);
             
-            // Create a basic squad with the GL as leader and available non-GL members
-            const selectedMembers = availableNonGLChars.slice(0, membersNeeded);
+            // Try to find recommended squad members from defense data
+            let selectedMembers: string[] = [];
+            let foundSquadFromData = false;
+            
+            // 1. First try to find this GL in defense suggestions (has best matching)
+            const glDefenseSuggestion = sortedDefense.find(d => d.squad.leader.baseId === unusedGL);
+            if (glDefenseSuggestion) {
+              // Use the recommended members if they're available
+              for (const member of glDefenseSuggestion.squad.members) {
+                if (selectedMembers.length >= membersNeeded) break;
+                if (!usedCharacters.has(member.baseId) && availableNonGLChars.includes(member.baseId)) {
+                  selectedMembers.push(member.baseId);
+                }
+              }
+              if (selectedMembers.length >= membersNeeded) {
+                foundSquadFromData = true;
+                logger.info(`Found squad composition for GL ${unusedGL} from defense suggestions`);
+              }
+            }
+            
+            // 2. If not found, search the top defense squads cache for this GL
+            if (selectedMembers.length < membersNeeded && topDefenseSquadsCache) {
+              // Try different cache keys that might contain this GL
+              const cacheKeys = [
+                seasonId ? `count_${seasonId}_${format}` : `count_unknown_${format}`,
+                seasonId ? `percent_${seasonId}_${format}` : `percent_unknown_${format}`,
+                seasonId ? `count_${seasonId}_unknown` : `count_unknown_unknown`,
+                seasonId ? `percent_${seasonId}_unknown` : `percent_unknown_unknown`,
+              ];
+              
+              for (const cacheKey of cacheKeys) {
+                const cachedSquads = topDefenseSquadsCache.get(cacheKey);
+                if (cachedSquads && Array.isArray(cachedSquads)) {
+                  // Find squads with this GL as leader
+                  const glSquads = cachedSquads.filter(s => s.leader?.baseId === unusedGL);
+                  // Sort by seen count to get the most popular compositions
+                  glSquads.sort((a, b) => (b.seenCount || 0) - (a.seenCount || 0));
+                  
+                  for (const squad of glSquads) {
+                    if (!squad.members) continue;
+                    for (const member of squad.members) {
+                      if (selectedMembers.length >= membersNeeded) break;
+                      if (!usedCharacters.has(member.baseId) && 
+                          availableNonGLChars.includes(member.baseId) &&
+                          !selectedMembers.includes(member.baseId)) {
+                        selectedMembers.push(member.baseId);
+                      }
+                    }
+                    if (selectedMembers.length >= membersNeeded) break;
+                  }
+                  
+                  if (selectedMembers.length >= membersNeeded) {
+                    foundSquadFromData = true;
+                    logger.info(`Found squad composition for GL ${unusedGL} from top defense cache`);
+                    break;
+                  }
+                }
+              }
+            }
+            
+            // 3. If we couldn't find real squad data, DON'T create a random squad
+            // Only use data from swgoh.gg top squads - no made-up compositions
+            if (selectedMembers.length < membersNeeded) {
+              if (!foundSquadFromData) {
+                logger.info(
+                  `No squad composition data found on swgoh.gg for GL ${unusedGL} - ` +
+                  `skipping defense placement (will not create fake squad)`
+                );
+                continue; // Skip this GL - don't create a random squad
+              }
+              // If we found partial data, still skip - we need a complete squad
+              logger.info(
+                `Incomplete squad data for GL ${unusedGL} (only ${selectedMembers.length}/${membersNeeded} members available) - ` +
+                `skipping defense placement`
+              );
+              continue;
+            }
             
             // Check if this squad conflicts with offense
             const glDefenseUnits = [unusedGL, ...selectedMembers];
             const hasConflict = glDefenseUnits.some(unitId => usedCharacters.has(unitId));
             
             if (!hasConflict && balancedDefense.length < maxDefenseSquads) {
-              // Create the defense squad
+              // Helper to get relic level from roster
+              const getRelicFromRoster = (baseId: string): number | null => {
+                const unit = userRoster?.units?.find(u => u.data.base_id === baseId);
+                if (unit && unit.data.gear_level >= 13 && unit.data.relic_tier !== null && unit.data.relic_tier !== undefined) {
+                  return Math.max(0, unit.data.relic_tier - 2);
+                }
+                return null;
+              };
+              
+              // Create the defense squad with relic levels from roster
               const glDefenseSquad: UniqueDefensiveSquad = {
                 leader: {
                   baseId: unusedGL,
-                  relicLevel: null, // Will be populated from roster if needed
+                  relicLevel: getRelicFromRoster(unusedGL),
                   portraitUrl: null
                 },
                 members: selectedMembers.map(memberId => ({
                   baseId: memberId,
-                  relicLevel: null,
+                  relicLevel: getRelicFromRoster(memberId),
                   portraitUrl: null
                 }))
               };
               
+              const leaderRelic = glDefenseSquad.leader.relicLevel;
+              const memberRelics = glDefenseSquad.members.map(m => `${m.baseId}(R${m.relicLevel ?? '?'})`).join(', ');
               logger.info(
-                `Creating defense squad for unused GL ${unusedGL} on defense ` +
-                `(Hold: ${stats.holdPercentage?.toFixed(1) ?? 'N/A'}%, Members: ${selectedMembers.join(', ')})`
+                `Creating defense squad for unused GL ${unusedGL}(R${leaderRelic ?? '?'}) on defense ` +
+                `(Hold: ${stats.holdPercentage?.toFixed(1) ?? 'N/A'}%, Members: [${memberRelics}])`
               );
               
               balancedDefense.push({
@@ -1235,22 +1322,33 @@ export async function balanceOffenseAndDefense(
                   const hasConflict = glDefenseUnits.some(unitId => usedCharacters.has(unitId));
                   
                   if (!hasConflict) {
+                    // Helper to get relic level from roster
+                    const getRelicFromRosterReplace = (baseId: string): number | null => {
+                      const unit = userRoster?.units?.find(u => u.data.base_id === baseId);
+                      if (unit && unit.data.gear_level >= 13 && unit.data.relic_tier !== null && unit.data.relic_tier !== undefined) {
+                        return Math.max(0, unit.data.relic_tier - 2);
+                      }
+                      return null;
+                    };
+                    
                     const glDefenseSquad: UniqueDefensiveSquad = {
                       leader: {
                         baseId: unusedGL,
-                        relicLevel: null,
+                        relicLevel: getRelicFromRosterReplace(unusedGL),
                         portraitUrl: null
                       },
                       members: selectedMembers.map(memberId => ({
                         baseId: memberId,
-                        relicLevel: null,
+                        relicLevel: getRelicFromRosterReplace(memberId),
                         portraitUrl: null
                       }))
                     };
                     
+                    const leaderRelicReplace = glDefenseSquad.leader.relicLevel;
+                    const memberRelicsReplace = glDefenseSquad.members.map(m => `${m.baseId}(R${m.relicLevel ?? '?'})`).join(', ');
                     logger.info(
-                      `Replacing non-GL defense ${existingDefense.squad.leader.baseId} with unused GL ${unusedGL} on defense ` +
-                      `(Hold: ${stats.holdPercentage?.toFixed(1) ?? 'N/A'}%, Members: ${selectedMembers.join(', ')})`
+                      `Replacing non-GL defense ${existingDefense.squad.leader.baseId} with unused GL ${unusedGL}(R${leaderRelicReplace ?? '?'}) on defense ` +
+                      `(Hold: ${stats.holdPercentage?.toFixed(1) ?? 'N/A'}%, Members: [${memberRelicsReplace}])`
                     );
                     
                     balancedDefense[i] = {
@@ -1423,6 +1521,149 @@ export async function balanceOffenseAndDefense(
       }
     }
     
+    // CRITICAL: If there are STILL unused GLs after low win rate replacement, 
+    // force them onto offense by replacing the lowest priority non-GL counter
+    // GLs are too valuable to leave unused - they should ALWAYS be deployed
+    const usedGLsFinal = new Set<string>();
+    for (const offenseCounter of balancedOffense) {
+      if (offenseCounter.offense.leader.baseId && isGalacticLegend(offenseCounter.offense.leader.baseId)) {
+        usedGLsFinal.add(offenseCounter.offense.leader.baseId);
+      }
+    }
+    for (const defenseSquad of balancedDefense) {
+      if (isGalacticLegend(defenseSquad.squad.leader.baseId)) {
+        usedGLsFinal.add(defenseSquad.squad.leader.baseId);
+      }
+    }
+    
+    const stillUnusedGLs = Array.from(allUserGLsForPlacement).filter(gl => !usedGLsFinal.has(gl));
+    if (stillUnusedGLs.length > 0) {
+      logger.warn(
+        `[CRITICAL] ${stillUnusedGLs.length} GL(s) are STILL unused after all placement attempts: ${stillUnusedGLs.join(', ')}. ` +
+        `Forcing them onto offense by replacing lowest priority counters.`
+      );
+      
+      // Helper to get relic level from roster
+      const getRelicLevelForGL = (baseId: string): number | null => {
+        const unit = userRoster?.units?.find(u => u.data.base_id === baseId);
+        if (unit && unit.data.gear_level >= 13 && unit.data.relic_tier !== null && unit.data.relic_tier !== undefined) {
+          return Math.max(0, unit.data.relic_tier - 2);
+        }
+        return null;
+      };
+      
+      for (const unusedGL of stillUnusedGLs) {
+        // Find the weakest non-GL counter to replace
+        // Sort by win rate (lowest first) and prefer non-GL leaders
+        const replaceableCandidates = balancedOffense
+          .map((counter, index) => ({
+            index,
+            counter,
+            winRate: counter.adjustedWinPercentage ?? counter.winPercentage ?? 0,
+            isGL: isGalacticLegend(counter.offense.leader.baseId)
+          }))
+          .filter(c => !c.isGL) // Only replace non-GL counters
+          .sort((a, b) => a.winRate - b.winRate); // Lowest win rate first (most replaceable)
+        
+        if (replaceableCandidates.length === 0) {
+          logger.warn(`No non-GL counter available to replace for unused GL ${unusedGL}`);
+          continue;
+        }
+        
+        // Find available members for this GL (non-GL characters not used elsewhere)
+        const availableMembers = userRoster?.units
+          ?.filter(u => 
+            u.data.combat_type === 1 &&
+            u.data.rarity >= 7 &&
+            u.data.base_id !== unusedGL &&
+            !isGalacticLegend(u.data.base_id) &&
+            !usedCharacters.has(u.data.base_id)
+          )
+          .sort((a, b) => (b.data.power || 0) - (a.data.power || 0)) // Sort by power (strongest first)
+          .slice(0, format === '3v3' ? 2 : 4)
+          .map(u => u.data.base_id) || [];
+        
+        const membersNeeded = format === '3v3' ? 2 : 4;
+        if (availableMembers.length < membersNeeded) {
+          logger.warn(
+            `Not enough available members for GL ${unusedGL} (${availableMembers.length}/${membersNeeded})`
+          );
+          continue;
+        }
+        
+        // Try to replace the weakest counter
+        const candidate = replaceableCandidates[0];
+        
+        // Remove old counter's characters from used set
+        const oldOffenseUnits = [
+          candidate.counter.offense.leader.baseId,
+          ...candidate.counter.offense.members.map(m => m.baseId)
+        ];
+        for (const unitId of oldOffenseUnits) {
+          usedCharacters.delete(unitId);
+        }
+        usedLeaders.delete(candidate.counter.offense.leader.baseId);
+        
+        // Build the GL offense squad
+        const glOffenseUnits = [unusedGL, ...availableMembers];
+        
+        // Check if new squad has conflicts (it shouldn't since we filtered available members)
+        const hasConflict = glOffenseUnits.some(unitId => usedCharacters.has(unitId));
+        
+        if (!hasConflict) {
+          // Replace the counter with the GL
+          logger.info(
+            `Forcing unused GL ${unusedGL} onto offense: replacing ${candidate.counter.offense.leader.baseId} vs ${candidate.counter.defense.leader.baseId} ` +
+            `(${candidate.winRate.toFixed(1)}%) with ${unusedGL} + [${availableMembers.join(', ')}]`
+          );
+          
+          const matchedCounter: MatchedCounterSquad = {
+            offense: {
+              leader: {
+                baseId: unusedGL,
+                relicLevel: getRelicLevelForGL(unusedGL),
+                portraitUrl: null
+              },
+              members: availableMembers.map(memberId => ({
+                baseId: memberId,
+                relicLevel: getRelicLevelForGL(memberId),
+                portraitUrl: null
+              }))
+            },
+            defense: candidate.counter.defense,
+            winPercentage: 85, // Assume good win rate for GL
+            adjustedWinPercentage: 85,
+            seenCount: null,
+            avgBanners: null,
+            relicDelta: null,
+            worstCaseRelicDelta: null,
+            bestCaseRelicDelta: null,
+            keyMatchups: null
+          };
+          
+          balancedOffense[candidate.index] = matchedCounter;
+          
+          // Mark new counter's characters as used
+          for (const unitId of glOffenseUnits) {
+            usedCharacters.add(unitId);
+          }
+          usedLeaders.add(unusedGL);
+          usedGLsFinal.add(unusedGL);
+        } else {
+          // Restore old counter's characters if new one has conflicts
+          for (const unitId of oldOffenseUnits) {
+            usedCharacters.add(unitId);
+          }
+          usedLeaders.add(candidate.counter.offense.leader.baseId);
+          
+          logger.error(
+            `[CRITICAL] Unable to place GL ${unusedGL} - character conflicts exist. ` +
+            `This GL will be UNUSED which is a significant strategic disadvantage!`
+          );
+        }
+      }
+    }
+    
     // Second pass: Add defense squads that don't conflict with offense
     // For offensive strategy, be lenient with conflicts - allow defense squads even if they share 1-2 characters with offense
     // For offensive strategy, allow GLs on defense ONLY if they weren't used on offense (remaining unused GLs)
@@ -1573,6 +1814,222 @@ export async function balanceOffenseAndDefense(
       `Data-driven placement: ${defenseWithHighHold} defense squad(s) relatively good (>= 80% of best ${bestHoldPercentage?.toFixed(1) ?? 'N/A'}%), ` +
       `${offenseWithHighHold} offense squad(s) using leaders that are better on defense (defense viability > offense viability)`
     );
+    
+    // FINAL VALIDATION: Detect and resolve any character conflicts between offense and defense
+    // This is a safety net to ensure GAC rules are followed (each character used only once)
+    logger.info(`[SQUAD AUDIT] ===== FINAL VALIDATION & CONFLICT RESOLUTION =====`);
+    
+    // Build set of ALL offense characters (these take priority)
+    const allOffenseCharacters = new Set<string>();
+    for (const counter of balancedOffense) {
+      if (counter.offense.leader.baseId) {
+        allOffenseCharacters.add(counter.offense.leader.baseId);
+        for (const member of counter.offense.members) {
+          if (member.baseId) allOffenseCharacters.add(member.baseId);
+        }
+      }
+    }
+    
+    // Remove any defense squads whose LEADERS conflict with offense characters
+    // This can happen when a character is used as a leader on defense but also as a member on offense
+    const defensesToRemove: number[] = [];
+    for (let i = 0; i < balancedDefense.length; i++) {
+      const def = balancedDefense[i];
+      if (allOffenseCharacters.has(def.squad.leader.baseId)) {
+        logger.warn(
+          `[SQUAD AUDIT] Removing Defense ${i + 1} (${def.squad.leader.baseId}): ` +
+          `leader is used in offense - entire squad removed`
+        );
+        defensesToRemove.push(i);
+      }
+    }
+    
+    // Remove conflicting defense squads (in reverse order to preserve indices)
+    for (const idx of defensesToRemove.reverse()) {
+      balancedDefense.splice(idx, 1);
+    }
+    
+    if (defensesToRemove.length > 0) {
+      logger.info(`[SQUAD AUDIT] Removed ${defensesToRemove.length} defense squad(s) due to leader conflicts`);
+    }
+    
+    // Handle defense squads that have member conflicts with offense
+    // Try to find alternative compositions from swgoh.gg before removing
+    const memberConflictSquadsToRemove: number[] = [];
+    const squadSize = format === '3v3' ? 3 : 5;
+    const membersNeeded = squadSize - 1;
+    
+    // Build set of all used characters (offense + defense)
+    const usedInDefense = new Set<string>();
+    for (const d of balancedDefense) {
+      usedInDefense.add(d.squad.leader.baseId);
+      for (const m of d.squad.members) {
+        if (m.baseId) usedInDefense.add(m.baseId);
+      }
+    }
+    
+    for (let i = 0; i < balancedDefense.length; i++) {
+      const def = balancedDefense[i];
+      const conflictingMembers = def.squad.members.filter(m => allOffenseCharacters.has(m.baseId));
+      
+      if (conflictingMembers.length > 0) {
+        const leaderBaseId = def.squad.leader.baseId;
+        const remainingMembers = def.squad.members.filter(m => !allOffenseCharacters.has(m.baseId));
+        
+        if (remainingMembers.length < membersNeeded) {
+          // Not enough members - try to find an alternative composition from swgoh.gg
+          logger.info(
+            `[SQUAD AUDIT] Defense ${i + 1} (${leaderBaseId}): ` +
+            `member(s) ${conflictingMembers.map(m => m.baseId).join(', ')} used in offense, ` +
+            `searching for alternative composition...`
+          );
+          
+          let foundAlternative = false;
+          
+          // Search the top defense squads cache for alternative compositions
+          if (topDefenseSquadsCache) {
+            const cacheKeys = [
+              seasonId ? `count_${seasonId}_${format}` : `count_unknown_${format}`,
+              seasonId ? `percent_${seasonId}_${format}` : `percent_unknown_${format}`,
+              seasonId ? `count_${seasonId}_unknown` : `count_unknown_unknown`,
+              seasonId ? `percent_${seasonId}_unknown` : `percent_unknown_unknown`,
+            ];
+            
+            for (const cacheKey of cacheKeys) {
+              if (foundAlternative) break;
+              const cachedSquads = topDefenseSquadsCache.get(cacheKey);
+              if (cachedSquads && Array.isArray(cachedSquads)) {
+                // Find all squads with this leader
+                const alternativeSquads = cachedSquads
+                  .filter(s => s.leader?.baseId === leaderBaseId)
+                  .sort((a, b) => (b.seenCount || 0) - (a.seenCount || 0));
+                
+                for (const altSquad of alternativeSquads) {
+                  if (!altSquad.members) continue;
+                  
+                  // Check if this alternative has no conflicts
+                  const altMembers: string[] = altSquad.members.map((m: { baseId: string }) => m.baseId);
+                  const hasConflict = altMembers.some((m: string) => 
+                    allOffenseCharacters.has(m) || usedInDefense.has(m)
+                  );
+                  
+                  // Check if user has all these characters
+                  const userHasAll = altMembers.every((m: string) => {
+                    if (!userRoster) return false;
+                    return userRoster.units?.some(u => u.data.base_id === m && u.data.rarity >= 7);
+                  });
+                  
+                  if (!hasConflict && userHasAll && altMembers.length >= membersNeeded) {
+                    // Found a valid alternative - use it
+                    const getRelicFromRoster = (baseId: string): number | null => {
+                      const unit = userRoster?.units?.find(u => u.data.base_id === baseId);
+                      if (unit && unit.data.gear_level >= 13 && unit.data.relic_tier !== null && unit.data.relic_tier !== undefined) {
+                        return Math.max(0, unit.data.relic_tier - 2);
+                      }
+                      return null;
+                    };
+                    
+                    def.squad.members = altMembers.slice(0, membersNeeded).map((memberId: string) => ({
+                      baseId: memberId,
+                      relicLevel: getRelicFromRoster(memberId),
+                      portraitUrl: null
+                    }));
+                    
+                    // Update used characters
+                    for (const m of def.squad.members) {
+                      usedInDefense.add(m.baseId);
+                    }
+                    
+                    // Update hold percentage if available
+                    if (altSquad.holdPercentage !== null && altSquad.holdPercentage !== undefined) {
+                      def.holdPercentage = altSquad.holdPercentage;
+                    }
+                    
+                    logger.info(
+                      `[SQUAD AUDIT] Found alternative composition for ${leaderBaseId}: ` +
+                      `[${def.squad.members.map(m => m.baseId).join(', ')}] (Hold: ${altSquad.holdPercentage?.toFixed(0) ?? 'N/A'}%)`
+                    );
+                    foundAlternative = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          
+          if (!foundAlternative) {
+            // No alternative found - remove this squad
+            logger.warn(
+              `[SQUAD AUDIT] Removing Defense ${i + 1} (${leaderBaseId}): ` +
+              `no alternative composition found on swgoh.gg without conflicts`
+            );
+            memberConflictSquadsToRemove.push(i);
+          }
+        } else {
+          // We have enough members, just remove the conflicting ones
+          logger.info(
+            `[SQUAD AUDIT] Trimming Defense ${i + 1} (${leaderBaseId}): ` +
+            `removing ${conflictingMembers.map(m => m.baseId).join(', ')} (used in offense), ` +
+            `keeping ${remainingMembers.map(m => m.baseId).join(', ')}`
+          );
+          def.squad.members = remainingMembers;
+        }
+      }
+    }
+    
+    // Remove squads with member conflicts (in reverse order to preserve indices)
+    for (const idx of memberConflictSquadsToRemove.reverse()) {
+      balancedDefense.splice(idx, 1);
+    }
+    
+    if (memberConflictSquadsToRemove.length > 0) {
+      logger.info(`[SQUAD AUDIT] Removed ${memberConflictSquadsToRemove.length} defense squad(s) due to member conflicts (no alternatives found)`);
+    }
+    
+    // COMPREHENSIVE LOGGING: Output full squad compositions for debugging
+    logger.info(`[SQUAD AUDIT] ===== FINAL SQUAD COMPOSITIONS =====`);
+    
+    // Track all characters used in each role for conflict detection
+    const offenseCharacters = new Set<string>();
+    const defenseCharacters = new Set<string>();
+    
+    logger.info(`[SQUAD AUDIT] ----- OFFENSE SQUADS (${balancedOffense.length}) -----`);
+    balancedOffense.forEach((counter, idx) => {
+      const leader = counter.offense.leader.baseId;
+      const members = counter.offense.members.map(m => m.baseId);
+      const allChars = [leader, ...members].filter(Boolean);
+      allChars.forEach(c => offenseCharacters.add(c));
+      const vsDefense = counter.defense.leader.baseId;
+      const winRate = counter.adjustedWinPercentage ?? counter.winPercentage;
+      logger.info(
+        `[SQUAD AUDIT] Offense ${idx + 1}: ${leader} + [${members.join(', ')}] vs ${vsDefense} (Win: ${winRate?.toFixed(0) ?? 'N/A'}%)`
+      );
+    });
+    
+    logger.info(`[SQUAD AUDIT] ----- DEFENSE SQUADS (${balancedDefense.length}) -----`);
+    balancedDefense.forEach((def, idx) => {
+      const leader = def.squad.leader.baseId;
+      const members = def.squad.members.map(m => m.baseId);
+      const allChars = [leader, ...members].filter(Boolean);
+      allChars.forEach(c => defenseCharacters.add(c));
+      logger.info(
+        `[SQUAD AUDIT] Defense ${idx + 1}: ${leader} + [${members.join(', ')}] (Hold: ${def.holdPercentage?.toFixed(0) ?? 'N/A'}%)`
+      );
+    });
+    
+    // Check for character reuse between offense and defense (should be zero after fix)
+    const reusedCharacters = [...offenseCharacters].filter(c => defenseCharacters.has(c));
+    if (reusedCharacters.length > 0) {
+      logger.error(
+        `[SQUAD AUDIT] ❌ CRITICAL: ${reusedCharacters.length} character(s) STILL appear in BOTH offense AND defense: ` +
+        reusedCharacters.join(', ')
+      );
+    } else {
+      logger.info(`[SQUAD AUDIT] ✅ No character reuse between offense and defense`);
+    }
+    
+    logger.info(`[SQUAD AUDIT] Total unique offense chars: ${offenseCharacters.size}, defense chars: ${defenseCharacters.size}`);
+    logger.info(`[SQUAD AUDIT] ===== END SQUAD AUDIT =====`);
     
     return {
       balancedOffense,

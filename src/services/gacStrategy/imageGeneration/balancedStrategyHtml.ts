@@ -33,14 +33,13 @@ export function generateBalancedStrategyHtml(
     
     logger.info(`[Image Generation] Visible squads after limiting to ${maxSquads}: ${visibleDefense.length} defense, ${visibleOffense.length} offense, ${visibleOpponentDefense.length} opponent defense`);
 
-    // Create character name mapping from user roster (filtered to top 80 characters by GP)
+    // Create character name mapping from full user roster
     const characterNameMap = new Map<string, string>();
     const characterStatsMap = new Map<string, { speed: number; health: number; protection: number }>();
     if (userRoster && userRoster.units) {
-      // Filter to top 80 characters by GP for consistency with GAC matchmaking
-      const filteredRoster = getTop80CharactersRoster(userRoster);
-      for (const unit of filteredRoster.units) {
-        if (unit.data && unit.data.base_id) {
+      // Use full roster for all characters
+      for (const unit of userRoster.units) {
+        if (unit.data && unit.data.base_id && unit.data.combat_type === 1) {
           if (unit.data.name) {
             characterNameMap.set(unit.data.base_id, unit.data.name);
           }
@@ -54,13 +53,12 @@ export function generateBalancedStrategyHtml(
       }
     }
 
-    // Collect all user GLs from roster (filtered to top 80 characters by GP)
+    // Collect all user GLs from full roster
     const allUserGLs = new Set<string>();
     if (userRoster && userRoster.units) {
-      // Filter to top 80 characters by GP for consistency with GAC matchmaking
-      const filteredRoster = getTop80CharactersRoster(userRoster);
-      for (const unit of filteredRoster.units) {
-        if (unit.data && unit.data.base_id && unit.data.is_galactic_legend && isGalacticLegend(unit.data.base_id)) {
+      // Use full roster for all GLs (our list OR API flag)
+      for (const unit of userRoster.units) {
+        if (unit.data && unit.data.base_id && (isGalacticLegend(unit.data.base_id) || unit.data.is_galactic_legend)) {
           allUserGLs.add(unit.data.base_id);
         }
       }

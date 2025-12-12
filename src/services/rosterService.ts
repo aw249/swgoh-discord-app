@@ -18,8 +18,9 @@ export class RosterService {
   async getRosterSummary(allyCode: string): Promise<RosterSummary> {
     const playerRoster: SwgohGgFullPlayerResponse = await this.apiClient.getFullPlayer(allyCode);
 
+    // Use our authoritative GL list OR the API flag
     const galacticLegends = (playerRoster.units || []).filter(
-      (unit) => unit.data.is_galactic_legend && (GALACTIC_LEGEND_IDS as readonly string[]).includes(unit.data.base_id)
+      (unit) => (GALACTIC_LEGEND_IDS as readonly string[]).includes(unit.data.base_id) || unit.data.is_galactic_legend
     ).length;
 
     return {

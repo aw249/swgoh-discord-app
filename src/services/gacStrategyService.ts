@@ -13,6 +13,8 @@ import { matchCountersAgainstRoster } from './gacStrategy/squadMatching/matchCou
 import { generateDefenseOnlyHtml } from './gacStrategy/imageGeneration/defenseOnlyHtml';
 import { generateMatchedCountersHtml } from './gacStrategy/imageGeneration/matchedCountersHtml';
 import { generateBalancedStrategyHtml } from './gacStrategy/imageGeneration/balancedStrategyHtml';
+import { generateDefenseStrategyHtml } from './gacStrategy/imageGeneration/defenseStrategyHtml';
+import { generateOffenseStrategyHtml } from './gacStrategy/imageGeneration/offenseStrategyHtml';
 import { getTop80CharactersRoster } from './gacStrategy/utils/rosterUtils';
 
 // Re-export types for backward compatibility
@@ -348,5 +350,69 @@ export class GacStrategyService {
     } finally {
       await page.close();
     }
+  }
+
+  /**
+   * Generate split strategy images: one for defense, one for offense.
+   * Returns two separate image buffers for better Discord viewing.
+   */
+  async generateSplitStrategyImages(
+    opponentLabel: string,
+    balancedOffense: MatchedCounterSquad[],
+    balancedDefense: Array<{
+      squad: UniqueDefensiveSquad;
+      holdPercentage: number | null;
+      seenCount: number | null;
+      avgBanners: number | null;
+      score: number;
+      reason: string;
+    }>,
+    format: string = '5v5',
+    maxSquads: number = 11,
+    userRoster?: SwgohGgFullPlayerResponse,
+    strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced'
+  ): Promise<{ defenseImage: Buffer; offenseImage: Buffer }> {
+    const browser = await this.getBrowser();
+
+    // Generate defense image
+    const defensePage = await browser.newPage();
+    let defenseImage: Buffer;
+    try {
+      const defenseWidth = format === '3v3' ? 750 : 1000;
+      await defensePage.setViewport({ width: defenseWidth, height: 2400, deviceScaleFactor: 2 });
+      const defenseHtml = generateDefenseStrategyHtml(
+        opponentLabel,
+        balancedDefense,
+        format,
+        maxSquads,
+        userRoster,
+        strategyPreference
+      );
+      await defensePage.setContent(defenseHtml, { waitUntil: 'networkidle0' });
+      defenseImage = await defensePage.screenshot({ type: 'png', fullPage: true }) as Buffer;
+    } finally {
+      await defensePage.close();
+    }
+
+    // Generate offense image
+    const offensePage = await browser.newPage();
+    let offenseImage: Buffer;
+    try {
+      const offenseWidth = format === '3v3' ? 1250 : 1650;
+      await offensePage.setViewport({ width: offenseWidth, height: 2400, deviceScaleFactor: 2 });
+      const offenseHtml = generateOffenseStrategyHtml(
+        opponentLabel,
+        balancedOffense,
+        format,
+        maxSquads,
+        userRoster
+      );
+      await offensePage.setContent(offenseHtml, { waitUntil: 'networkidle0' });
+      offenseImage = await offensePage.screenshot({ type: 'png', fullPage: true }) as Buffer;
+    } finally {
+      await offensePage.close();
+    }
+
+    return { defenseImage, offenseImage };
   }
 }
