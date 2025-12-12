@@ -2036,6 +2036,74 @@ export async function balanceOffenseAndDefense(
       logger.info(`[SQUAD AUDIT] Removed ${memberConflictSquadsToRemove.length} defense squad(s) due to member conflicts (no alternatives found)`);
     }
     
+    // BACKFILL: If we removed defense squads and are below target, try to add more from unused candidates
+    const totalRemoved = defensesToRemove.length + memberConflictSquadsToRemove.length;
+    if (totalRemoved > 0 && balancedDefense.length < maxDefenseSquads) {
+      const slotsToFill = maxDefenseSquads - balancedDefense.length;
+      logger.info(
+        `[SQUAD AUDIT] Backfilling ${slotsToFill} defense slot(s) after removing ${totalRemoved} conflicting squad(s)`
+      );
+      
+      // Get characters currently used in offense and defense
+      const usedCharsAfterAudit = new Set<string>();
+      for (const counter of balancedOffense) {
+        usedCharsAfterAudit.add(counter.offense.leader.baseId);
+        counter.offense.members.forEach(m => usedCharsAfterAudit.add(m.baseId));
+      }
+      for (const def of balancedDefense) {
+        usedCharsAfterAudit.add(def.squad.leader.baseId);
+        def.squad.members.forEach(m => usedCharsAfterAudit.add(m.baseId));
+      }
+      
+      // Track leaders already in defense to avoid duplicates
+      const usedDefenseLeaders = new Set(balancedDefense.map(d => d.squad.leader.baseId));
+      
+      // Try to add more squads from sortedDefense
+      for (const candidate of sortedDefense) {
+        if (balancedDefense.length >= maxDefenseSquads) break;
+        
+        const leaderBaseId = candidate.squad.leader.baseId;
+        
+        // Skip if leader already used
+        if (usedDefenseLeaders.has(leaderBaseId)) continue;
+        if (usedCharsAfterAudit.has(leaderBaseId)) continue;
+        
+        // Check if members conflict
+        const availableMembers = candidate.squad.members.filter(
+          m => !usedCharsAfterAudit.has(m.baseId)
+        );
+        
+        const membersNeeded = format === '3v3' ? 2 : 4;
+        if (availableMembers.length >= membersNeeded) {
+          // Create squad with available members only
+          const backfillSquad = {
+            ...candidate,
+            squad: {
+              ...candidate.squad,
+              members: availableMembers.slice(0, membersNeeded)
+            }
+          };
+          
+          balancedDefense.push(backfillSquad);
+          usedDefenseLeaders.add(leaderBaseId);
+          usedCharsAfterAudit.add(leaderBaseId);
+          backfillSquad.squad.members.forEach(m => usedCharsAfterAudit.add(m.baseId));
+          
+          logger.info(
+            `[SQUAD AUDIT] Backfilled Defense ${balancedDefense.length}: ${leaderBaseId} + ` +
+            `[${backfillSquad.squad.members.map(m => m.baseId).join(', ')}] (Hold: ${candidate.holdPercentage?.toFixed(0) ?? 'N/A'}%)`
+          );
+        }
+      }
+      
+      if (balancedDefense.length < maxDefenseSquads) {
+        logger.warn(
+          `[SQUAD AUDIT] Could only backfill to ${balancedDefense.length}/${maxDefenseSquads} defense squads - ` +
+          `not enough non-conflicting candidates available`
+        );
+      }
+    }
+    
     // COMPREHENSIVE LOGGING: Output full squad compositions for debugging
     logger.info(`[SQUAD AUDIT] ===== FINAL SQUAD COMPOSITIONS =====`);
     

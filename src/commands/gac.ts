@@ -593,7 +593,7 @@ export const gacCommand = {
       opponentLeague = bracketData.league;
 
       if (updateStatus) {
-        await updateStatus('🔍 Finding your best opponent match using Swiss-system matchmaking...');
+        await updateStatus('🔍 Finding your opponent...');
       }
 
       // Fetch your roster for Top 80 GP calculation
