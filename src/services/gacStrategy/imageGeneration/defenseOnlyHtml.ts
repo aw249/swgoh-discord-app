@@ -2,7 +2,8 @@
  * HTML generation for defense-only view (no offense side, no relic delta comparison).
  * Uses a narrower layout optimized for showing just defense squads.
  */
-import { UniqueDefensiveSquad } from '../../../types/gacStrategyTypes';;
+import { UniqueDefensiveSquad } from '../../../types/gacStrategyTypes';
+import { getCharacterPortraitUrl } from '../../../config/characterPortraits';
 
 export function generateDefenseOnlyHtml(opponentLabel: string, squads: UniqueDefensiveSquad[], format: string = '5v5'): string {
     const maxSquads = 12;
@@ -29,8 +30,9 @@ export function generateDefenseOnlyHtml(opponentLabel: string, squads: UniqueDef
         if (typeof unit.relicLevel === 'number') {
           relic = Math.max(0, Math.min(10, unit.relicLevel));
         }
-        const portraitImg = unit.portraitUrl
-          ? `<img src="${unit.portraitUrl}" alt="${unit.baseId}" />`
+        const portraitUrl = unit.portraitUrl || (unit.baseId ? getCharacterPortraitUrl(unit.baseId) : null);
+        const portraitImg = portraitUrl
+          ? `<img src="${portraitUrl}" alt="${unit.baseId}" />`
           : '';
         return `
           <div class="character">

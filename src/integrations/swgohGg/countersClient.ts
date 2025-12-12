@@ -4,6 +4,7 @@
 import { logger } from '../../utils/logger';
 import { GacCounterSquad, GacDefensiveSquadUnit } from '../../types/swgohGgTypes';
 import { BrowserManager } from './browser';
+import { batchUpdatePortraitUrls } from '../../storage/characterPortraitCache';
 import { counterCache } from '../../storage/counterCache';
 
 export class CountersClient {
@@ -314,6 +315,18 @@ export class CountersClient {
         // Non-blocking cache save - don't await to avoid slowing down response
         counterCache.saveCounters(seasonId, defensiveLeaderBaseId, counterSquads).catch(err => {
           logger.warn(`Failed to cache counters for ${defensiveLeaderBaseId}:`, err);
+        });
+      }
+
+      // Update character portrait cache with any new portraits discovered
+      if (counterSquads.length > 0) {
+        const portraitMappings = counterSquads.flatMap(squad => [
+          { baseId: squad.leader.baseId, portraitUrl: squad.leader.portraitUrl },
+          ...squad.members.map(m => ({ baseId: m.baseId, portraitUrl: m.portraitUrl }))
+        ]);
+        // Non-blocking update
+        batchUpdatePortraitUrls(portraitMappings).catch(err => {
+          logger.debug(`Failed to update portrait cache:`, err);
         });
       }
 

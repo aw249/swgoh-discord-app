@@ -2,6 +2,7 @@ export interface PlayerStore {
   registerPlayer(discordUserId: string, allyCode: string): Promise<void>;
   getAllyCode(discordUserId: string): Promise<string | null>;
   removePlayer(discordUserId: string): Promise<void>;
+  getAllAllyCodes?(): Promise<string[]>;
 }
 
 class InMemoryPlayerStore implements PlayerStore {

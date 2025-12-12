@@ -4,6 +4,7 @@
 import { logger } from '../../utils/logger';
 import { GacTopDefenseSquad, GacDefensiveSquadUnit } from '../../types/swgohGgTypes';
 import { BrowserManager } from './browser';
+import { batchUpdatePortraitUrls } from '../../storage/characterPortraitCache';
 import { defenseSquadCache } from '../../storage/defenseSquadCache';
 
 export class DefenseSquadsClient {
@@ -269,6 +270,18 @@ export class DefenseSquadsClient {
         // Save to cache (non-blocking, using finalSeasonId)
         defenseSquadCache.saveDefenseSquads(finalSeasonId, format, sortBy, defenseSquads)
           .catch(err => logger.warn('Failed to cache defense squads:', err));
+
+        // Update character portrait cache with any new portraits discovered
+        if (defenseSquads.length > 0) {
+          const portraitMappings = defenseSquads.flatMap(squad => [
+            { baseId: squad.leader.baseId, portraitUrl: squad.leader.portraitUrl },
+            ...squad.members.map(m => ({ baseId: m.baseId, portraitUrl: m.portraitUrl }))
+          ]);
+          // Non-blocking update
+          batchUpdatePortraitUrls(portraitMappings).catch(err => {
+            logger.debug(`Failed to update portrait cache:`, err);
+          });
+        }
 
         return defenseSquads;
       } catch (error: any) {

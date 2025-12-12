@@ -5,6 +5,7 @@ import { Page } from 'puppeteer';
 import { logger } from '../../utils/logger';
 import { GacDefensiveSquad, GacDefensiveSquadUnit } from '../../types/swgohGgTypes';
 import { BrowserManager } from './browser';
+import { batchUpdatePortraitUrls } from '../../storage/characterPortraitCache';
 
 export class GacHistoryClient {
   constructor(private readonly browserManager: BrowserManager) {}
@@ -384,6 +385,13 @@ export class GacHistoryClient {
           `across seasons for ally code ${allyCode}. ` +
           `Skipped ${eventsWithoutData.length} event(s) with no data.`
         );
+
+        // Update character portrait cache with any new portraits discovered
+        const portraitMappings = allSquads.flatMap(squad => [
+          { baseId: squad.leader.baseId, portraitUrl: squad.leader.portraitUrl },
+          ...squad.members.map(m => ({ baseId: m.baseId, portraitUrl: m.portraitUrl }))
+        ]);
+        await batchUpdatePortraitUrls(portraitMappings);
 
         return allSquads;
       } catch (error: any) {

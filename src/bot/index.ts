@@ -11,8 +11,9 @@ import { PlayerService } from '../services/playerService';
 import { RosterService } from '../services/rosterService';
 import { GacService } from '../services/gacService';
 import { filePlayerStore as playerStore } from '../storage/fileStore';
-import { SwgohApiClient } from '../integrations/swgohApi';
+
 import { SwgohGgApiClient } from '../integrations/swgohGgApi';
+import { ensureInitialized as initCharacterPortraits, flushCache as flushCharacterPortraits } from '../storage/characterPortraitCache';
 
 async function main(): Promise<void> {
   try {
@@ -21,10 +22,12 @@ async function main(): Promise<void> {
 
     // Initialise services
     const playerService = new PlayerService(playerStore);
-    const swgohApiClient = new SwgohApiClient(env.SWGOH_API_KEY);
-    const rosterService = new RosterService(swgohApiClient);
     const swgohGgApiClient = new SwgohGgApiClient();
+    const rosterService = new RosterService(swgohGgApiClient);
     const gacService = new GacService(swgohGgApiClient);
+
+    // Initialize caches
+    await initCharacterPortraits();
 
     // Create Discord client
     const client = new Client({
@@ -85,13 +88,41 @@ async function main(): Promise<void> {
     });
 
     // Handle ready event
-    client.once(Events.ClientReady, (readyClient) => {
+    client.once(Events.ClientReady, async (readyClient) => {
       logger.info(`Bot logged in as ${readyClient.user.tag}`);
+      
+      // Pre-warm browser and GAC bracket cache for registered users (background task)
+      // This ensures autocomplete responds quickly on first use
+      (async () => {
+        try {
+          if (playerStore.getAllAllyCodes) {
+            const allyCodes = await playerStore.getAllAllyCodes();
+            if (allyCodes.length > 0) {
+              logger.info(`Pre-warming GAC bracket cache for ${allyCodes.length} registered user(s)...`);
+              
+              for (const allyCode of allyCodes) {
+                try {
+                  await gacService.getBracketForAllyCode(allyCode);
+                  logger.info(`Pre-warmed GAC bracket cache for ally code ${allyCode}`);
+                } catch (error) {
+                  // Ignore errors during warmup - user may not be in active GAC
+                  logger.debug(`Could not pre-warm cache for ${allyCode}: ${error}`);
+                }
+              }
+              
+              logger.info('GAC bracket cache pre-warming complete');
+            }
+          }
+        } catch (error) {
+          logger.warn('Failed to pre-warm bracket cache:', error);
+        }
+      })();
     });
 
     // Handle graceful shutdown
     process.on('SIGINT', async () => {
       logger.info('Shutting down gracefully...');
+      await flushCharacterPortraits();
       await swgohGgApiClient.close();
       await client.destroy();
       process.exit(0);
@@ -99,6 +130,7 @@ async function main(): Promise<void> {
 
     process.on('SIGTERM', async () => {
       logger.info('Shutting down gracefully...');
+      await flushCharacterPortraits();
       await swgohGgApiClient.close();
       await client.destroy();
       process.exit(0);
@@ -116,4 +148,3 @@ main().catch((error) => {
   logger.error('Unhandled error in main:', error);
   process.exit(1);
 });
-

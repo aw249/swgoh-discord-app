@@ -78,6 +78,15 @@ class FilePlayerStore implements PlayerStore {
       logger.info(`Removed player registration: ${discordUserId}`);
     }
   }
+
+  /**
+   * Get all registered ally codes for pre-warming caches.
+   * Returns an array of ally codes.
+   */
+  async getAllAllyCodes(): Promise<string[]> {
+    await this.ensureInitialized();
+    return Object.values(this.data);
+  }
 }
 
 export const filePlayerStore: PlayerStore = new FilePlayerStore();
