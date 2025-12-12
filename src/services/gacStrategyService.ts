@@ -226,7 +226,8 @@ export class GacStrategyService {
         baseId: u.baseId,
         relicLevel: u.relicLevel,
         // Ensure portrait URL is always set - use fallback if not provided
-        portraitUrl: u.portraitUrl || (u.baseId ? `https://swgoh.gg/static/img/assets/character-portrait/${u.baseId}.png` : null)
+        // swgoh.gg serves character portraits from game-assets.swgoh.gg
+        portraitUrl: u.portraitUrl || (u.baseId ? `https://game-assets.swgoh.gg/textures/tex.charui_${u.baseId}.png` : null)
       });
 
       const leaderUnit = allUnits[0];
@@ -4546,7 +4547,8 @@ export class GacStrategyService {
           relic = Math.max(0, Math.min(10, unit.relicLevel));
         }
         // Construct portrait URL from baseId if not provided
-        const portraitUrl = unit.portraitUrl || (unit.baseId ? `https://swgoh.gg/static/img/assets/character-portrait/${unit.baseId}.png` : null);
+        // swgoh.gg serves character portraits from game-assets.swgoh.gg
+        const portraitUrl = unit.portraitUrl || (unit.baseId ? `https://game-assets.swgoh.gg/textures/tex.charui_${unit.baseId}.png` : null);
         const portraitImg = portraitUrl
           ? `<img src="${portraitUrl}" alt="${unit.baseId}" onerror="this.style.display='none'; this.parentElement.querySelector('.character-placeholder')?.style.setProperty('display', 'flex');" />`
           : '';
@@ -4685,7 +4687,8 @@ export class GacStrategyService {
           relic = Math.max(0, Math.min(10, unit.relicLevel));
         }
         // Construct portrait URL from baseId if not provided
-        const portraitUrl = unit.portraitUrl || (unit.baseId ? `https://swgoh.gg/static/img/assets/character-portrait/${unit.baseId}.png` : null);
+        // swgoh.gg serves character portraits from game-assets.swgoh.gg
+        const portraitUrl = unit.portraitUrl || (unit.baseId ? `https://game-assets.swgoh.gg/textures/tex.charui_${unit.baseId}.png` : null);
         const portraitImg = portraitUrl
           ? `<img src="${portraitUrl}" alt="${unit.baseId}" onerror="this.style.display='none'; this.parentElement.querySelector('.character-placeholder')?.style.setProperty('display', 'flex');" />`
           : '';
