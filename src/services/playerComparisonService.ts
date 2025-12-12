@@ -92,7 +92,11 @@ export class PlayerComparisonService {
 
       // Generate and set the HTML content
       const html = generateHTML(p1, p2, this.characterImageCache);
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      // Use 'domcontentloaded' instead of 'networkidle0' to avoid timeout on slow resources
+      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      
+      // Give a short delay for any inline styles/fonts to render
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Take screenshot
       const screenshot = await page.screenshot({
