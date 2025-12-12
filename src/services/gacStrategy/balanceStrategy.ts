@@ -5,7 +5,7 @@
 import { SwgohGgFullPlayerResponse } from '../../integrations/swgohGgApi';
 import { UniqueDefensiveSquad, MatchedCounterSquad } from '../../types/gacStrategyTypes';
 import { logger } from '../../utils/logger';
-import { isGalacticLegend } from '../../config/gacConstants';
+import { isGalacticLegend, getIdealTeammatesForGL } from '../../config/gacConstants';
 import { getDefenseStatsForSquad } from './defenseStats';
 
 interface DefenseClient {
@@ -1570,20 +1570,63 @@ export async function balanceOffenseAndDefense(
           continue;
         }
         
-        // Find available members for this GL (non-GL characters not used elsewhere)
-        const availableMembers = userRoster?.units
-          ?.filter(u => 
+        // Find available members for this GL using ideal teammates with proper synergy
+        const membersNeeded = format === '3v3' ? 2 : 4;
+        
+        // Build set of available characters (not used elsewhere)
+        const availableCharacterSet = new Set<string>();
+        userRoster?.units?.forEach(u => {
+          if (
             u.data.combat_type === 1 &&
             u.data.rarity >= 7 &&
             u.data.base_id !== unusedGL &&
             !isGalacticLegend(u.data.base_id) &&
             !usedCharacters.has(u.data.base_id)
-          )
-          .sort((a, b) => (b.data.power || 0) - (a.data.power || 0)) // Sort by power (strongest first)
-          .slice(0, format === '3v3' ? 2 : 4)
-          .map(u => u.data.base_id) || [];
+          ) {
+            availableCharacterSet.add(u.data.base_id);
+          }
+        });
         
-        const membersNeeded = format === '3v3' ? 2 : 4;
+        // First, try to get ideal teammates with proper faction synergy
+        const idealMembers = getIdealTeammatesForGL(unusedGL, availableCharacterSet, membersNeeded);
+        
+        // If we don't have enough ideal teammates, fall back to highest power available
+        let availableMembers: string[];
+        if (idealMembers.length >= membersNeeded) {
+          availableMembers = idealMembers;
+          logger.info(
+            `Using ideal teammates for GL ${unusedGL}: [${availableMembers.join(', ')}]`
+          );
+        } else {
+          // Fall back to power-based selection, but include any ideal teammates we found first
+          const remainingNeeded = membersNeeded - idealMembers.length;
+          const powerBasedMembers = userRoster?.units
+            ?.filter(u => 
+              u.data.combat_type === 1 &&
+              u.data.rarity >= 7 &&
+              u.data.base_id !== unusedGL &&
+              !isGalacticLegend(u.data.base_id) &&
+              !usedCharacters.has(u.data.base_id) &&
+              !idealMembers.includes(u.data.base_id) // Don't duplicate ideal teammates
+            )
+            .sort((a, b) => (b.data.power || 0) - (a.data.power || 0))
+            .slice(0, remainingNeeded)
+            .map(u => u.data.base_id) || [];
+          
+          availableMembers = [...idealMembers, ...powerBasedMembers];
+          
+          if (idealMembers.length > 0) {
+            logger.info(
+              `Partial ideal teammates for GL ${unusedGL}: [${idealMembers.join(', ')}], ` +
+              `supplemented with: [${powerBasedMembers.join(', ')}]`
+            );
+          } else {
+            logger.warn(
+              `No ideal teammates available for GL ${unusedGL}, using power-based fallback: [${availableMembers.join(', ')}]`
+            );
+          }
+        }
+        
         if (availableMembers.length < membersNeeded) {
           logger.warn(
             `Not enough available members for GL ${unusedGL} (${availableMembers.length}/${membersNeeded})`
