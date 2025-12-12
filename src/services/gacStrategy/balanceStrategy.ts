@@ -5,7 +5,8 @@
 import { SwgohGgFullPlayerResponse } from '../../integrations/swgohGgApi';
 import { UniqueDefensiveSquad, MatchedCounterSquad } from '../../types/gacStrategyTypes';
 import { logger } from '../../utils/logger';
-import { isGalacticLegend, getIdealTeammatesForGL } from '../../config/gacConstants';
+import { isGalacticLegend } from '../../config/gacConstants';
+import { counterCache } from '../../storage/counterCache';
 import { getDefenseStatsForSquad } from './defenseStats';
 
 interface DefenseClient {
@@ -1570,7 +1571,7 @@ export async function balanceOffenseAndDefense(
           continue;
         }
         
-        // Find available members for this GL using ideal teammates with proper synergy
+        // Find available members for this GL using ideal teammates from swgoh.gg counter data
         const membersNeeded = format === '3v3' ? 2 : 4;
         
         // Build set of available characters (not used elsewhere)
@@ -1587,19 +1588,25 @@ export async function balanceOffenseAndDefense(
           }
         });
         
-        // First, try to get ideal teammates with proper faction synergy
-        const idealMembers = getIdealTeammatesForGL(unusedGL, availableCharacterSet, membersNeeded);
+        // Get ideal teammates from cached swgoh.gg counter data
+        let idealTeammatesFromData: string[] = [];
+        if (seasonId) {
+          const formatType = format === '3v3' ? '3v3' : '5v5';
+          const allIdealTeammates = await counterCache.getIdealTeammatesForGL(seasonId, unusedGL, formatType);
+          // Filter to only those available in the user's roster and not already used
+          idealTeammatesFromData = allIdealTeammates.filter(id => availableCharacterSet.has(id));
+        }
         
         // If we don't have enough ideal teammates, fall back to highest power available
         let availableMembers: string[];
-        if (idealMembers.length >= membersNeeded) {
-          availableMembers = idealMembers;
+        if (idealTeammatesFromData.length >= membersNeeded) {
+          availableMembers = idealTeammatesFromData.slice(0, membersNeeded);
           logger.info(
-            `Using ideal teammates for GL ${unusedGL}: [${availableMembers.join(', ')}]`
+            `Using ideal teammates from swgoh.gg data for GL ${unusedGL}: [${availableMembers.join(', ')}]`
           );
         } else {
           // Fall back to power-based selection, but include any ideal teammates we found first
-          const remainingNeeded = membersNeeded - idealMembers.length;
+          const remainingNeeded = membersNeeded - idealTeammatesFromData.length;
           const powerBasedMembers = userRoster?.units
             ?.filter(u => 
               u.data.combat_type === 1 &&
@@ -1607,22 +1614,22 @@ export async function balanceOffenseAndDefense(
               u.data.base_id !== unusedGL &&
               !isGalacticLegend(u.data.base_id) &&
               !usedCharacters.has(u.data.base_id) &&
-              !idealMembers.includes(u.data.base_id) // Don't duplicate ideal teammates
+              !idealTeammatesFromData.includes(u.data.base_id) // Don't duplicate
             )
             .sort((a, b) => (b.data.power || 0) - (a.data.power || 0))
             .slice(0, remainingNeeded)
             .map(u => u.data.base_id) || [];
           
-          availableMembers = [...idealMembers, ...powerBasedMembers];
+          availableMembers = [...idealTeammatesFromData, ...powerBasedMembers];
           
-          if (idealMembers.length > 0) {
+          if (idealTeammatesFromData.length > 0) {
             logger.info(
-              `Partial ideal teammates for GL ${unusedGL}: [${idealMembers.join(', ')}], ` +
-              `supplemented with: [${powerBasedMembers.join(', ')}]`
+              `Partial ideal teammates from swgoh.gg for GL ${unusedGL}: [${idealTeammatesFromData.join(', ')}], ` +
+              `supplemented with power-based: [${powerBasedMembers.join(', ')}]`
             );
           } else {
             logger.warn(
-              `No ideal teammates available for GL ${unusedGL}, using power-based fallback: [${availableMembers.join(', ')}]`
+              `No swgoh.gg teammate data for GL ${unusedGL}, using power-based fallback: [${availableMembers.join(', ')}]`
             );
           }
         }
