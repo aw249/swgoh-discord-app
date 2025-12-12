@@ -24,7 +24,7 @@ export async function handleStrategyCommand(
     let opponentLeague: string | null = null;
 
     if (updateStatus) {
-      await updateStatus('🔍 Analysing your opponent...');
+      await updateStatus('🔍 Finding your opponent...');
     }
 
     if (opponentAllyCode) {

@@ -119,8 +119,8 @@ export const gacCommand = {
       statusMessage = await interaction.followUp({
         content:
           position === 1
-            ? 'I am processing your GAC request now. This may take a little while.'
-            : `Your GAC request is in a queue and will be processed soon.\nYou are **#${position}** in line.`,
+            ? 'I am processing your request now...'
+            : `Your request is in a queue and will be processed soon.\nYou are **#${position}** in line.`,
         ephemeral: true,
         fetchReply: true
       });
@@ -190,7 +190,7 @@ export const gacCommand = {
               throw new Error('Format is required. Please select either 5v5 or 3v3.');
             }
             const strategyPreference = (interaction.options.getString('strategy') || 'balanced') as 'defensive' | 'balanced' | 'offensive';
-            const strategyService = new GacStrategyService(swgohGgApiClient, swgohGgApiClient, swgohGgApiClient);
+            const strategyService = new GacStrategyService(swgohGgApiClient, swgohGgApiClient, swgohGgApiClient, swgohGgApiClient);
             // For strategy command, also update the main reply with status
             const updateMainReply = async (content: string): Promise<void> => {
               try {
@@ -560,7 +560,7 @@ export const gacCommand = {
     let opponentLeague: string | null = null;
 
     if (updateStatus) {
-      await updateStatus('🔍 Analysing your opponent...');
+      await updateStatus('🔍 Finding your opponent...');
     }
 
     if (opponentAllyCode) {
@@ -1053,7 +1053,8 @@ export const gacCommand = {
       format,
       maxDefenseSquads,
       userRoster,
-      strategyPreference
+      strategyPreference,
+      targetAllyCode
     );
 
     const defenseAttachment = new AttachmentBuilder(defenseImage, { name: 'gac-defense.png' });

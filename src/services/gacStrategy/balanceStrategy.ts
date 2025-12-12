@@ -1661,6 +1661,39 @@ export async function balanceOffenseAndDefense(
         const hasConflict = glOffenseUnits.some(unitId => usedCharacters.has(unitId));
         
         if (!hasConflict) {
+          // Try to find actual win rate from counter data for this GL vs opponent defense
+          let actualWinPercentage = 85; // Default fallback
+          let actualSeenCount: number | null = null;
+          
+          // Search offense counters for this GL vs this specific opponent defense
+          for (const counter of offenseCounters) {
+            if (counter.offense.leader.baseId === unusedGL && 
+                counter.defense.leader.baseId === candidate.counter.defense.leader.baseId) {
+              actualWinPercentage = counter.adjustedWinPercentage ?? counter.winPercentage ?? 85;
+              actualSeenCount = counter.seenCount;
+              logger.info(
+                `Found actual counter data for ${unusedGL} vs ${candidate.counter.defense.leader.baseId}: ` +
+                `${actualWinPercentage.toFixed(1)}% win rate (${actualSeenCount?.toLocaleString() ?? 'N/A'} seen)`
+              );
+              break;
+            }
+            // Also check alternatives
+            if (counter.alternatives) {
+              for (const alt of counter.alternatives) {
+                if (alt.offense.leader.baseId === unusedGL && 
+                    alt.defense.leader.baseId === candidate.counter.defense.leader.baseId) {
+                  actualWinPercentage = alt.adjustedWinPercentage ?? alt.winPercentage ?? 85;
+                  actualSeenCount = alt.seenCount;
+                  logger.info(
+                    `Found actual counter data (from alternatives) for ${unusedGL} vs ${candidate.counter.defense.leader.baseId}: ` +
+                    `${actualWinPercentage.toFixed(1)}% win rate (${actualSeenCount?.toLocaleString() ?? 'N/A'} seen)`
+                  );
+                  break;
+                }
+              }
+            }
+          }
+          
           // Replace the counter with the GL
           logger.info(
             `Forcing unused GL ${unusedGL} onto offense: replacing ${candidate.counter.offense.leader.baseId} vs ${candidate.counter.defense.leader.baseId} ` +
@@ -1681,9 +1714,9 @@ export async function balanceOffenseAndDefense(
               }))
             },
             defense: candidate.counter.defense,
-            winPercentage: 85, // Assume good win rate for GL
-            adjustedWinPercentage: 85,
-            seenCount: null,
+            winPercentage: actualWinPercentage,
+            adjustedWinPercentage: actualWinPercentage,
+            seenCount: actualSeenCount,
             avgBanners: null,
             relicDelta: null,
             worstCaseRelicDelta: null,

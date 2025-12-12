@@ -19,7 +19,8 @@ export function generateOffenseStrategyHtml(
   offenseSquads: MatchedCounterSquad[],
   format: string = '5v5',
   maxSquads: number = 11,
-  userRoster?: SwgohGgFullPlayerResponse
+  userRoster?: SwgohGgFullPlayerResponse,
+  opponentRoster?: SwgohGgFullPlayerResponse
 ): string {
   logger.info(`[Offense Image] Starting HTML generation vs ${opponentName} (${format} format)`);
   logger.info(`[Offense Image] Input data: ${offenseSquads.length} offense squad(s)`);
@@ -45,7 +46,26 @@ export function generateOffenseStrategyHtml(
         characterStatsMap.set(unit.data.base_id, { speed, health, protection, relic });
       }
     }
-    logger.info(`[Offense Image] Built stats map for ${characterStatsMap.size} characters from full roster`);
+    logger.info(`[Offense Image] Built stats map for ${characterStatsMap.size} characters from user roster`);
+  }
+
+  // Create character stats mapping from opponent roster for defense squads
+  const opponentStatsMap = new Map<string, { speed: number; health: number; protection: number; relic: number | null }>();
+  if (opponentRoster && opponentRoster.units) {
+    for (const unit of opponentRoster.units) {
+      if (unit.data && unit.data.base_id && unit.data.combat_type === 1) {
+        const stats = unit.data.stats || {};
+        const speed = Math.round(stats['5'] || 0);
+        const health = (stats['1'] || 0) / 1000;
+        const protection = (stats['28'] || 0) / 1000;
+        let relic: number | null = null;
+        if (unit.data.gear_level >= 13 && unit.data.relic_tier !== null && unit.data.relic_tier !== undefined) {
+          relic = Math.max(0, unit.data.relic_tier - 2);
+        }
+        opponentStatsMap.set(unit.data.base_id, { speed, health, protection, relic });
+      }
+    }
+    logger.info(`[Offense Image] Built stats map for ${opponentStatsMap.size} characters from opponent roster`);
   }
 
   // Log each offense squad for debugging
@@ -57,8 +77,12 @@ export function generateOffenseStrategyHtml(
     logger.info(`[Offense Image] Battle ${idx + 1}: Offense=${offLeaderBaseId}(R${offLeaderRelic ?? '?'}) [${offMemberIds}] vs Defense=${defLeaderBaseId}`);
   });
 
-  const getCharacterStats = (baseId: string): { speed: number; health: number; protection: number; relic: number | null } | null => {
-    return characterStatsMap.get(baseId) || null;
+  const getCharacterStats = (baseId: string, isOffense: boolean): { speed: number; health: number; protection: number; relic: number | null } | null => {
+    if (isOffense) {
+      return characterStatsMap.get(baseId) || null;
+    } else {
+      return opponentStatsMap.get(baseId) || null;
+    }
   };
 
   const renderUnit = (unit: UniqueDefensiveSquadUnit | null, isOffense: boolean): string => {
@@ -77,12 +101,12 @@ export function generateOffenseStrategyHtml(
       `;
     }
 
-    // Get stats from roster (for offense squads - we have their roster data)
-    const stats = isOffense ? getCharacterStats(unit.baseId) : null;
+    // Get stats from appropriate roster (user for offense, opponent for defense)
+    const stats = getCharacterStats(unit.baseId, isOffense);
     
-    // Use unit's relic level if available, otherwise fall back to roster data (for offense only)
+    // Use unit's relic level if available, otherwise fall back to roster data
     const relicFromUnit = typeof unit.relicLevel === 'number' ? unit.relicLevel : null;
-    const relicFromRoster = isOffense ? (stats?.relic ?? null) : null;
+    const relicFromRoster = stats?.relic ?? null;
     const relicLevel = relicFromUnit ?? relicFromRoster;
     const relic = relicLevel !== null ? Math.max(0, Math.min(10, relicLevel)) : '?';
     
@@ -92,17 +116,13 @@ export function generateOffenseStrategyHtml(
     const protValue = stats ? stats.protection.toFixed(1) + 'K' : '-';
     const isGL = isGalacticLegend(unit.baseId);
 
-    // For opponent defense, show simpler stats (just relic from scraped data)
-    const statsHtml = isOffense ? `
-      <div class="character-stats">
+    // Show full stats for both offense and defense characters
+    const statsHtml = `
+      <div class="character-stats${isOffense ? '' : ' defense-stats'}">
         <div class="stat-row"><span class="stat-label">Relic</span><span class="stat-value relic-value">R${relic}</span></div>
         <div class="stat-row"><span class="stat-label"><img src="${SPEED_ICON}" class="stat-icon" alt="Speed">Spd</span><span class="stat-value">${speedValue}</span></div>
         <div class="stat-row"><span class="stat-label"><img src="${HEALTH_ICON}" class="stat-icon" alt="Health">HP</span><span class="stat-value">${healthValue}</span></div>
         <div class="stat-row"><span class="stat-label"><img src="${PROTECTION_ICON}" class="stat-icon" alt="Prot">Prt</span><span class="stat-value">${protValue}</span></div>
-      </div>
-    ` : `
-      <div class="character-stats defense-stats">
-        <div class="stat-row full-width"><span class="stat-value relic-value">R${relic}</span></div>
       </div>
     `;
 

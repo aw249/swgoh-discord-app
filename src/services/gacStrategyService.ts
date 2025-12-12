@@ -32,6 +32,10 @@ interface DefenseClient {
   getTopDefenseSquads(sortBy?: 'percent' | 'count' | 'banners', seasonId?: string, format?: string): Promise<GacTopDefenseSquad[]>;
 }
 
+interface PlayerClient {
+  getFullPlayer(allyCode: string): Promise<SwgohGgFullPlayerResponse>;
+}
+
 export class GacStrategyService {
   private browser: Browser | null = null;
   private topDefenseSquadsCache: Map<string, GacTopDefenseSquad[]> = new Map();
@@ -40,7 +44,8 @@ export class GacStrategyService {
   constructor(
     private readonly apiClient: GacHistoryClient,
     private readonly counterClient?: CounterClient,
-    private readonly defenseClient?: DefenseClient
+    private readonly defenseClient?: DefenseClient,
+    private readonly playerClient?: PlayerClient
   ) {}
 
   /**
@@ -370,8 +375,21 @@ export class GacStrategyService {
     format: string = '5v5',
     maxSquads: number = 11,
     userRoster?: SwgohGgFullPlayerResponse,
-    strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced'
+    strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
+    opponentAllyCode?: string
   ): Promise<{ defenseImage: Buffer; offenseImage: Buffer }> {
+    // Fetch opponent roster if ally code provided
+    let opponentRoster: SwgohGgFullPlayerResponse | undefined;
+    if (opponentAllyCode && this.playerClient) {
+      try {
+        logger.info(`Fetching opponent roster for ally code ${opponentAllyCode} to show stats in offense image`);
+        opponentRoster = await this.playerClient.getFullPlayer(opponentAllyCode);
+        logger.info(`Fetched opponent roster: ${opponentRoster.units?.length || 0} units`);
+      } catch (error) {
+        logger.warn(`Could not fetch opponent roster for ${opponentAllyCode}: ${error}`);
+        // Continue without opponent roster - stats will show as '-'
+      }
+    }
     const browser = await this.getBrowser();
 
     // Generate defense image
@@ -405,7 +423,8 @@ export class GacStrategyService {
         balancedOffense,
         format,
         maxSquads,
-        userRoster
+        userRoster,
+        opponentRoster
       );
       await offensePage.setContent(offenseHtml, { waitUntil: 'networkidle0' });
       offenseImage = await offensePage.screenshot({ type: 'png', fullPage: true }) as Buffer;
