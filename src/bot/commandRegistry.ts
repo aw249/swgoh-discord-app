@@ -2,13 +2,11 @@ import { REST, Routes } from 'discord.js';
 import { loadEnv } from '../utils/env';
 import { logger } from '../utils/logger';
 import { registerCommand } from '../commands/register';
-import { rosterCommand } from '../commands/roster';
 import { helpCommand } from '../commands/help';
 import { gacCommand } from '../commands/gac';
 
 const commands = [
   registerCommand.data,
-  rosterCommand.data,
   helpCommand.data,
   gacCommand.data
 ];

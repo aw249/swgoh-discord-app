@@ -162,7 +162,6 @@ export function generateDefenseStrategyHtml(
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      min-height: 100vh;
     }
     .container {
       width: ${containerWidth}px;

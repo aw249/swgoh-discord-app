@@ -666,7 +666,6 @@ export function generateBalancedStrategyHtml(
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      min-height: 100vh;
     }
     .main-container {
       display: flex;

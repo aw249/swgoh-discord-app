@@ -101,7 +101,6 @@ export function generateDefenseOnlyHtml(opponentLabel: string, squads: UniqueDef
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      min-height: 100vh;
     }
     .container {
       max-width: 600px;

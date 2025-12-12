@@ -431,7 +431,6 @@ export function generateMatchedCountersHtml(opponentLabel: string, matchedCounte
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      min-height: 100vh;
     }
     .container {
       max-width: 1400px;

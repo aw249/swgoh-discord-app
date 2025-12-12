@@ -1,14 +1,12 @@
-import { Client, Events, GatewayIntentBits } from 'discord.js';
+import { Client, Events } from 'discord.js';
 import { loadEnv } from '../utils/env';
 import { logger } from '../utils/logger';
 import { DISCORD_INTENTS } from '../config/discordConfig';
 import { registerCommands } from './commandRegistry';
 import { registerCommand } from '../commands/register';
-import { rosterCommand } from '../commands/roster';
 import { helpCommand } from '../commands/help';
 import { gacCommand } from '../commands/gac';
 import { PlayerService } from '../services/playerService';
-import { RosterService } from '../services/rosterService';
 import { GacService } from '../services/gacService';
 import { filePlayerStore as playerStore } from '../storage/fileStore';
 
@@ -23,7 +21,6 @@ async function main(): Promise<void> {
     // Initialise services
     const playerService = new PlayerService(playerStore);
     const swgohGgApiClient = new SwgohGgApiClient();
-    const rosterService = new RosterService(swgohGgApiClient);
     const gacService = new GacService(swgohGgApiClient);
 
     // Initialize caches
@@ -63,8 +60,6 @@ async function main(): Promise<void> {
       try {
         if (commandName === 'register') {
           await registerCommand.execute(interaction, playerService);
-        } else if (commandName === 'roster') {
-          await rosterCommand.execute(interaction, playerService, rosterService);
         } else if (commandName === 'gac') {
           await gacCommand.execute(interaction, playerService, gacService, swgohGgApiClient);
         } else if (commandName === 'help') {
