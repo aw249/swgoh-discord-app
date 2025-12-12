@@ -93,7 +93,7 @@ class CounterCache {
    * 
    * @param seasonId - The season ID to search
    * @param glBaseId - The GL's base ID
-   * @param format - '3v3' or '5v5' to filter by squad size
+   * @param format - '3v3' or '5v5' (no longer filters by format - aggregates all)
    * @returns Array of teammate base IDs, sorted by popularity
    */
   async getIdealTeammatesForGL(
@@ -101,7 +101,8 @@ class CounterCache {
     glBaseId: string,
     format: '3v3' | '5v5' = '5v5'
   ): Promise<string[]> {
-    const cacheKey = `${seasonId}:${glBaseId}:${format}`;
+    // Cache key no longer includes format - we aggregate ALL teammates
+    const cacheKey = `${seasonId}:${glBaseId}`;
     
     // Check in-memory cache first
     if (this.glTeammatesCache.has(cacheKey)) {
@@ -110,7 +111,6 @@ class CounterCache {
       return cached;
     }
 
-    const expectedMembers = format === '3v3' ? 2 : 4;
     const teammateStats = new Map<string, TeammateCount>();
 
     try {
@@ -129,6 +129,7 @@ class CounterCache {
       }
 
       // Scan each counter file for squads where our GL is the offense leader
+      // Don't filter by squad size - ideal teammates are the same in 3v3 and 5v5
       for (const file of files) {
         if (!file.endsWith('.json')) continue;
         
@@ -141,10 +142,8 @@ class CounterCache {
             // Check if this counter's offense leader is our GL
             if (counter.leader.baseId !== glBaseId) continue;
             
-            // Check if squad size matches format
-            if (counter.members.length !== expectedMembers) continue;
-            
-            // Aggregate teammate usage, weighted by seen count
+            // Aggregate teammate usage from ALL squad sizes
+            // The ideal teammates are the same in 3v3 and 5v5
             const seenCount = counter.seenCount || 1;
             for (const member of counter.members) {
               const existing = teammateStats.get(member.baseId);
@@ -176,7 +175,7 @@ class CounterCache {
       if (sortedTeammates.length > 0) {
         logger.info(
           `Found ${sortedTeammates.length} potential teammates for GL ${glBaseId} ` +
-          `from cached counter data (${format}): [${sortedTeammates.slice(0, 6).join(', ')}...]`
+          `from cached counter data: [${sortedTeammates.slice(0, 6).join(', ')}...]`
         );
       } else {
         logger.debug(`No teammate data found for GL ${glBaseId} in cached counters`);
