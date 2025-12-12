@@ -435,90 +435,138 @@ export   function generateGalacticLegends(
       }
     }
 
-    const speedIconBase64 = 'data:image/webp;base64,UklGRh4CAABXRUJQVlA4TBICAAAvH8AHEJVAbCRJkbT+Ox0PvbP3YEA9Qx1ESAIAsIykrm3b9v5s27Zt27Zt27Zt28b51pmAvKIQYCJCg50EY77S1Bhz7EIRuiW4BBhxE6dU49W2O/+AfbOIVuARYcFPsjpDFmx66irnlREsVFT40WKlwJqf+UnuoUS4R2XkESTUJ/4JauhLUPG5bmtPOlmU2h85whTsTrVRSKDhpMJGgFwNuo04AUYfRhW59uxAB8FEKVBRCVQcVNnwl6/H7Gfrtx1fbevTf5cysSVEvQIOUWcXDDRVrTAoVBV7bVvf3jxopKa3/c8iOvt1hiC5+vVo1znGFcg4uFFMoqqjj0FyDoJDiYv92+CFDnPD/gGese1Ax0ntIluzaadefXRWvkEBh0ec8OzCJcFeiHK9Zm0492vyh8gGnRQ2CjzaJrX/p0lQuR38J7BBJwQLDSEa7KqAUV0OwiXKkp9sNQZsuPMfGL3gO0SSMR+Fuiw68OB70r1Bx/+RJTARUfE4XZViOYLBg5+ScSQifQP1y7+29cgT7pocoPVbLhNHrXfWNC32sQkKSxeV/re9tVUNcYOQ8HLVtl7V4F0IRGbOb0DbT3QblASLQp9AW7eCYO4lZ0b6HAFlskEzKQNe29YS5YUkCAWIzSK9M9BWzFoClTC1Pw48RMhSol6jcmtAawXuGhjoqAnSZMqBtzDp6nQbsWI19lzR3qBXEQ==';
-    const healthIconBase64 = 'data:image/webp;base64,UklGRswAAABXRUJQVlA4TMAAAAAvH8AHEIXjRpIUqfx3Opau4egdATXbtmXZg7tFG8CzL8BBsi8yxHuQiFQGcKju0ojMQHJ3T/x6T0Doi1rBs9Q/QEhHR0dHucEHAGDwzcRr7i/9Ffj9gpOZmcILaEsxe4IuWajYUzIBBYLQhn+QCNV74G1YHCq/h1pV0y+Au3OrLAkA8nA3Co2KAgDGscDpA4CFFpjsAbDQFJmsrKwxABYao4E7FlqyCr2T3JKJYKhLhMPhcAIvPMSIQ5tsivShrwo=';
-    const protectionIconBase64 = 'data:image/webp;base64,UklGRsYAAABXRUJQVlA4TLoAAAAvH8AHEFU4bhvJkTb/pHm2u8++a3Yi3AYAQDbRpguSKaNHfGFfkDMwp1y78gGvbj/gAbYxAfmxBI2T+Aqkkq//mYWaQkjczofZiAmI0Nq/uIWrRTXzb4ZaI+mdg/qkiqn/aCq6M6koz6QimhFXuDOpYGd2BWQ3YQ+qRH1ipyyYWDWoc29Da1HsKaaJ9upkdSLtyBxAG2FVy+6F7FlZlEzSfJ6tnVm6yyMXeqYxJncrBzAPYuobZB/Afwk=';
-    const tenacityIconBase64 = 'data:image/webp;base64,UklGRsABAABXRUJQVlA4TLQBAAAvH8AHEJVIbCPJkaT132me7Jn7fwPqVd9i4kSEJAAAy0iybdu2bdu2nrZt27Zt79m2fWM7EzC/UBHOtPN7Gy+BfEDPm+Z5XIPqi0yo7gs/y15wKFjkh5BMUqzO8QjI4viE9u7fmM0y62MksI9IP7izA8BTOAhl45hdP0XNjOIKxxVEXIS6ordGHqH8kEdmKDqzPl6iAk4/wQGXa9JCruCNEJ/hFUyM2Zb9NVO58SwoxDI6VkLxYhyWwCXMPgGmR1MVGlUPSwgBIG9nmRUAl/ShKV6uBHp/SOoGIWYBSMaa2q6UDd55XQv4O5Y1LwJFEm0o7ThudL/v3MnPzOCiwWzJQGD++R9Cvgr7dDt4b53qkkjf3hpm74C/cOAg/pdRrPp60ZtZpx3CN+je35Apphv43mCZOTCygtjP08yla2//U3VknALfe+/vjHHs2iDgCTpEtvt1XSWUdoh/QXKA+dB8dEHAWWUwI8tnmHzHdqM7TggMCdZvNZJN2jHuA2o0b3RnegmA+NdzmKTMmRg8b7/8H43cKePpa3c46ud4/BrSH7LneAm8Dk/kHBuQvrwM5SmOc35W';
-    const potencyIconBase64 = 'data:image/webp;base64,UklGRi4BAABXRUJQVlA4TCEBAAAvH8AHEDVAbiPJkdT+O80TPV3TJ/6ZEW5ra28TVbbJoc5hiQyttQd5AeQJoMOroJLcuiT3SpXDBHyK3LZt5FOS7jqfyCAuHe4iV6KhuaNt/zBKVvg3uJXSOziYGB4S86ReoOEJdTb7xswZGo0RFaK+JttCzCIx8QVCZaoKwF1+kQRlyCySyLmBQOqMDfgpnM9RX8COKEv89ad76lWifMIaHOd3KlifcADTDRZfKOJ3wxTwh1Ng0+YXe2hrO5yG7kP5QvhNFklOpznAvIRBu0PmGdglOZ1mHCI6DrlfaPgXvQnd4V+Cgc/dv0bKA9zkTn0j51bPyXo61NNX2XxF6ozvoOkJdTSFtnE8+HIo8i59nUTJeu+LKP3XvszeN3egJTMQAA==';
+    const speedIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA4ElEQVQ4jc2SsQ3CMBRF/7cZgIqGhgFYgJKGkoINqGhoqBiACRiABShp2IANKCkoGIC/RYoUKXZiQKLhNU7O9bU/n5Ox+3sxBiIyBdAB0AUwAtAAsAPwKCJv50R+4B64BzCpFxC8AfgNggxAL4dKqV4ZM5fJXJXJKoNO3cEygGQNwH7TRXb9CrIDT5+wvt9kSCnlqc3gmgkAKK0EIK8A4JpScqeqAhhaaw4hTDLGPFp0TgHsjDF2GWMurWwdg0spP0Z2HdxcOGD/4wBV7wIAr2PMpZbLRmZV7wJBEATBQ+AD0iZBQXRqp1YAAAAASUVORK5CYII=';
+    const healthIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA2klEQVQ4jc2SMQrCQBRE3/wNFrGwsLCxsfEAnsALeAIPYGNjY2djYWFhYePCb9xCWMhP4gp24IOBZf7M7C5J+HdpAg4lcvXYt4ArUIQTrp8t4O5CJxDANezfPqkZngAOLlSH8BWYu9BpvJAaOoB5g4b5eo8fBHbu6tpDLgAAAABJRU5ErkJggg==';
+    const protectionIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA00lEQVQ4jc2SwQ3CIBSG/9cZXMARHMENHMENHMERHEE3cARHcAQ3YARHcATdQF9jGkMpFKI38CXk8Xjf4xH+XepAVdcA1gC2ACYAHgDuAI4icvfOxB8oRXV/KiB5A/DTBDmAWQhFKTUN2WhkmUvFKoJJ3cE4gGQFwPHQRw79DrIDz5+wvh9kSKfTqcrg2gkAuFYCUK4A4OY0la2qCoChMYbD8/woo+wMwI8xhpZS0q6VzWNwl8vnkd0Ht1cPqL8cIOtNAODVWnuq5bKRWdW7QBCEQfAC+wZEE29CkGEAAAAASUVORK5CYII=';
+    const tenacityIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAABJElEQVQ4jc2RsUoDQRCG/5ndO7AQBAtBsLCxsfEBfAIfwAfQxsbGzsbCwsLCxoS9xEYQJHeSO0gKfQAfwAfQxsbGzsbCYmGxceF2bALhQi6JBvzhmGX++WdmCP8uNYCIDADsAtgBMAZwBnAG4KSu6+m6Sk+gqhpjvGBmFpERgA2AHYBpCGFczgkhDBqNxjDG+O4cx1UK1A2INxvxEMBBXdfH5RoRaabT6YQx5gVj7JeJrgI4NsYMGGP2yrlQKLSz2azDGHMRQnjYINdlAN1er9cNIbwppbyMoijt9/tDlVIaABOl1NPe3l5XKZWGECZSynMAJ1JKvb+/f5kxZpzIllK+1e/3ryul7jLG/Nr6O4A/6/L9DwxAqKr67dv/k25/HCDYpvPxFYBPX4xJbfQ9JWUAAAAASUVORK5CYII=';
+    const potencyIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA70lEQVQ4jc2SMQ6CQBBF/8wuFhQWFBYWFhYewBN4AQ9gY2NjZ2NhYWFhY8LOYiMIEvYAHsAL2NjY2NlYWCwsFs7OWAgEAokW/mYyM/tn5s+Q/l0aQETGAHYB7ACMARwDOAZwVFXV5bpKj6CqGmO8Y2YWEREB2ACwA3BclmXTOI7juq6/nPM0heIGhPeNOABwUFXVYblGRJppmmbM7MIY86uJLgI4NMb0GWN2yzlPKLTz+bzNGHMeQrjbINdFAK1ut9sKIdxLKc/CMEy63e6QSymNiAyllE97e3stkUojIjMp5TGAQyml3t/fv8wYM46k/r+B/wPwDhMzgFUAAAAASUVORK5CYII=';
+
+    // GL name mapping for display
+    const glNames: Record<string, string> = {
+      'GLREY': 'Rey',
+      'SUPREMELEADERKYLOREN': 'Supreme Leader Kylo Ren',
+      'GRANDMASTERLUKE': 'Jedi Master Luke',
+      'SITHPALPATINE': 'Sith Eternal Emperor',
+      'JEDIMASTERKENOBI': 'Jedi Master Kenobi',
+      'LORDVADER': 'Lord Vader',
+      'JABBATHEHUTT': 'Jabba the Hutt',
+      'GLLEIA': 'Leia Organa',
+      'GLAHSOKATANO': 'Ahsoka Tano',
+      'GLHONDO': 'Hondo Ohnaka'
+    };
 
     let html = '';
+    let hasAnyGL = false;
+
+    // Iterate through ALL GLs - show both owned and not owned to ensure alignment
     for (const glId of GALACTIC_LEGEND_IDS) {
       const gl = glMap.get(glId);
-      if (!gl) continue;
+      const otherGl = otherGlMap.get(glId);
+      
+      // Skip if neither player has this GL
+      if (!gl && !otherGl) continue;
+      
+      hasAnyGL = true;
+
+      // Get character image from cache
+      const charImage = characterImageCache.get(glId) || '';
+      const glName = glNames[glId] || glId;
+
+      // If this player doesn't have the GL, show "Not Owned" placeholder
+      if (!gl) {
+        const iconHtml = charImage 
+          ? `<img src="${charImage}" alt="${glName}" style="opacity: 0.4; filter: grayscale(100%);" />`
+          : `<div style="width: 70px; height: 70px; background: #4a4a4a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #f5deb3; font-size: 10px; opacity: 0.4;">GL</div>`;
+        
+        html += `
+                <div class="legend-item">
+                    <div class="legend-table">
+                        <div class="legend-image-cell">${iconHtml}</div>
+                        <div class="legend-table-cell stat-label-cell">
+                            <span>Relic</span>
+                        </div>
+                        <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
+                        <div class="legend-table-cell stat-label-cell">
+                            <img class="legend-stat-icon" src="${speedIconBase64}" alt="speed" style="opacity: 0.4;">
+                            <span>Speed</span>
+                        </div>
+                        <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
+                        <div class="legend-table-cell stat-label-cell">
+                            <img class="legend-stat-icon" src="${healthIconBase64}" alt="health" style="opacity: 0.4;">
+                            <span>Health</span>
+                        </div>
+                        <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
+                        <div class="legend-table-cell stat-label-cell">
+                            <img class="legend-stat-icon" src="${protectionIconBase64}" alt="protection" style="opacity: 0.4;">
+                            <span>Protection</span>
+                        </div>
+                        <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
+                        <div class="legend-table-cell stat-label-cell">
+                            <img class="legend-stat-icon" src="${potencyIconBase64}" alt="potency" style="opacity: 0.4;">
+                            <span>Potency</span>
+                        </div>
+                        <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
+                        <div class="legend-table-cell stat-label-cell">
+                            <img class="legend-stat-icon" src="${tenacityIconBase64}" alt="tenacity" style="opacity: 0.4;">
+                            <span>Tenacity</span>
+                        </div>
+                        <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
+                    </div>
+                </div>`;
+        continue;
+      }
 
       const stats = getGLStats(gl);
-      const otherGl = otherGlMap.get(glId);
       const otherStats = otherGl ? getGLStats(otherGl) : null;
 
       // Get relic levels using the same logic as strategy service
-      // Relic level calculation: if gear_level >= 13 and relic_tier exists, then relic_level = relic_tier - 2
-      // Note: If gear_level <= 12, relic_tier may still be 1, but the unit is not reliced
       let relicLevel: number | null = null;
       if (gl.data.gear_level >= 13 && gl.data.relic_tier !== null && gl.data.relic_tier !== undefined) {
-        // Actual relic level is relic_tier - 2
         relicLevel = Math.max(0, gl.data.relic_tier - 2);
       }
       
       let otherRelicLevel: number | null = null;
       if (otherGl && otherGl.data.gear_level >= 13 && otherGl.data.relic_tier !== null && otherGl.data.relic_tier !== undefined) {
-        // Actual relic level is relic_tier - 2
         otherRelicLevel = Math.max(0, otherGl.data.relic_tier - 2);
       }
 
-      // Determine color based on comparison:
-      // - Player 1 (left): Green if better than Player 2, white (no class) if worse
-      // - Player 2 (right): Red if better than Player 1, white (no class) if worse
-      // - No color class (default white) if equal or other player doesn't have the GL
-      // Note: For relic, higher is better. null is treated as 0.
-      const relicColor = otherRelicLevel !== null || relicLevel !== null
-        ? ((relicLevel ?? 0) > (otherRelicLevel ?? 0)
+      // Determine colors - if other player doesn't have GL, this player is better (green/red)
+      const relicColor = !otherGl 
+        ? (isPlayer1 ? 'green' : 'red')
+        : ((relicLevel ?? 0) > (otherRelicLevel ?? 0)
             ? (isPlayer1 ? 'green' : 'red')
             : (relicLevel ?? 0) < (otherRelicLevel ?? 0)
-            ? '' // white (no class) when worse
-            : '') // equal, no color
-        : '';
-      const speedColor = otherStats 
-        ? (stats.speed.total > otherStats.speed.total 
+            ? '' : '');
+      const speedColor = !otherStats 
+        ? (isPlayer1 ? 'green' : 'red')
+        : (stats.speed.total > otherStats.speed.total 
             ? (isPlayer1 ? 'green' : 'red')
-            : stats.speed.total < otherStats.speed.total 
-            ? '' // white (no class) when worse
-            : '') // equal, no color
-        : '';
-      const healthColor = otherStats 
-        ? (stats.health > otherStats.health 
+            : stats.speed.total < otherStats.speed.total ? '' : '');
+      const healthColor = !otherStats 
+        ? (isPlayer1 ? 'green' : 'red')
+        : (stats.health > otherStats.health 
             ? (isPlayer1 ? 'green' : 'red')
-            : stats.health < otherStats.health 
-            ? '' // white (no class) when worse
-            : '') // equal, no color
-        : '';
-      const protectionColor = otherStats 
-        ? (stats.protection > otherStats.protection 
+            : stats.health < otherStats.health ? '' : '');
+      const protectionColor = !otherStats 
+        ? (isPlayer1 ? 'green' : 'red')
+        : (stats.protection > otherStats.protection 
             ? (isPlayer1 ? 'green' : 'red')
-            : stats.protection < otherStats.protection 
-            ? '' // white (no class) when worse
-            : '') // equal, no color
-        : '';
-      const tenacityColor = otherStats 
-        ? (stats.tenacity > otherStats.tenacity 
+            : stats.protection < otherStats.protection ? '' : '');
+      const tenacityColor = !otherStats 
+        ? (isPlayer1 ? 'green' : 'red')
+        : (stats.tenacity > otherStats.tenacity 
             ? (isPlayer1 ? 'green' : 'red')
-            : stats.tenacity < otherStats.tenacity 
-            ? '' // white (no class) when worse
-            : '') // equal, no color
-        : '';
-      const potencyColor = otherStats 
-        ? (stats.potency > otherStats.potency 
+            : stats.tenacity < otherStats.tenacity ? '' : '');
+      const potencyColor = !otherStats 
+        ? (isPlayer1 ? 'green' : 'red')
+        : (stats.potency > otherStats.potency 
             ? (isPlayer1 ? 'green' : 'red')
-            : stats.potency < otherStats.potency 
-            ? '' // white (no class) when worse
-            : '') // equal, no color
-        : '';
+            : stats.potency < otherStats.potency ? '' : '');
 
-      const charImage = characterImageCache.get(glId) || '';
       const iconHtml = charImage 
         ? `<img src="${charImage}" alt="${gl.data.name}" />`
         : '<div style="width: 70px; height: 70px; background: #4a4a4a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #f5deb3; font-size: 10px;">GL</div>';
 
-      // Format relic level display (R0-R10, or "None" if null)
       const relicDisplay = relicLevel !== null ? `R${relicLevel}` : 'None';
 
       html += `
@@ -558,5 +606,5 @@ export   function generateGalacticLegends(
                 </div>`;
     }
 
-    return html || '<div class="legend-item">No Galactic Legends</div>';
+    return hasAnyGL ? html : '<div class="legend-item">No Galactic Legends</div>';
   }
