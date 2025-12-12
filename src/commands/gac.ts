@@ -410,8 +410,11 @@ export const gacCommand = {
     try {
       const imageBuffer = await comparisonService.generateComparisonImage(yourPlayerData, opponentPlayerData);
 
-      // Create attachment
-      const attachment = new AttachmentBuilder(imageBuffer, { name: 'comparison.png' });
+      // Create attachment with explicit content type to ensure PNG format
+      const attachment = new AttachmentBuilder(imageBuffer, { 
+        name: 'comparison.png',
+        description: 'Player comparison'
+      });
 
       const opponentName = opponentBracketPlayer?.player_name ?? opponentPlayerData.data.name;
       const opponentGuild =
