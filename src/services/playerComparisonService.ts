@@ -2,10 +2,11 @@ import puppeteer, { Browser } from 'puppeteer';
 import { SwgohGgFullPlayerResponse } from '../integrations/swgohGgApi';
 import { logger } from '../utils/logger';
 import { generateHTML } from './playerComparison/htmlGeneration';
+import { getCharacterPortraitUrl } from '../config/characterPortraits';
+import { GALACTIC_LEGEND_IDS } from './playerComparison/utils';
 
 export class PlayerComparisonService {
   private browser: Browser | null = null;
-  private characterImageCache: Map<string, string> = new Map();
 
   constructor() {
     // Browser will be created on demand
@@ -25,51 +26,22 @@ export class PlayerComparisonService {
     return this.browser;
   }
 
-  private async fetchCharacterImages(): Promise<Map<string, string>> {
-    // Return cached data if available
-    if (this.characterImageCache.size > 0) {
-      return this.characterImageCache;
+  /**
+   * Build character image cache using existing portrait URLs from our cache
+   */
+  private buildCharacterImageCache(): Map<string, string> {
+    const cache = new Map<string, string>();
+    
+    // Only need GL images for the comparison view
+    for (const glId of GALACTIC_LEGEND_IDS) {
+      const url = getCharacterPortraitUrl(glId);
+      if (url) {
+        cache.set(glId, url);
+      }
     }
-
-    const browser = await this.getBrowser();
-    const page = await browser.newPage();
-
-    try {
-      // Intercept and capture character images from swgoh.gg
-      const imageUrls = new Map<string, string>();
-      
-      page.on('response', async (response) => {
-        const url = response.url();
-        if (url.includes('tex.charui_') && url.endsWith('.png')) {
-          try {
-            const match = url.match(/tex\.charui_([A-Z0-9_]+)\.png/);
-            if (match) {
-              const baseId = match[1];
-              // Convert to base64 for embedding
-              const buffer = await response.buffer();
-              const base64 = buffer.toString('base64');
-              imageUrls.set(baseId, `data:image/png;base64,${base64}`);
-            }
-          } catch (e) {
-            // Ignore errors from failed image captures
-          }
-        }
-      });
-
-      // Navigate to character list to trigger image loading
-      await page.goto('https://swgoh.gg/characters/', { waitUntil: 'networkidle2', timeout: 30000 });
-      
-      // Wait a bit for images to load
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      this.characterImageCache = imageUrls;
-      return imageUrls;
-    } catch (error) {
-      logger.warn('Failed to fetch character images:', error);
-      return new Map();
-    } finally {
-      await page.close();
-    }
+    
+    logger.debug(`Built character image cache with ${cache.size} GL portraits`);
+    return cache;
   }
 
   async generateComparisonImage(
@@ -80,31 +52,71 @@ export class PlayerComparisonService {
     const page = await browser.newPage();
 
     try {
-      // Fetch character images for the comparison
-      await this.fetchCharacterImages();
+      // Build character image cache from existing portraits
+      const characterImageCache = this.buildCharacterImageCache();
       
-      // Set viewport for the comparison image
+      // Set a smaller initial viewport - we'll clip to the actual content
       await page.setViewport({
-        width: 1200,
-        height: 1600,
+        width: 1000,
+        height: 800,
         deviceScaleFactor: 2
       });
 
       // Generate and set the HTML content
-      const html = generateHTML(p1, p2, this.characterImageCache);
-      // Use 'domcontentloaded' instead of 'networkidle0' to avoid timeout on slow resources
-      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      const html = generateHTML(p1, p2, characterImageCache);
+      await page.setContent(html, { waitUntil: 'load', timeout: 60000 });
       
-      // Give a short delay for any inline styles/fonts to render
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait for images to load
+      await page.evaluate(`
+        Promise.all(
+          Array.from(document.images)
+            .filter(img => !img.complete)
+            .map(img => new Promise(resolve => {
+              img.onload = img.onerror = resolve;
+            }))
+        )
+      `);
+      
+      // Give a short delay for any final rendering
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Take screenshot
-      const screenshot = await page.screenshot({
-        type: 'png',
-        fullPage: true
-      });
+      // Get the bounding box of the container to clip the screenshot
+      const containerBox = await page.evaluate(`
+        (() => {
+          const container = document.querySelector('.container');
+          if (!container) return null;
+          const rect = container.getBoundingClientRect();
+          return {
+            x: rect.left,
+            y: rect.top,
+            width: rect.width,
+            height: rect.height
+          };
+        })()
+      `) as { x: number; y: number; width: number; height: number } | null;
 
-      return screenshot as Buffer;
+      // Take screenshot - clip to container if found, otherwise use fullPage
+      let screenshot: Buffer;
+      if (containerBox) {
+        // Add padding around the container
+        const padding = 20;
+        screenshot = await page.screenshot({
+          type: 'png',
+          clip: {
+            x: Math.max(0, containerBox.x - padding),
+            y: Math.max(0, containerBox.y - padding),
+            width: containerBox.width + (padding * 2),
+            height: containerBox.height + (padding * 2)
+          }
+        }) as Buffer;
+      } else {
+        screenshot = await page.screenshot({
+          type: 'png',
+          fullPage: true
+        }) as Buffer;
+      }
+
+      return screenshot;
     } finally {
       await page.close();
     }
