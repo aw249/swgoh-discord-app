@@ -227,10 +227,6 @@ export async function evaluateRosterForDefense(
       `Found ${userGLs.size} GL(s) in roster: ${Array.from(userGLs).join(', ')}`
     );
     
-    logger.info(
-      `Found ${userGLs.size} GL(s) in roster: ${Array.from(userGLs).join(', ')}`
-    );
-    
     const candidates: Array<{
       squad: UniqueDefensiveSquad;
       holdPercentage: number | null;

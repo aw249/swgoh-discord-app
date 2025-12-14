@@ -13,6 +13,7 @@ import { CombinedApiClient } from '../integrations/comlink';
 import { GacStrategyService } from '../services/gacStrategyService';
 import { logger } from '../utils/logger';
 import { RequestQueue } from '../utils/requestQueue';
+import { getMaxSquadsForLeague } from '../config/gacConstants';
 
 /**
  * API client interface that works with both SwgohGgApiClient and CombinedApiClient
@@ -729,26 +730,12 @@ export const gacCommand = {
 
     // Get league and max defense squads for balancing
     let league: string | null = null;
-    let maxDefenseSquads = format === '3v3' ? 15 : 11; // Default to Kyber for the format
+    let maxDefenseSquads = getMaxSquadsForLeague(null, format);
     try {
       const bracketData = await gacService.getBracketForAllyCode(yourAllyCode);
       league = bracketData.league;
-      const leagueMaxMap: Record<string, { '5v5': number; '3v3': number }> = {
-        'Kyber': { '5v5': 11, '3v3': 15 },
-        'Aurodium': { '5v5': 9, '3v3': 13 },
-        'Chromium': { '5v5': 7, '3v3': 10 },
-        'Bronzium': { '5v5': 5, '3v3': 7 },
-        'Carbonite': { '5v5': 3, '3v3': 3 }
-      };
-      // Normalize league name to handle case differences (API may return "AURODIUM" vs "Aurodium")
-      const normalizedLeague = league.charAt(0).toUpperCase() + league.slice(1).toLowerCase();
-      const leagueData = leagueMaxMap[normalizedLeague];
-      if (leagueData) {
-        maxDefenseSquads = leagueData[format as '5v5' | '3v3'] ?? (format === '3v3' ? 15 : 11);
-      } else {
-        maxDefenseSquads = format === '3v3' ? 15 : 11; // Default to Kyber max for the format
-      }
-      logger.info(`League detected: ${league} (normalized: ${normalizedLeague}), max defense squads: ${maxDefenseSquads} (${format} format)`);
+      maxDefenseSquads = getMaxSquadsForLeague(league, format);
+      logger.info(`League detected: ${league}, max defense squads: ${maxDefenseSquads} (${format} format)`);
     } catch (error) {
       logger.warn('Could not get bracket data for defense squads, using default:', error);
     }
