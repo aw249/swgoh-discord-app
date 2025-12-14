@@ -592,6 +592,44 @@ export function generateBalancedStrategyHtml(
           const winRateText = displayWinRate !== null ? `${displayWinRate.toFixed(0)}%` : 'N/A';
           const seenCountText = myOffense.seenCount !== null ? myOffense.seenCount.toLocaleString() : 'N/A';
           
+          // Build archetype warning if needed
+          let archetypeWarningHtml = '';
+          if (myOffense.archetypeValidation) {
+            const archVal = myOffense.archetypeValidation;
+            if (!archVal.viable) {
+              // Missing required abilities - show critical warning
+              // Extract ability IDs and format them nicely
+              const missingAbilities = archVal.missingRequired?.slice(0, 2).map(m => {
+                // Simplify ability ID for display (e.g. uniqueskill_CT555501 -> CT5555 zeta)
+                const unitId = m.unitBaseId.replace(/_/g, ' ');
+                return unitId;
+              }) || ['abilities'];
+              const missingText = missingAbilities.join(', ');
+              archetypeWarningHtml = `
+                <div class="archetype-warning critical">
+                  <span style="font-size: 14px;">⚠️</span>
+                  <span>Missing: ${missingText}</span>
+                </div>
+              `;
+            } else if (archVal.confidence < 0.9 && archVal.missingOptional && archVal.missingOptional.length > 0) {
+              // Missing optional abilities - show info warning
+              archetypeWarningHtml = `
+                <div class="archetype-warning info">
+                  <span style="font-size: 12px;">ℹ️</span>
+                  <span>Missing optional zetas</span>
+                </div>
+              `;
+            } else if (archVal.warnings && archVal.warnings.length > 0 && archVal.warnings[0] !== 'No archetype defined - zeta/omicron requirements not validated') {
+              // Other warnings
+              archetypeWarningHtml = `
+                <div class="archetype-warning info">
+                  <span style="font-size: 12px;">ℹ️</span>
+                  <span>${archVal.warnings[0]}</span>
+                </div>
+              `;
+            }
+          }
+          
           battleAnalysisHtml = `
             <div class="battle-analysis-box">
               <div class="battle-analysis-title">BATTLE ANALYSIS</div>
@@ -609,6 +647,7 @@ export function generateBalancedStrategyHtml(
                   <span class="stat-value">${seenCountText}</span>
                 </div>
               </div>
+              ${archetypeWarningHtml}
             </div>
           `;
         }
@@ -980,6 +1019,25 @@ export function generateBalancedStrategyHtml(
     .stat-row .stat-value {
       color: #1a1a1a;
       font-weight: bold;
+    }
+    .archetype-warning {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .archetype-warning.critical {
+      background: rgba(248, 113, 113, 0.3);
+      border: 1px solid #f87171;
+      color: #fecaca;
+    }
+    .archetype-warning.info {
+      background: rgba(251, 191, 36, 0.2);
+      border: 1px solid #fbbf24;
+      color: #fef3c7;
     }
     .defense-card {
       background: #d4b56a;

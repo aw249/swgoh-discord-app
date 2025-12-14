@@ -14,6 +14,27 @@ export interface UniqueDefensiveSquad {
   members: UniqueDefensiveSquadUnit[];
 }
 
+export interface MissingAbilityInfo {
+  abilityId: string;
+  unitBaseId: string;
+  reason: string;
+}
+
+export interface ArchetypeValidationInfo {
+  /** Whether the counter is viable based on archetype requirements */
+  viable: boolean;
+  /** Confidence score (0-1) based on optional abilities */
+  confidence: number;
+  /** Missing required abilities (zetas/omicrons) */
+  missingRequired?: MissingAbilityInfo[];
+  /** Missing optional abilities that would improve the counter */
+  missingOptional?: MissingAbilityInfo[];
+  /** Warnings about the counter setup */
+  warnings?: string[];
+  /** The archetype ID used for validation (if any) */
+  archetypeId?: string;
+}
+
 export interface MatchedCounterSquad {
   offense: UniqueDefensiveSquad;
   defense: UniqueDefensiveSquad;
@@ -26,6 +47,8 @@ export interface MatchedCounterSquad {
   bestCaseRelicDelta: RelicDeltaModifiers | null;
   keyMatchups: KeyMatchups | null;
   alternatives?: MatchedCounterSquad[];
+  /** Archetype validation results - indicates if zetas/omicrons are correct */
+  archetypeValidation?: ArchetypeValidationInfo;
 }
 
 export interface DefenseSuggestion {

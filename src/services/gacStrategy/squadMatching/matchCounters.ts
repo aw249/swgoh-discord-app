@@ -2,7 +2,7 @@
  * Logic for matching counter squads against user roster with relic delta calculations
  */
 import { GacDefensiveSquad, GacCounterSquad } from '../../../types/swgohGgTypes';
-import { UniqueDefensiveSquad, MatchedCounterSquad } from '../../../types/gacStrategyTypes';
+import { UniqueDefensiveSquad, MatchedCounterSquad, ArchetypeValidationInfo } from '../../../types/gacStrategyTypes';
 import { SwgohGgFullPlayerResponse } from '../../../integrations/swgohGgApi';
 import {
   calculateSquadRelicDelta,
@@ -14,7 +14,97 @@ import {
 import { logger } from '../../../utils/logger';
 import { isGalacticLegend } from '../../../config/gacConstants';
 import { getTop80CharactersRoster } from '../utils/rosterUtils';
-import { getAllUnitIds } from "../utils/squadUtils";;
+import { getAllUnitIds } from "../utils/squadUtils";
+import { ArchetypeConfig, LeaderArchetypeMapping } from '../../../types/archetypeTypes';
+import { 
+  getArchetypeValidator, 
+  createRosterAdapter, 
+  RosterAdapter 
+} from '../../archetypeValidation/archetypeValidator';
+import archetypesConfig from '../../../config/archetypes/archetypes.json';
+import leaderMappingsConfig from '../../../config/archetypes/leaderMappings.json';
+
+// GameMode enum values - duplicated here to avoid import issues
+const GameModeValues = {
+  GAC_3v3: 'GAC_3v3',
+  GAC_5v5: 'GAC_5v5',
+  TW: 'TW',
+} as const;
+type GameModeValue = typeof GameModeValues[keyof typeof GameModeValues];
+
+// Flag to track if validator has been initialised
+let validatorInitialised = false;
+
+/**
+ * Ensure the archetype validator is initialised
+ */
+function ensureValidatorInitialised(): void {
+  if (!validatorInitialised) {
+    try {
+      const config = archetypesConfig as ArchetypeConfig;
+      const mappings = (leaderMappingsConfig as { mappings: LeaderArchetypeMapping[] }).mappings;
+      getArchetypeValidator(config, mappings);
+      validatorInitialised = true;
+      logger.info(`Archetype validator initialised with ${config.archetypes.length} archetypes`);
+    } catch (error) {
+      logger.warn(`Failed to initialise archetype validator: ${error}`);
+    }
+  }
+}
+
+/**
+ * Convert format string to game mode string
+ */
+function getGameMode(format: string): GameModeValue {
+  return format === '3v3' ? GameModeValues.GAC_3v3 : GameModeValues.GAC_5v5;
+}
+
+/**
+ * Validate a counter squad against archetype requirements.
+ * Returns validation info including viability, confidence, and missing abilities.
+ */
+function validateCounterArchetype(
+  leaderBaseId: string,
+  rosterAdapter: RosterAdapter,
+  mode: GameModeValue
+): ArchetypeValidationInfo {
+  try {
+    ensureValidatorInitialised();
+    const validator = getArchetypeValidator();
+    // Use validateCounterByLeader which accepts the leader ID and mode
+    const result = validator.validateCounterByLeader(rosterAdapter, leaderBaseId, mode as any);
+    
+    // Map the result to our info type
+    const missingRequired = result.missingRequired?.map(r => ({
+      abilityId: r.abilityId,
+      unitBaseId: r.unitBaseId,
+      reason: r.reason,
+    }));
+    
+    const missingOptional = result.missingOptional?.map(r => ({
+      abilityId: r.abilityId,
+      unitBaseId: r.unitBaseId,
+      reason: r.reason,
+    }));
+    
+    return {
+      viable: result.viable,
+      confidence: result.confidence / 100, // Convert from 0-100 to 0-1
+      missingRequired,
+      missingOptional,
+      warnings: result.warnings,
+      archetypeId: result.archetypeId,
+    };
+  } catch (error) {
+    // If validator not initialised or archetype not found, return viable with warning
+    logger.debug(`No archetype validation for ${leaderBaseId}: ${error}`);
+    return {
+      viable: true,
+      confidence: 1.0,
+      warnings: ['No archetype defined - zeta/omicron requirements not validated'],
+    };
+  }
+}
 
 interface CounterClient {
   getCounterSquads(defensiveLeaderBaseId: string, seasonId?: string): Promise<GacCounterSquad[]>;
@@ -66,6 +156,10 @@ export async function matchCountersAgainstRoster(
     // This prevents reusing the same USER character in multiple offense counters
     // OPPONENT characters (defensiveSquad.leader.baseId) should NEVER be added to this set
     const usedCharacters = new Set<string>(); // Track all used USER characters (leader + members) to prevent duplicates
+
+    // Create roster adapter for archetype validation
+    const rosterAdapter = createRosterAdapter(userRoster);
+    const gameMode = getGameMode(format);
 
     // Determine expected counter squad size based on format
     const expectedCounterSize = format === '3v3' ? 3 : 5;
@@ -386,7 +480,31 @@ export async function matchCountersAgainstRoster(
             }
           }
           
-          const totalScore = viabilityScoreWeighted + relicDeltaScore + defensePenalty + opponentDefenseBonus + trapPenalty + nonGlBonus;
+          // Archetype validation: check if user has required zetas/omicrons for this counter
+          const archetypeValidation = validateCounterArchetype(
+            counter.leader.baseId,
+            rosterAdapter,
+            gameMode
+          );
+          
+          // Apply archetype penalties/bonuses
+          let archetypePenalty = 0;
+          if (!archetypeValidation.viable) {
+            // Missing required abilities - heavy penalty but don't completely exclude
+            // This allows the counter to appear as an alternative with a warning
+            archetypePenalty = -50;
+            logger.debug(
+              `Counter ${counter.leader.baseId} missing required abilities: ${archetypeValidation.missingRequired?.join(', ')} - applying penalty`
+            );
+          } else if (archetypeValidation.confidence < 1.0) {
+            // Missing optional abilities - small penalty based on confidence
+            archetypePenalty = -((1 - archetypeValidation.confidence) * 15);
+            logger.debug(
+              `Counter ${counter.leader.baseId} missing optional abilities (confidence: ${(archetypeValidation.confidence * 100).toFixed(0)}%)`
+            );
+          }
+          
+          const totalScore = viabilityScoreWeighted + relicDeltaScore + defensePenalty + opponentDefenseBonus + trapPenalty + nonGlBonus + archetypePenalty;
 
           // For defensive strategy, include GL counters in alternatives even if non-GL alternatives exist
           // They will be tried last during balancing if all non-GL alternatives conflict
@@ -459,6 +577,24 @@ export async function matchCountersAgainstRoster(
           const relicDelta = calculateSquadRelicDelta(offenseRelics, defenseRelics);
           const worstCaseRelicDelta = calculateWorstCaseRelicDelta(offenseRelics, defenseRelics);
           const bestCaseRelicDelta = calculateBestCaseRelicDelta(offenseRelics, defenseRelics);
+          
+          // Validate archetype requirements (zetas, omicrons)
+          const archetypeValidation = validateCounterArchetype(
+            counter.leader.baseId,
+            rosterAdapter,
+            gameMode
+          );
+          
+          // Log warnings if counter has missing abilities
+          if (!archetypeValidation.viable) {
+            logger.warn(
+              `Counter ${counter.leader.baseId} missing required abilities: ${archetypeValidation.missingRequired?.join(', ')}`
+            );
+          } else if (archetypeValidation.warnings && archetypeValidation.warnings.length > 0) {
+            logger.info(
+              `Counter ${counter.leader.baseId} archetype warnings: ${archetypeValidation.warnings.join(', ')}`
+            );
+          }
 
           return {
             offense: offenseSquad,
@@ -470,7 +606,8 @@ export async function matchCountersAgainstRoster(
             relicDelta,
             worstCaseRelicDelta,
             bestCaseRelicDelta,
-            keyMatchups
+            keyMatchups,
+            archetypeValidation
           };
         };
 

@@ -1,0 +1,5954 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-12-14",
+  "archetypes": [
+    {
+      "id": "IT_VEERS_TRAIN_BASE",
+      "displayName": "Imperial Trooper TM Train",
+      "description": "Veers lead with Piett provides TM loop via trap stacks and assists",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "VEERS",
+          "ADMIRALPIETT"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "DARKTROOPER",
+            "RANGETROOPER",
+            "STORMTROOPER",
+            "SNOWTROOPER",
+            "MAGMATROOPER",
+            "DEATHTROOPER",
+            "DIRECTORKRENNIC"
+          ],
+          "minCount": 1
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "ADMIRALPIETT",
+          "abilityId": "uniqueskill_ADMIRALPIETT01",
+          "abilityType": "zeta",
+          "reason": "The Emperor's Trap provides TM gain and trap stacks - core mechanic for the TM train"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "VEERS",
+          "abilityId": "uniqueskill_VEERS01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Ruthless Assault provides bonus damage on out-of-turn attacks"
+        },
+        {
+          "unitBaseId": "ADMIRALPIETT",
+          "abilityId": "specialskill_ADMIRALPIETT02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.15,
+          "reason": "Suborbital Strike provides AoE dispel and Daze"
+        }
+      ],
+      "warnings": [
+        "Veers leadership works without a zeta - his unique is the optional one"
+      ],
+      "tags": [
+        "empire",
+        "troopers",
+        "tm-train"
+      ]
+    },
+    {
+      "id": "IT_VEERS_TRAIN_3V3",
+      "displayName": "Imperial Trooper TM Train (3v3)",
+      "description": "3v3 variant requiring Dark Trooper zeta for the kill loop",
+      "extends": "IT_VEERS_TRAIN_BASE",
+      "modes": [
+        "GAC_3v3"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "VEERS",
+          "ADMIRALPIETT",
+          "DARKTROOPER"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DARKTROOPER",
+          "abilityId": "specialskill_DARKTROOPER01",
+          "abilityType": "zeta",
+          "reason": "Terminate enables the 3v3 kill loop - Dark Trooper must one-shot targets"
+        }
+      ],
+      "warnings": [
+        "Missing Dark Trooper zeta commonly breaks the 3v3 kill loop",
+        "Requires high relic Dark Trooper to one-shot enemies"
+      ],
+      "tags": [
+        "empire",
+        "troopers",
+        "tm-train",
+        "3v3-specialist"
+      ]
+    },
+    {
+      "id": "CLS_REBELS_BASE",
+      "displayName": "Commander Luke Rebels",
+      "description": "CLS lead with Chewie/Han/Threepio for TM train and protection",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "COMMANDERLUKESKYWALKER",
+          "CHEWBACCALEGENDARY"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "HANSOLO",
+            "C3POLEGENDARY",
+            "THEMANDALORIANBESKARARMOR",
+            "DASHRENDAR"
+          ],
+          "minCount": 1
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "COMMANDERLUKESKYWALKER",
+          "abilityId": "leaderskill_COMMANDERLUKESKYWALKER",
+          "abilityType": "zeta",
+          "reason": "Rebel Maneuvers provides TM manipulation and survivability"
+        },
+        {
+          "unitBaseId": "COMMANDERLUKESKYWALKER",
+          "abilityId": "uniqueskill_COMMANDERLUKESKYWALKER01",
+          "abilityType": "zeta",
+          "reason": "Learn Control provides Guard and bonus turn mechanics"
+        },
+        {
+          "unitBaseId": "CHEWBACCALEGENDARY",
+          "abilityId": "uniqueskill_CHEWBACCALEGENDARY01",
+          "abilityType": "zeta",
+          "reason": "Loyal Friend guard is ESSENTIAL - protects CLS and enables counter attacks"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "CHEWBACCALEGENDARY",
+          "abilityId": "uniqueskill_CHEWBACCALEGENDARY02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Chewie Raging Wookiee provides damage boost"
+        },
+        {
+          "unitBaseId": "HANSOLO",
+          "abilityId": "uniqueskill_HANSOLO01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Shoots First provides opening damage and TM manipulation"
+        }
+      ],
+      "warnings": [
+        "Chewie's Loyal Friend zeta is critical for the team's survivability"
+      ],
+      "tags": [
+        "rebels",
+        "tm-train",
+        "versatile"
+      ]
+    },
+    {
+      "id": "DASH_SCOUNDRELS_BASE",
+      "displayName": "Dash Scoundrels",
+      "description": "Dash lead with Chewie/Han for prepared stacking",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DASHRENDAR"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "CHEWBACCALEGENDARY",
+            "HANSOLO",
+            "YOUNGCHEWBACCA",
+            "YOUNGLANDO",
+            "YOUNGHAN"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DASHRENDAR",
+          "abilityId": "leaderskill_DASHRENDAR",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Scoundrel synergy and TM manipulation"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "CHEWBACCALEGENDARY",
+          "abilityId": "uniqueskill_CHEWBACCALEGENDARY01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.15,
+          "reason": "Loyal Friend guard protects weakest ally"
+        }
+      ],
+      "tags": [
+        "scoundrels",
+        "smugglers"
+      ]
+    },
+    {
+      "id": "DASH_SCOUNDRELS_GAC",
+      "displayName": "Dash Scoundrels (GAC Omicron)",
+      "description": "Dash with GAC omicron - massive power spike in GAC",
+      "extends": "DASH_SCOUNDRELS_BASE",
+      "modes": [
+        "GAC_3v3",
+        "GAC_5v5"
+      ],
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DASHRENDAR",
+          "abilityId": "leaderskill_DASHRENDAR",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "GAC omicron is essential - provides massive TM and damage boost"
+        }
+      ],
+      "tags": [
+        "scoundrels",
+        "smugglers",
+        "gac-specialist"
+      ]
+    },
+    {
+      "id": "PADME_PROTECTION_UP",
+      "displayName": "Padme Protection Up",
+      "description": "Padme lead with GR for protection up stacking and survivability",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "PADMEAMIDALA"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "GENERALSKYWALKER",
+            "AHSOKATANO",
+            "ANAKINKNIGHT",
+            "GENERALKENOBI",
+            "C3POLEGENDARY",
+            "SHAAKTI"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "PADMEAMIDALA",
+          "abilityId": "leaderskill_PADMEAMIDALA",
+          "abilityType": "zeta",
+          "reason": "Leadership grants Protection Up on debuff resist - core defensive mechanic"
+        },
+        {
+          "unitBaseId": "PADMEAMIDALA",
+          "abilityId": "uniqueskill_PADMEAMIDALA01",
+          "abilityType": "zeta",
+          "reason": "Unique provides bonus turn and TM manipulation"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "AHSOKATANO",
+          "abilityId": "uniqueskill_AHSOKATANO01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Ahsoka unique provides healing and damage"
+        },
+        {
+          "unitBaseId": "ANAKINKNIGHT",
+          "abilityId": "uniqueskill_ANAKINKNIGHT01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "JKA unique provides bonus turn on kill"
+        }
+      ],
+      "tags": [
+        "galactic-republic",
+        "protection-up",
+        "tank"
+      ]
+    },
+    {
+      "id": "GAS_501ST",
+      "displayName": "General Skywalker 501st",
+      "description": "GAS with 501st clones for damage immunity cycling",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GENERALSKYWALKER"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "ARCTROOPER501ST",
+            "CT210408",
+            "CT7567",
+            "CT5555"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GENERALSKYWALKER",
+          "abilityId": "leaderskill_GENERALSKYWALKER",
+          "abilityType": "zeta",
+          "reason": "Leadership provides clone synergy and damage immunity"
+        },
+        {
+          "unitBaseId": "GENERALSKYWALKER",
+          "abilityId": "uniqueskill_GENERALSKYWALKER01",
+          "abilityType": "zeta",
+          "reason": "Unique provides the damage immunity toggle mechanic"
+        },
+        {
+          "unitBaseId": "CT5555",
+          "abilityId": "uniqueskill_CT555501",
+          "abilityType": "zeta",
+          "reason": "Fives sacrifice zeta is ESSENTIAL - provides massive stat boost when he dies"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GENERALSKYWALKER",
+          "abilityId": "specialskill_GENERALSKYWALKER02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Unyielding Advance provides bonus attacks"
+        },
+        {
+          "unitBaseId": "ARCTROOPER501ST",
+          "abilityId": "uniqueskill_ARCTROOPER501ST01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "ARC Trooper unique improves damage output"
+        }
+      ],
+      "warnings": [
+        "Fives zeta is critical - without it the team loses most of its power"
+      ],
+      "tags": [
+        "galactic-republic",
+        "501st",
+        "clones",
+        "damage-immunity"
+      ]
+    },
+    {
+      "id": "DR_SITH_EMPIRE",
+      "displayName": "Darth Revan Sith Empire",
+      "description": "Darth Revan lead with Fear mechanics and Malak tank",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DARTHREVAN",
+          "DARTHMALAK"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "BASTILASHANDARK",
+            "HK47",
+            "SITHMARAUDER",
+            "SITHTROOPER"
+          ],
+          "minCount": 1
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DARTHREVAN",
+          "abilityId": "leaderskill_DARTHREVAN",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Fear and Sith Empire synergy"
+        },
+        {
+          "unitBaseId": "DARTHREVAN",
+          "abilityId": "uniqueskill_DARTHREVAN01",
+          "abilityType": "zeta",
+          "reason": "Unique enables bonus turn and Fear spreading"
+        },
+        {
+          "unitBaseId": "DARTHMALAK",
+          "abilityId": "uniqueskill_DARTHMALAK01",
+          "abilityType": "zeta",
+          "reason": "Malak Gnawing Terror zeta is ESSENTIAL for drain and survivability"
+        },
+        {
+          "unitBaseId": "DARTHMALAK",
+          "abilityId": "uniqueskill_DARTHMALAK02",
+          "abilityType": "zeta",
+          "reason": "Malak Jaws of Life zeta provides critical healing and stacking"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "BASTILASHANDARK",
+          "abilityId": "uniqueskill_BASTILASHANDARK01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Badstila unique improves control"
+        }
+      ],
+      "warnings": [
+        "Both Malak zetas are critical - without them the team is significantly weaker"
+      ],
+      "tags": [
+        "sith-empire",
+        "fear",
+        "control"
+      ]
+    },
+    {
+      "id": "JKR_JEDI",
+      "displayName": "Jedi Knight Revan Jedi",
+      "description": "JKR lead with Marked mechanic and Jolee revives",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "JEDIKNIGHTREVAN",
+          "JOLEEBINDO"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "BASTILASHAN",
+            "GRANDMASTERYODA",
+            "HERMITYODA",
+            "GENERALSKYWALKER"
+          ],
+          "minCount": 1
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "JEDIKNIGHTREVAN",
+          "abilityId": "leaderskill_JEDIKNIGHTREVAN",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Jedi synergy and Marked mechanic"
+        },
+        {
+          "unitBaseId": "JEDIKNIGHTREVAN",
+          "abilityId": "uniqueskill_JEDIKNIGHTREVAN01",
+          "abilityType": "zeta",
+          "reason": "Unique provides bonus turn and savior mechanics"
+        },
+        {
+          "unitBaseId": "JOLEEBINDO",
+          "abilityId": "specialskill_JOLEEBINDO02",
+          "abilityType": "zeta",
+          "reason": "Jolee revive zeta is ESSENTIAL - team cannot function without revives"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "BASTILASHAN",
+          "abilityId": "leaderskill_BASTILASHAN",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.05,
+          "reason": "Bastila leadership provides protection"
+        }
+      ],
+      "warnings": [
+        "Jolee with his zeta is critical - without revives this team falls apart quickly"
+      ],
+      "tags": [
+        "jedi",
+        "old-republic",
+        "marked"
+      ]
+    },
+    {
+      "id": "NIGHTSISTERS_TALZIN",
+      "displayName": "Mother Talzin Nightsisters",
+      "description": "Talzin lead with Plague and revive mechanics",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "MOTHERTALZIN"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "NIGHTSISTERZOMBIE",
+            "DAKA",
+            "NIGHTSISTERSPIRIT",
+            "ASAJVENTRESS",
+            "MERRIN"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MOTHERTALZIN",
+          "abilityId": "leaderskill_MOTHERTALZIN",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Plague and Nightsister synergy"
+        },
+        {
+          "unitBaseId": "MOTHERTALZIN",
+          "abilityId": "uniqueskill_MOTHERTALZIN01",
+          "abilityType": "zeta",
+          "reason": "Unique provides revival and bonus turn mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "DAKA",
+          "abilityId": "uniqueskill_DAKA01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.15,
+          "reason": "Daka revive provides sustainability"
+        },
+        {
+          "unitBaseId": "ASAJVENTRESS",
+          "abilityId": "uniqueskill_ASAJVENTRESS01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Asajj rampage provides damage scaling"
+        }
+      ],
+      "tags": [
+        "nightsisters",
+        "plague",
+        "revive"
+      ]
+    },
+    {
+      "id": "NIGHTSISTERS_TALZIN_GAC",
+      "displayName": "Mother Talzin Nightsisters (GAC Omicron)",
+      "description": "Talzin Nightsisters with Merrin GAC omicron",
+      "extends": "NIGHTSISTERS_TALZIN",
+      "modes": [
+        "GAC_3v3",
+        "GAC_5v5"
+      ],
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MERRIN",
+          "abilityId": "uniqueskill_MERRIN01",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "Merrin GAC omicron provides massive stats and healing - significantly strengthens defense"
+        }
+      ],
+      "tags": [
+        "nightsisters",
+        "gac-specialist"
+      ]
+    },
+    {
+      "id": "GEOS_BROOD_ALPHA",
+      "displayName": "Geonosian Brood Alpha",
+      "description": "GBA lead with Geonosian swarm mechanics",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GEONOSIANBROODALPHA"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "GEONOSIANSOLDIER",
+            "GEONOSIANSPY",
+            "SUNFAC",
+            "POGGLETHELESSER"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GEONOSIANBROODALPHA",
+          "abilityId": "uniqueskill_GEONOSIANBROODALPHA01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Hive Mind mechanics for protection and TM"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "SUNFAC",
+          "abilityId": "uniqueskill_SUNFAC01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Sun Fac unique provides taunt and damage"
+        }
+      ],
+      "tags": [
+        "geonosians",
+        "separatist",
+        "swarm"
+      ]
+    },
+    {
+      "id": "BOUNTY_HUNTERS_BOSSK",
+      "displayName": "Bossk Bounty Hunters",
+      "description": "Bossk lead with taunt and recovery",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BOSSK"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "BOBAFETT",
+            "JANGOFETT",
+            "DENGAR",
+            "EMBO",
+            "GREEFKARGA",
+            "THEMANDALORIAN"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "BOSSK",
+          "abilityId": "leaderskill_BOSSK",
+          "abilityType": "zeta",
+          "reason": "Leadership provides BH synergy and survivability"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "BOSSK",
+          "abilityId": "uniqueskill_BOSSK01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Bossk unique provides taunt and recovery"
+        }
+      ],
+      "tags": [
+        "bounty-hunters",
+        "scoundrels"
+      ]
+    },
+    {
+      "id": "WAMPA_SOLO_GAC",
+      "displayName": "Wampa Solo (GAC)",
+      "description": "Solo Wampa with GAC omicron for undersized squad wins",
+      "modes": [
+        "GAC_3v3",
+        "GAC_5v5"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "WAMPA"
+        ],
+        "minimumRelics": [
+          {
+            "unitBaseId": "WAMPA",
+            "minRelic": 7,
+            "reason": "R7+ required for consistent solo victories"
+          }
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "WAMPA",
+          "abilityId": "uniqueskill_WAMPA02",
+          "abilityType": "zeta",
+          "reason": "Cornered Beast provides survivability and damage scaling"
+        },
+        {
+          "unitBaseId": "WAMPA",
+          "abilityId": "uniqueskill_WAMPA02",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "GAC omicron enables solo counters - without it Wampa cannot solo most teams"
+        }
+      ],
+      "warnings": [
+        "Wampa solos require specific target teams - verify matchup"
+      ],
+      "tags": [
+        "solo",
+        "undersized",
+        "gac-specialist"
+      ]
+    },
+    {
+      "id": "PHASMA_FO_GAC",
+      "displayName": "Captain Phasma FO (GAC Solo)",
+      "description": "Phasma with GAC omicron for solo/undersized counters",
+      "modes": [
+        "GAC_3v3",
+        "GAC_5v5"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "PHASMA"
+        ],
+        "minimumRelics": [
+          {
+            "unitBaseId": "PHASMA",
+            "minRelic": 5,
+            "reason": "R5+ recommended for reliable solos"
+          }
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "PHASMA",
+          "abilityId": "leaderskill_PHASMA",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "GAC omicron is required for solo capability"
+        }
+      ],
+      "tags": [
+        "first-order",
+        "solo",
+        "undersized",
+        "gac-specialist"
+      ]
+    },
+    {
+      "id": "SITH_TRIO",
+      "displayName": "Sith Triumvirate",
+      "description": "Traya lead with Nihilus/Sion for annihilate and taunt",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DARTHTRAYA"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "DARTHNIHILUS",
+            "DARTHSION"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DARTHTRAYA",
+          "abilityId": "leaderskill_DARTHTRAYA",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Sith synergy and isolate mechanic"
+        },
+        {
+          "unitBaseId": "DARTHNIHILUS",
+          "abilityId": "uniqueskill_DARTHNIHILUS01",
+          "abilityType": "zeta",
+          "reason": "Nihilus unique enables annihilate - key win condition"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "DARTHTRAYA",
+          "abilityId": "uniqueskill_DARTHTRAYA01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Traya unique provides bonus turn after Isolate"
+        },
+        {
+          "unitBaseId": "DARTHSION",
+          "abilityId": "uniqueskill_DARTHSION01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Sion unique provides taunt and damage"
+        }
+      ],
+      "tags": [
+        "sith",
+        "triumvirate",
+        "annihilate"
+      ]
+    },
+    {
+      "id": "IMPERIAL_REMNANTS_MOFF",
+      "displayName": "Moff Gideon Imperial Remnants",
+      "description": "Moff lead with Imperial Remnant synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "MOFFGIDEONS1"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "DARKTROOPER",
+            "DEATHTROOPER",
+            "STORMTROOPER"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MOFFGIDEONS1",
+          "abilityId": "leaderskill_MOFFGIDEONS1",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Imperial Remnant synergy"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "MOFFGIDEONS1",
+          "abilityId": "uniqueskill_MOFFGIDEONS101",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Moff unique provides TM manipulation"
+        }
+      ],
+      "tags": [
+        "empire",
+        "imperial-remnants"
+      ]
+    },
+    {
+      "id": "SHAAK_CLONES",
+      "displayName": "Shaak Ti Clones",
+      "description": "Shaak Ti lead with 501st clones",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "SHAAKTI"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "CT5555",
+            "CT7567",
+            "CT210408",
+            "ARCTROOPER501ST"
+          ],
+          "minCount": 3
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "SHAAKTI",
+          "abilityId": "leaderskill_SHAAKTI",
+          "abilityType": "zeta",
+          "reason": "Leadership provides clone synergy and healing"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "SHAAKTI",
+          "abilityId": "uniqueskill_SHAAKTI01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Unique provides bonus turn and TM"
+        },
+        {
+          "unitBaseId": "CT5555",
+          "abilityId": "uniqueskill_CT555501",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.15,
+          "reason": "Fives sacrifice provides massive stat boost"
+        }
+      ],
+      "tags": [
+        "galactic-republic",
+        "clones",
+        "501st"
+      ]
+    },
+    {
+      "id": "PHOENIX",
+      "displayName": "Phoenix Squadron",
+      "description": "Hera lead with Phoenix unique sharing",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "HERASYNDULLAS3"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "EZRABRIDGERS3",
+            "KANANJARRUSS3",
+            "CHOPPERS3",
+            "ZEBS3",
+            "SABINEWRENS3"
+          ],
+          "minCount": 3
+        }
+      },
+      "requiredAbilities": [],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "KANANJARRUSS3",
+          "abilityId": "uniqueskill_KANANJARRUSS301",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.15,
+          "reason": "Kanan unique provides protection and survivability"
+        }
+      ],
+      "warnings": [
+        "Phoenix is primarily a beginner team - limited high-level use"
+      ],
+      "tags": [
+        "rebels",
+        "phoenix"
+      ]
+    },
+    {
+      "id": "SEPARATIST_DROIDS",
+      "displayName": "General Grievous Droids",
+      "description": "GG lead with separatist droid synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GRIEVOUS"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "B1BATTLEDROIDV2",
+            "B2SUPERBATTLEDROID",
+            "MAGNAGUARD",
+            "DROIDEKA"
+          ],
+          "minCount": 3
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GRIEVOUS",
+          "abilityId": "uniqueskill_GRIEVOUS01",
+          "abilityType": "zeta",
+          "reason": "GG unique provides damage scaling based on HP loss"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "B1BATTLEDROIDV2",
+          "abilityId": "uniqueskill_b1battledroidv2_01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.15,
+          "reason": "B1 unique provides swarm stacking"
+        }
+      ],
+      "tags": [
+        "separatist",
+        "droids"
+      ]
+    },
+    {
+      "id": "FIRST_ORDER_KRU",
+      "displayName": "Kylo Ren Unmasked First Order",
+      "description": "KRU lead with First Order TM train",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "KYLORENUNMASKED"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "FIRSTORDEREXECUTIONER",
+            "FIRSTORDEROFFICERMALE",
+            "FIRSTORDERTROOPER"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "KYLORENUNMASKED",
+          "abilityId": "uniqueskill_KYLORENUNMASKED01",
+          "abilityType": "zeta",
+          "reason": "KRU unique provides taunt and stun"
+        }
+      ],
+      "tags": [
+        "first-order"
+      ]
+    },
+    {
+      "id": "MOTHMA_REBELS_BASE",
+      "displayName": "Mon Mothma Rebels",
+      "description": "Mon Mothma lead with Rebel Fighter synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "MONMOTHMA"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "PAO",
+            "BIGGSDARKLIGHTER",
+            "WEDGEANTILLES",
+            "CASSIANANDOR"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MONMOTHMA",
+          "abilityId": "leaderskill_MONMOTHMA",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Rebel Fighter synergy"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "MONMOTHMA",
+          "abilityId": "uniqueskill_MONMOTHMA01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Unique provides bonus TM and assists"
+        }
+      ],
+      "tags": [
+        "rebels",
+        "rebel-fighters"
+      ]
+    },
+    {
+      "id": "MOTHMA_REBELS_TW",
+      "displayName": "Mon Mothma Rebels (TW)",
+      "description": "Mon Mothma with TW omicron - excellent TW defense team",
+      "extends": "MOTHMA_REBELS_BASE",
+      "modes": [
+        "TW"
+      ],
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MONMOTHMA",
+          "abilityId": "leaderskill_MONMOTHMA",
+          "abilityType": "omicron",
+          "modeGates": [
+            "TW"
+          ],
+          "reason": "TW omicron provides massive Rebel Fighter bonuses and assists"
+        }
+      ],
+      "tags": [
+        "rebels",
+        "rebel-fighters",
+        "tw-specialist"
+      ]
+    },
+    {
+      "id": "BAD_BATCH_HUNTER",
+      "displayName": "Hunter Bad Batch",
+      "description": "Hunter lead with Bad Batch synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BADBATCHHUNTER"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "BADBATCHWRECKER",
+            "BADBATCHTECH",
+            "BADBATCHECHO",
+            "BADBATCHOMEGA"
+          ],
+          "minCount": 2
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "BADBATCHHUNTER",
+          "abilityId": "leaderskill_BADBATCHHUNTER",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Bad Batch synergy and targeting"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "BADBATCHOMEGA",
+          "abilityId": "uniqueskill_BADBATCHOMEGA01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.15,
+          "reason": "Omega unique provides additional Bad Batch bonuses"
+        }
+      ],
+      "tags": [
+        "clones",
+        "bad-batch"
+      ]
+    },
+    {
+      "id": "GL_REY_STANDARD",
+      "displayName": "GL Rey",
+      "description": "Galactic Legend Rey with Resistance allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GLREY"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GLREY",
+          "abilityId": "leaderskill_GLREY",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Resistance synergy and protection"
+        },
+        {
+          "unitBaseId": "GLREY",
+          "abilityId": "uniqueskill_GLREY01",
+          "abilityType": "zeta",
+          "reason": "Unique provides bonus turns and damage"
+        },
+        {
+          "unitBaseId": "GLREY",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Ultimate is required for GL effectiveness"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GLREY",
+          "abilityId": "basicskill_GLREY",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.05,
+          "reason": "Basic zeta provides additional damage"
+        },
+        {
+          "unitBaseId": "GLREY",
+          "abilityId": "specialskill_GLREY01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.05,
+          "reason": "Special ability zeta improves control"
+        },
+        {
+          "unitBaseId": "GLREY",
+          "abilityId": "specialskill_GLREY02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.05,
+          "reason": "Special ability zeta provides utility"
+        }
+      ],
+      "tags": [
+        "galactic-legend",
+        "resistance",
+        "light-side"
+      ]
+    },
+    {
+      "id": "GL_SLKR_STANDARD",
+      "displayName": "GL Supreme Leader Kylo Ren",
+      "description": "Galactic Legend SLKR with First Order allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "SUPREMELEADERKYLOREN"
+        ],
+        "requireAnyOf": {
+          "units": [
+            "KYLORENUNMASKED",
+            "FIRSTORDEREXECUTIONER",
+            "SITHTROOPER",
+            "GENERALHUX"
+          ],
+          "minCount": 1
+        }
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "SUPREMELEADERKYLOREN",
+          "abilityId": "leaderskill_SUPREMELEADERKYLOREN",
+          "abilityType": "zeta",
+          "reason": "Leadership provides First Order synergy and Siphon"
+        },
+        {
+          "unitBaseId": "SUPREMELEADERKYLOREN",
+          "abilityId": "uniqueskill_SUPREMELEADERKYLOREN01",
+          "abilityType": "zeta",
+          "reason": "Unique enables link mechanic"
+        },
+        {
+          "unitBaseId": "SUPREMELEADERKYLOREN",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Ultimate is required for GL effectiveness"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "SUPREMELEADERKYLOREN",
+          "abilityId": "basicskill_SUPREMELEADERKYLOREN",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.05,
+          "reason": "Basic zeta provides damage and TM"
+        },
+        {
+          "unitBaseId": "SUPREMELEADERKYLOREN",
+          "abilityId": "specialskill_SUPREMELEADERKYLOREN01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.05,
+          "reason": "Special zeta improves control"
+        }
+      ],
+      "tags": [
+        "galactic-legend",
+        "first-order",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "GL_JML_STANDARD",
+      "displayName": "GL Jedi Master Luke Skywalker",
+      "description": "Galactic Legend JML with Jedi allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GRANDMASTERLUKE"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GRANDMASTERLUKE",
+          "abilityId": "leaderskill_GRANDMASTERLUKE",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Jedi synergy and Jedi Lessons"
+        },
+        {
+          "unitBaseId": "GRANDMASTERLUKE",
+          "abilityId": "uniqueskill_GRANDMASTERLUKE01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Hero mechanic"
+        },
+        {
+          "unitBaseId": "GRANDMASTERLUKE",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Ultimate is required for GL effectiveness"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GRANDMASTERLUKE",
+          "abilityId": "basicskill_GRANDMASTERLUKE",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.05,
+          "reason": "Basic zeta provides damage"
+        }
+      ],
+      "tags": [
+        "galactic-legend",
+        "jedi",
+        "light-side"
+      ]
+    },
+    {
+      "id": "GL_SEE_STANDARD",
+      "displayName": "GL Sith Eternal Emperor",
+      "description": "Galactic Legend SEE with Sith allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "SITHPALPATINE"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "SITHPALPATINE",
+          "abilityId": "leaderskill_SITHPALPATINE",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Sith synergy"
+        },
+        {
+          "unitBaseId": "SITHPALPATINE",
+          "abilityId": "uniqueskill_SITHPALPATINE01",
+          "abilityType": "zeta",
+          "reason": "Unique provides survivability"
+        },
+        {
+          "unitBaseId": "SITHPALPATINE",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Ultimate is required for GL effectiveness"
+        }
+      ],
+      "tags": [
+        "galactic-legend",
+        "sith",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "GL_JMK_BASE",
+      "displayName": "GL Jedi Master Kenobi",
+      "description": "Galactic Legend JMK - strongest with CAT",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "JEDIMASTERKENOBI"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "JEDIMASTERKENOBI",
+          "abilityId": "leaderskill_JEDIMASTERKENOBI",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Galactic Republic synergy"
+        },
+        {
+          "unitBaseId": "JEDIMASTERKENOBI",
+          "abilityId": "uniqueskill_JEDIMASTERKENOBI01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Courage stacking"
+        },
+        {
+          "unitBaseId": "JEDIMASTERKENOBI",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Ultimate is required for GL effectiveness"
+        }
+      ],
+      "tags": [
+        "galactic-legend",
+        "galactic-republic",
+        "jedi",
+        "light-side"
+      ]
+    },
+    {
+      "id": "GL_JMK_WITH_CAT",
+      "displayName": "GL JMK + CAT",
+      "description": "Jedi Master Kenobi with Commander Ahsoka Tano - top tier squad",
+      "extends": "GL_JMK_BASE",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "JEDIMASTERKENOBI",
+          "COMMANDERAHSOKA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "COMMANDERAHSOKA",
+          "abilityId": "uniqueskill_COMMANDERAHSOKA01",
+          "abilityType": "zeta",
+          "reason": "CAT unique is ESSENTIAL - provides Force Leap and massive damage"
+        }
+      ],
+      "warnings": [
+        "JMK+CAT is one of the strongest squads in the game",
+        "Without CAT's zeta the team loses its primary damage dealer"
+      ],
+      "tags": [
+        "galactic-legend",
+        "galactic-republic",
+        "jedi",
+        "light-side",
+        "top-tier"
+      ]
+    },
+    {
+      "id": "GL_LV_BASE",
+      "displayName": "GL Lord Vader",
+      "description": "Galactic Legend Lord Vader with Empire allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "LORDVADER"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "LORDVADER",
+          "abilityId": "leaderskill_LORDVADER",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Empire synergy and Underestimated"
+        },
+        {
+          "unitBaseId": "LORDVADER",
+          "abilityId": "uniqueskill_LORDVADER01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Breathing Room mechanics"
+        },
+        {
+          "unitBaseId": "LORDVADER",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Ultimate is required for GL effectiveness"
+        }
+      ],
+      "tags": [
+        "galactic-legend",
+        "empire",
+        "sith",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "GL_LV_WITH_MAUL",
+      "displayName": "GL Lord Vader + Maul",
+      "description": "Lord Vader with Maul - top tier offensive squad",
+      "extends": "GL_LV_BASE",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "LORDVADER",
+          "MAULS7"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MAULS7",
+          "abilityId": "uniqueskill_MAULS701",
+          "abilityType": "zeta",
+          "reason": "Maul unique zeta is ESSENTIAL - provides Mandalorian synergy with LV"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "MAULS7",
+          "abilityId": "specialskill_MAULS701",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Maul special provides burst damage"
+        }
+      ],
+      "warnings": [
+        "LV+Maul is the premier LV offensive squad"
+      ],
+      "tags": [
+        "galactic-legend",
+        "empire",
+        "sith",
+        "mandalorians",
+        "dark-side",
+        "top-tier"
+      ]
+    },
+    {
+      "id": "GL_JABBA_STANDARD",
+      "displayName": "GL Jabba the Hutt",
+      "description": "Galactic Legend Jabba with Hutt Cartel allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "JABBATHEHUTT"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "JABBATHEHUTT",
+          "abilityId": "leaderskill_JABBATHEHUTT",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Hutt Cartel synergy"
+        },
+        {
+          "unitBaseId": "JABBATHEHUTT",
+          "abilityId": "uniqueskill_JABBATHEHUTT01",
+          "abilityType": "zeta",
+          "reason": "Unique provides control mechanics"
+        },
+        {
+          "unitBaseId": "JABBATHEHUTT",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Ultimate is required for GL effectiveness"
+        }
+      ],
+      "tags": [
+        "galactic-legend",
+        "hutt-cartel",
+        "scoundrels",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "GL_LEIA_STANDARD",
+      "displayName": "GL Leia Organa",
+      "description": "Galactic Legend Leia with Rebel allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GLLEIA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GLLEIA",
+          "abilityId": "leaderskill_GLLEIA",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Rebel synergy"
+        },
+        {
+          "unitBaseId": "GLLEIA",
+          "abilityId": "uniqueskill_GLLEIA01",
+          "abilityType": "zeta",
+          "reason": "Unique provides support mechanics"
+        },
+        {
+          "unitBaseId": "GLLEIA",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Ultimate is required for GL effectiveness"
+        }
+      ],
+      "tags": [
+        "galactic-legend",
+        "rebels",
+        "light-side"
+      ]
+    },
+    {
+      "id": "GL_AHSOKA_STANDARD",
+      "displayName": "GL Ahsoka Tano",
+      "description": "Galactic Legend Ahsoka with allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GLAHSOKATANO"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GLAHSOKATANO",
+          "abilityId": "leaderskill_GLAHSOKATANO",
+          "abilityType": "zeta",
+          "reason": "Leadership provides synergy"
+        },
+        {
+          "unitBaseId": "GLAHSOKATANO",
+          "abilityId": "uniqueskill_GLAHSOKATANO01",
+          "abilityType": "zeta",
+          "reason": "Unique provides core mechanics"
+        },
+        {
+          "unitBaseId": "GLAHSOKATANO",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Ultimate is required for GL effectiveness"
+        }
+      ],
+      "tags": [
+        "galactic-legend",
+        "light-side"
+      ]
+    },
+    {
+      "id": "APHRA_DROIDS",
+      "displayName": "Doctor Aphra Droids",
+      "description": "Aphra lead with droid allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DOCTORAPHRA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DOCTORAPHRA",
+          "abilityId": "specialskill_DOCTORAPHRA01",
+          "abilityType": "zeta",
+          "reason": "Triple Zero Protocol provides key damage and control"
+        }
+      ],
+      "tags": [
+        "scoundrels",
+        "droids"
+      ]
+    },
+    {
+      "id": "GRAND_INQUISITOR_BASE",
+      "displayName": "Grand Inquisitor",
+      "description": "Grand Inquisitor lead with Inquisitor allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GRANDINQUISITOR"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GRANDINQUISITOR",
+          "abilityId": "basicskill_GRANDINQUISITOR",
+          "abilityType": "zeta",
+          "reason": "Basic zeta provides core damage mechanics"
+        }
+      ],
+      "tags": [
+        "inquisitors",
+        "empire",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "MAUL_MANDALORIANS",
+      "displayName": "Maul Mandalorians",
+      "description": "Maul (S7) lead with Mandalorian allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "MAULS7"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MAULS7",
+          "abilityId": "uniqueskill_MAULS701",
+          "abilityType": "zeta",
+          "reason": "Unique provides Mandalorian synergy and damage"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "MAULS7",
+          "abilityId": "specialskill_MAULS701",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Special zeta improves burst damage"
+        },
+        {
+          "unitBaseId": "MAULS7",
+          "abilityId": "specialskill_MAULS702",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Special zeta provides utility"
+        }
+      ],
+      "tags": [
+        "mandalorians",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "DARTH_MAUL_SITH",
+      "displayName": "Darth Maul Sith",
+      "description": "Darth Maul lead with Sith allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "MAUL"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MAUL",
+          "abilityId": "leaderskill_MAUL",
+          "abilityType": "zeta",
+          "reason": "Leadership provides evasion and turn meter"
+        }
+      ],
+      "tags": [
+        "sith",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "FENNEC_SCOUNDRELS",
+      "displayName": "Fennec Scoundrels",
+      "description": "Fennec Shand lead with Scoundrel allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "FENNECSHAND"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "FENNECSHAND",
+          "abilityId": "uniqueskill_FENNECSHAND01",
+          "abilityType": "zeta",
+          "reason": "Unique provides contract mechanics and damage"
+        }
+      ],
+      "tags": [
+        "scoundrels",
+        "bounty-hunters"
+      ]
+    },
+    {
+      "id": "BOKATAN_MANDALORIANS",
+      "displayName": "Bo-Katan Mandalorians",
+      "description": "Bo-Katan Kryze lead with Mandalorian allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BOKATAN"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "BOKATAN",
+          "abilityId": "uniqueskill_BOKATAN01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Mandalorian synergy"
+        }
+      ],
+      "tags": [
+        "mandalorians",
+        "light-side"
+      ]
+    },
+    {
+      "id": "MANDALOR_BOKATAN",
+      "displayName": "Bo-Katan Mand'alor",
+      "description": "Bo-Katan (Mand'alor) lead with Mandalorian allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "MANDALORBOKATAN"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MANDALORBOKATAN",
+          "abilityId": "specialskill_MANDALORBOKATAN01",
+          "abilityType": "zeta",
+          "reason": "Special zeta provides core mechanics"
+        }
+      ],
+      "tags": [
+        "mandalorians",
+        "light-side"
+      ]
+    },
+    {
+      "id": "SAW_GERRERA_REBELS_BASE",
+      "displayName": "Saw Gerrera Rebels",
+      "description": "Saw Gerrera lead with Rebel allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "SAWGERRERA"
+        ]
+      },
+      "optionalAbilities": [
+        {
+          "unitBaseId": "SAWGERRERA",
+          "abilityId": "uniqueskill_SAWGERRERA01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Unique provides damage and rebel synergy"
+        }
+      ],
+      "tags": [
+        "rebels",
+        "light-side"
+      ]
+    },
+    {
+      "id": "SAW_GERRERA_REBELS_GAC",
+      "displayName": "Saw Gerrera Rebels (GAC)",
+      "description": "Saw Gerrera with GAC omicron - makes team much stronger in GAC",
+      "extends": "SAW_GERRERA_REBELS_BASE",
+      "modes": [
+        "GAC_3v3",
+        "GAC_5v5"
+      ],
+      "requiredAbilities": [
+        {
+          "unitBaseId": "SAWGERRERA",
+          "abilityId": "uniqueskill_SAWGERRERA01",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "GAC omicron provides massive stat boosts and TM gain for Rebels"
+        }
+      ],
+      "tags": [
+        "rebels",
+        "light-side",
+        "gac-specialist"
+      ]
+    },
+    {
+      "id": "NUTE_SEPARATISTS",
+      "displayName": "Nute Gunray Separatists",
+      "description": "Nute Gunray lead with Separatist allies - extortion mechanics",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "NUTEGUNRAY"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "NUTEGUNRAY",
+          "abilityId": "uniqueskill_NUTEGUNRAY01",
+          "abilityType": "zeta",
+          "reason": "Unique provides extortion mechanics"
+        }
+      ],
+      "tags": [
+        "separatists",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "IDEN_EMPIRE",
+      "displayName": "Iden Versio Empire",
+      "description": "Iden Versio lead with Empire Trooper allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "IDENVERSIOEMPIRE"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "IDENVERSIOEMPIRE",
+          "abilityId": "uniqueskill_IDENVERSIOEMPIRE01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Empire Trooper synergy"
+        }
+      ],
+      "tags": [
+        "empire",
+        "troopers",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "MACE_WINDU_JEDI",
+      "displayName": "Mace Windu Jedi",
+      "description": "Mace Windu lead with Jedi allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "MACEWINDU"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MACEWINDU",
+          "abilityId": "uniqueskill_MACEWINDU01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Jedi synergy"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "MACEWINDU",
+          "abilityId": "specialskill_MACEWINDU02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Special zeta improves control"
+        }
+      ],
+      "tags": [
+        "jedi",
+        "galactic-republic",
+        "light-side"
+      ]
+    },
+    {
+      "id": "BOBA_FETT_SCION",
+      "displayName": "Boba Fett Scion of Jango",
+      "description": "Boba Fett Scion lead with Bounty Hunter allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BOBAFETTSCION"
+        ]
+      },
+      "tags": [
+        "bounty-hunters",
+        "scoundrels"
+      ]
+    },
+    {
+      "id": "BOBA_FETT_CLASSIC",
+      "displayName": "Boba Fett Classic",
+      "description": "Classic Boba Fett lead with Bounty Hunter allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BOBAFETT"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "BOBAFETT",
+          "abilityId": "uniqueskill_BOBAFETT01",
+          "abilityType": "zeta",
+          "reason": "Unique provides survivability and damage"
+        }
+      ],
+      "tags": [
+        "bounty-hunters",
+        "scoundrels"
+      ]
+    },
+    {
+      "id": "EMPEROR_PALPATINE_EMPIRE",
+      "displayName": "Emperor Palpatine Empire",
+      "description": "Emperor Palpatine lead with Empire or Sith allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "EMPERORPALPATINE"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "EMPERORPALPATINE",
+          "abilityId": "leaderskill_EMPERORPALPATINE",
+          "abilityType": "zeta",
+          "reason": "Leadership provides turn meter and offense"
+        },
+        {
+          "unitBaseId": "EMPERORPALPATINE",
+          "abilityId": "uniqueskill_EMPERORPALPATINE01",
+          "abilityType": "zeta",
+          "reason": "Unique provides shock mechanics"
+        }
+      ],
+      "tags": [
+        "empire",
+        "sith",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "THRAWN_EMPIRE",
+      "displayName": "Grand Admiral Thrawn Empire",
+      "description": "Thrawn lead with Empire allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GRANDADMIRALTHRAWN"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GRANDADMIRALTHRAWN",
+          "abilityId": "leaderskill_GRANDADMIRALTHRAWN",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Empire synergy"
+        },
+        {
+          "unitBaseId": "GRANDADMIRALTHRAWN",
+          "abilityId": "uniqueskill_GRANDADMIRALTHRAWN01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Fracture and TM swap"
+        }
+      ],
+      "tags": [
+        "empire",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "GMY_JEDI",
+      "displayName": "Grand Master Yoda Jedi",
+      "description": "Grand Master Yoda lead with Jedi allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GRANDMASTERYODA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GRANDMASTERYODA",
+          "abilityId": "leaderskill_GRANDMASTERYODA",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Jedi tenacity and foresight"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GRANDMASTERYODA",
+          "abilityId": "specialskill_GRANDMASTERYODA03",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.15,
+          "reason": "Battle Meditation spreads buffs"
+        }
+      ],
+      "tags": [
+        "jedi",
+        "light-side"
+      ]
+    },
+    {
+      "id": "BASTILA_JEDI",
+      "displayName": "Bastila Shan Jedi",
+      "description": "Bastila Shan lead with Jedi allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BASTILASHAN"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "BASTILASHAN",
+          "abilityId": "leaderskill_BASTILASHAN",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Jedi protection and tenacity"
+        }
+      ],
+      "tags": [
+        "jedi",
+        "old-republic",
+        "light-side"
+      ]
+    },
+    {
+      "id": "CERE_MALICOS_BASE",
+      "displayName": "Cere Junda / Malicos",
+      "description": "Cere Junda lead with Taron Malicos - powerful Jedi duo engine",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "CEREJUNDA",
+          "TARONMALICOS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "CEREJUNDA",
+          "abilityId": "specialskill_CEREJUNDA02",
+          "abilityType": "zeta",
+          "reason": "Cere special provides control and buff dispel"
+        },
+        {
+          "unitBaseId": "TARONMALICOS",
+          "abilityId": "specialskill_TARONMALICOS01",
+          "abilityType": "zeta",
+          "reason": "Malicos special zeta is core to the damage engine"
+        }
+      ],
+      "warnings": [
+        "This squad requires BOTH Cere and Malicos to function properly"
+      ],
+      "tags": [
+        "jedi",
+        "fallen-order",
+        "light-side"
+      ]
+    },
+    {
+      "id": "CERE_MALICOS_GAC",
+      "displayName": "Cere Junda / Malicos (GAC)",
+      "description": "Cere/Malicos with GAC omicron - extremely powerful counter squad",
+      "extends": "CERE_MALICOS_BASE",
+      "modes": [
+        "GAC_3v3",
+        "GAC_5v5"
+      ],
+      "requiredAbilities": [
+        {
+          "unitBaseId": "TARONMALICOS",
+          "abilityId": "specialskill_TARONMALICOS01",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "Malicos GAC omicron massively boosts damage and survivability - enables GL counters"
+        }
+      ],
+      "warnings": [
+        "Without Malicos omicron, this squad cannot reliably counter GLs"
+      ],
+      "tags": [
+        "jedi",
+        "fallen-order",
+        "light-side",
+        "gac-specialist",
+        "gl-counter"
+      ]
+    },
+    {
+      "id": "QUIGON_JEDI",
+      "displayName": "Qui-Gon Jinn Jedi",
+      "description": "Qui-Gon Jinn lead with Jedi allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "QUIGONJINN"
+        ]
+      },
+      "tags": [
+        "jedi",
+        "galactic-republic",
+        "light-side"
+      ]
+    },
+    {
+      "id": "ASAJJ_NIGHTSISTERS",
+      "displayName": "Asajj Ventress Nightsisters",
+      "description": "Asajj Ventress lead with Nightsister allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "ASAJVENTRESS"
+        ]
+      },
+      "tags": [
+        "nightsisters",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "ASAJJ_DARK_DISCIPLE",
+      "displayName": "Asajj Dark Disciple",
+      "description": "Asajj Ventress Dark Disciple lead",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "ASAJJDARKDISCIPLE"
+        ]
+      },
+      "tags": [
+        "bounty-hunters",
+        "scoundrels",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "TUSKEN_CHIEFTAIN",
+      "displayName": "Tusken Chieftain Raiders",
+      "description": "Tusken Chieftain lead with Tusken allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "TUSKENCHIEFTAIN"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "TUSKENCHIEFTAIN",
+          "abilityId": "basicskill_TUSKENCHIEFTAIN",
+          "abilityType": "zeta",
+          "reason": "Basic zeta provides core Tusken mechanics"
+        }
+      ],
+      "tags": [
+        "tuskens",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "CHIRPA_EWOKS_BASE",
+      "displayName": "Chief Chirpa Ewoks",
+      "description": "Chief Chirpa lead with Ewok allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "CHIEFCHIRPA"
+        ]
+      },
+      "tags": [
+        "ewoks",
+        "light-side"
+      ]
+    },
+    {
+      "id": "CHIRPA_EWOKS_GAC",
+      "displayName": "Chief Chirpa Ewoks (GAC)",
+      "description": "Chief Chirpa with GAC omicron - makes Ewoks a strong defensive team",
+      "extends": "CHIRPA_EWOKS_BASE",
+      "modes": [
+        "GAC_3v3",
+        "GAC_5v5"
+      ],
+      "requiredAbilities": [
+        {
+          "unitBaseId": "CHIEFCHIRPA",
+          "abilityId": "leaderskill_CHIEFCHIRPA",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "GAC omicron massively boosts Ewok survivability and TM gain"
+        }
+      ],
+      "warnings": [
+        "Ewoks are significantly weaker without the GAC omicron"
+      ],
+      "tags": [
+        "ewoks",
+        "light-side",
+        "gac-specialist"
+      ]
+    },
+    {
+      "id": "ADMIRAL_ACKBAR_REBELS",
+      "displayName": "Admiral Ackbar Rebels",
+      "description": "Admiral Ackbar lead with Rebel allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "ADMIRALACKBAR"
+        ]
+      },
+      "tags": [
+        "rebels",
+        "light-side"
+      ]
+    },
+    {
+      "id": "TARKIN_EMPIRE_BASE",
+      "displayName": "Grand Moff Tarkin Empire",
+      "description": "Grand Moff Tarkin lead with Empire allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GRANDMOFFTARKIN"
+        ]
+      },
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GRANDMOFFTARKIN",
+          "abilityId": "uniqueskill_GRANDMOFFTARKIN01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Unique provides TM removal mechanics"
+        }
+      ],
+      "tags": [
+        "empire",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "TARKIN_EMPIRE_GAC",
+      "displayName": "Grand Moff Tarkin Empire (GAC)",
+      "description": "Grand Moff Tarkin lead with Empire allies - GAC omicron makes this a potent team",
+      "extends": "TARKIN_EMPIRE_BASE",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3"
+      ],
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GRANDMOFFTARKIN",
+          "abilityId": "leaderskill_GRANDMOFFTARKIN",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "Leadership omicron massively boosts Empire allies in GAC - grants TM, offense, and debuff immunity"
+        }
+      ],
+      "warnings": [
+        "This team is significantly weaker without the GAC omicron"
+      ],
+      "tags": [
+        "empire",
+        "dark-side",
+        "gac-specialist"
+      ]
+    },
+    {
+      "id": "KRENNIC_EMPIRE",
+      "displayName": "Director Krennic Empire",
+      "description": "Director Krennic lead with Empire allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DIRECTORKRENNIC"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DIRECTORKRENNIC",
+          "abilityId": "leaderskill_DIRECTORKRENNIC",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Empire synergy and crit damage"
+        }
+      ],
+      "tags": [
+        "empire",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "CAPTAIN_ENOCH",
+      "displayName": "Captain Enoch Empire",
+      "description": "Captain Enoch lead with Empire allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "CAPTAINENOCH"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "CAPTAINENOCH",
+          "abilityId": "leaderskill_CAPTAINENOCH",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Empire Night Trooper synergy"
+        }
+      ],
+      "tags": [
+        "empire",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "DAKA_NIGHTSISTERS",
+      "displayName": "Old Daka Nightsisters",
+      "description": "Old Daka lead with Nightsister allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DAKA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DAKA",
+          "abilityId": "uniqueskill_DAKA01",
+          "abilityType": "zeta",
+          "reason": "Unique provides resurrection mechanics"
+        }
+      ],
+      "tags": [
+        "nightsisters",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "AURRA_SING_BH",
+      "displayName": "Aurra Sing Bounty Hunters",
+      "description": "Aurra Sing lead with Bounty Hunter allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "AURRA_SING"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "AURRA_SING",
+          "abilityId": "leaderskill_AURRA_SING",
+          "abilityType": "zeta",
+          "reason": "Leadership provides crit damage and speed"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "AURRA_SING",
+          "abilityId": "specialskill_AURRA_SING02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Special zeta improves burst damage"
+        }
+      ],
+      "tags": [
+        "bounty-hunters",
+        "scoundrels",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "TRENCH_SEPARATISTS",
+      "displayName": "Admiral Trench Separatists",
+      "description": "Admiral Trench lead with Separatist allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "TRENCH"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "TRENCH",
+          "abilityId": "specialskill_TRENCH01",
+          "abilityType": "zeta",
+          "reason": "Special provides Separatist synergy"
+        }
+      ],
+      "tags": [
+        "separatists",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "LUMINARA_JEDI",
+      "displayName": "Luminara Unduli Jedi",
+      "description": "Luminara Unduli lead with Jedi allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "LUMINARAUNDULI"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "LUMINARAUNDULI",
+          "abilityId": "leaderskill_LUMINARAUNDULI",
+          "abilityType": "zeta",
+          "reason": "Leadership provides Jedi evasion"
+        }
+      ],
+      "tags": [
+        "jedi",
+        "galactic-republic",
+        "light-side"
+      ]
+    },
+    {
+      "id": "NIHILUS_SITH",
+      "displayName": "Darth Nihilus Sith",
+      "description": "Darth Nihilus lead with Sith allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DARTHNIHILUS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DARTHNIHILUS",
+          "abilityId": "leaderskill_DARTHNIHILUS",
+          "abilityType": "zeta",
+          "reason": "Leadership provides health drain mechanics"
+        },
+        {
+          "unitBaseId": "DARTHNIHILUS",
+          "abilityId": "uniqueskill_DARTHNIHILUS01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Annihilate reset"
+        }
+      ],
+      "tags": [
+        "sith",
+        "old-republic",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "QIRA_SCOUNDRELS",
+      "displayName": "Qi'ra Scoundrels",
+      "description": "Qi'ra lead with Scoundrel allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "QIRA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "QIRA",
+          "abilityId": "uniqueskill_QIRA01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Prepared mechanics"
+        }
+      ],
+      "tags": [
+        "scoundrels",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "CARTH_OLD_REPUBLIC",
+      "displayName": "Carth Onasi Old Republic",
+      "description": "Carth Onasi lead with Old Republic allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "CARTHONASI"
+        ]
+      },
+      "tags": [
+        "old-republic",
+        "light-side"
+      ]
+    },
+    {
+      "id": "HONDO_SCOUNDRELS",
+      "displayName": "Hondo Ohnaka Scoundrels",
+      "description": "Hondo Ohnaka with Scoundrel allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "HONDO"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "HONDO",
+          "abilityId": "specialskill_HONDO01",
+          "abilityType": "zeta",
+          "reason": "Special provides burst and control"
+        }
+      ],
+      "tags": [
+        "scoundrels"
+      ]
+    },
+    {
+      "id": "RH_FINN_RESISTANCE",
+      "displayName": "Resistance Hero Finn",
+      "description": "Resistance Hero Finn with Resistance allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "EPIXFINN"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "EPIXFINN",
+          "abilityId": "uniqueskill_EPIXFINN01",
+          "abilityType": "zeta",
+          "reason": "Unique provides Resistance synergy"
+        }
+      ],
+      "tags": [
+        "resistance",
+        "light-side"
+      ]
+    },
+    {
+      "id": "CAPTAIN_SILVO",
+      "displayName": "Captain Silvo Empire",
+      "description": "Captain Silvo lead with Empire allies",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "CAPTAINSILVO"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "CAPTAINSILVO",
+          "abilityId": "specialskill_CAPTAINSILVO02",
+          "abilityType": "zeta",
+          "reason": "Special provides burst damage"
+        }
+      ],
+      "tags": [
+        "empire",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "DARTHMALGUS",
+      "displayName": "Darth Malgus",
+      "description": "Darth Malgus Sith Empire lead with massive damage and sustain",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DARTHMALGUS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DARTHMALGUS",
+          "abilityId": "leaderskill_DARTHMALGUS",
+          "abilityType": "zeta",
+          "reason": "Leadership zeta provides Sith Empire synergy and damage"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "DARTHMALGUS",
+          "abilityId": "leaderskill_DARTHMALGUS",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "modeGates": [
+            "TB"
+          ],
+          "reason": "Leadership omicron for TB"
+        },
+        {
+          "unitBaseId": "DARTHMALGUS",
+          "abilityId": "specialskill_DARTHMALGUS02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Special zeta provides additional utility"
+        }
+      ],
+      "tags": [
+        "sith-empire",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "JEDIKNIGHTLUKE",
+      "displayName": "Jedi Knight Luke Skywalker",
+      "description": "JKL lead with Jedi synergy and Hero's Resolve",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "JEDIKNIGHTLUKE"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "JEDIKNIGHTLUKE",
+          "abilityId": "leaderskill_JEDIKNIGHTLUKE",
+          "abilityType": "zeta",
+          "reason": "Leadership zeta provides Jedi synergy and Hero's Resolve"
+        },
+        {
+          "unitBaseId": "JEDIKNIGHTLUKE",
+          "abilityId": "uniqueskill_JEDIKNIGHTLUKE01",
+          "abilityType": "zeta",
+          "reason": "Unique zeta is essential for the Hero mechanic"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "JEDIKNIGHTLUKE",
+          "abilityId": "leaderskill_JEDIKNIGHTLUKE",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "tags": [
+        "jedi",
+        "rebels",
+        "light-side"
+      ]
+    },
+    {
+      "id": "GENERALKENOBI",
+      "displayName": "General Kenobi",
+      "description": "General Kenobi lead with Galactic Republic synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GENERALKENOBI"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GENERALKENOBI",
+          "abilityId": "uniqueskill_GENERALKENOBI01",
+          "abilityType": "zeta",
+          "reason": "Unique zeta provides critical Soresu defense"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GENERALKENOBI",
+          "abilityId": "leaderskill_GENERALKENOBI",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Leadership omicron enhances Galactic Republic allies"
+        }
+      ],
+      "tags": [
+        "galactic-republic",
+        "jedi",
+        "light-side"
+      ]
+    },
+    {
+      "id": "GREATMOTHERS",
+      "displayName": "Great Mothers",
+      "description": "Great Mothers Nightsister lead with dark side synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GREATMOTHERS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GREATMOTHERS",
+          "abilityId": "leaderskill_GREATMOTHERS",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "Leadership omicron is essential for GAC effectiveness"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GREATMOTHERS",
+          "abilityId": "specialskill_GREATMOTHERS01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Special zeta provides additional utility"
+        }
+      ],
+      "tags": [
+        "nightsisters",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "ARMORER",
+      "displayName": "The Armorer",
+      "description": "The Armorer Mandalorian lead with beskar synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "ARMORER"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "ARMORER",
+          "abilityId": "leaderskill_ARMORER",
+          "abilityType": "omicron",
+          "reason": "Leadership omicron is essential for the beskar mechanic"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "ARMORER",
+          "abilityId": "specialskill_ARMORER01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Special zeta improves forge ability"
+        }
+      ],
+      "tags": [
+        "mandalorians",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "REX_CLONES",
+      "displayName": "Captain Rex Clones",
+      "description": "Rex lead with 501st clone synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "CT7567"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "CT7567",
+          "abilityId": "leaderskill_REX",
+          "abilityType": "omicron",
+          "reason": "Leadership omicron is essential for the clone TM train"
+        },
+        {
+          "unitBaseId": "CT7567",
+          "abilityId": "uniqueskill_REX01",
+          "abilityType": "zeta",
+          "reason": "Unique zeta provides clone synergy"
+        }
+      ],
+      "tags": [
+        "501st",
+        "clones",
+        "galactic-republic"
+      ]
+    },
+    {
+      "id": "MOFFGIDEON_S3",
+      "displayName": "Moff Gideon S3",
+      "description": "Moff Gideon Season 3 Empire lead",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "MOFFGIDEONS3"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MOFFGIDEONS3",
+          "abilityId": "leaderskill_MOFFGIDEONS3",
+          "abilityType": "zeta",
+          "reason": "Leadership zeta provides Empire synergy"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "MOFFGIDEONS3",
+          "abilityId": "leaderskill_MOFFGIDEONS3",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Leadership omicron enhances in specific modes"
+        }
+      ],
+      "tags": [
+        "empire",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "KELLERANBEQ",
+      "displayName": "Kelleran Beq",
+      "description": "Kelleran Beq Jedi lead with protection recovery",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "KELLERANBEQ"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "KELLERANBEQ",
+          "abilityId": "leaderskill_KELLERANBEQ",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "Leadership omicron is essential for GAC effectiveness"
+        },
+        {
+          "unitBaseId": "KELLERANBEQ",
+          "abilityId": "uniqueskill_KELLERANBEQ01",
+          "abilityType": "zeta",
+          "reason": "Unique zeta provides protection recovery mechanic"
+        }
+      ],
+      "tags": [
+        "jedi",
+        "light-side"
+      ]
+    },
+    {
+      "id": "HK47_DROIDS",
+      "displayName": "HK-47 Droids",
+      "description": "HK-47 lead with droid synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "HK47"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "HK47",
+          "abilityId": "leaderskill_HK47",
+          "abilityType": "omicron",
+          "reason": "Leadership omicron is essential for droid synergy"
+        },
+        {
+          "unitBaseId": "HK47",
+          "abilityId": "uniqueskill_HK4701",
+          "abilityType": "zeta",
+          "reason": "Unique zeta provides critical damage mechanics"
+        },
+        {
+          "unitBaseId": "HK47",
+          "abilityId": "uniqueskill_HK4702",
+          "abilityType": "zeta",
+          "reason": "Second unique zeta provides additional synergy"
+        }
+      ],
+      "tags": [
+        "droids",
+        "sith-empire",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "THEMANDALORIAN_BH",
+      "displayName": "The Mandalorian (Original)",
+      "description": "The Mandalorian lead with bounty hunter synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "THEMANDALORIAN"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "THEMANDALORIAN",
+          "abilityId": "leaderskill_THEMANDALORIAN",
+          "abilityType": "zeta",
+          "reason": "Leadership zeta provides bounty hunter synergy"
+        },
+        {
+          "unitBaseId": "THEMANDALORIAN",
+          "abilityId": "uniqueskill_THEMANDALORIAN01",
+          "abilityType": "zeta",
+          "reason": "Unique zeta is essential for Disintegrate mechanic"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "THEMANDALORIAN",
+          "abilityId": "leaderskill_THEMANDALORIAN",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Leadership omicron enhances in specific modes"
+        }
+      ],
+      "tags": [
+        "bounty-hunters",
+        "mandalorians",
+        "scoundrels"
+      ]
+    },
+    {
+      "id": "GENERALHUX_FO",
+      "displayName": "General Hux First Order",
+      "description": "General Hux lead with First Order synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GENERALHUX"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GENERALHUX",
+          "abilityId": "leaderskill_GENERALHUX",
+          "abilityType": "zeta",
+          "reason": "Leadership zeta provides First Order synergy"
+        },
+        {
+          "unitBaseId": "GENERALHUX",
+          "abilityId": "uniqueskill_GENERALHUX01",
+          "abilityType": "zeta",
+          "reason": "Unique zeta provides Allegiance mechanics"
+        }
+      ],
+      "tags": [
+        "first-order",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "SECONDSISTER_INQUISITORS",
+      "displayName": "Second Sister Inquisitors",
+      "description": "Second Sister lead with Inquisitor synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "SECONDSISTER"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "SECONDSISTER",
+          "abilityId": "leaderskill_SECONDSISTER",
+          "abilityType": "omicron",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ],
+          "reason": "Leadership omicron is essential for GAC effectiveness"
+        },
+        {
+          "unitBaseId": "SECONDSISTER",
+          "abilityId": "uniqueskill_SECONDSISTER01",
+          "abilityType": "zeta",
+          "reason": "Unique zeta provides Inquisitor synergy"
+        }
+      ],
+      "tags": [
+        "empire",
+        "inquisitors",
+        "dark-side"
+      ]
+    },
+    {
+      "id": "OLDBENKENOBI_REBELS",
+      "displayName": "Old Ben Rebels",
+      "description": "Old Ben lead with Rebel synergy",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "OLDBENKENOBI"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "OLDBENKENOBI",
+          "abilityId": "uniqueskill_OLDBENKENOBI01",
+          "abilityType": "zeta",
+          "reason": "Unique zeta provides If You Strike Me Down mechanic"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "OLDBENKENOBI",
+          "abilityId": "leaderskill_OLDBENKENOBI",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Leadership omicron enhances Rebel allies"
+        }
+      ],
+      "tags": [
+        "jedi",
+        "rebels",
+        "light-side"
+      ]
+    },
+    {
+      "id": "QUEENAMIDALA",
+      "displayName": "Queen Amidala",
+      "description": "Auto-generated archetype for Queen Amidala",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "QUEENAMIDALA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "QUEENAMIDALA",
+          "abilityId": "leaderskill_QUEENAMIDALA",
+          "abilityType": "omicron",
+          "reason": "Queen Amidala leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "QUEENAMIDALA",
+          "abilityId": "basicskill_QUEENAMIDALA",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Queen Amidala basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "QUEENAMIDALA",
+          "abilityId": "specialskill_QUEENAMIDALA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Queen Amidala special omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "QUEENAMIDALA",
+          "abilityId": "specialskill_QUEENAMIDALA02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Queen Amidala special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "QUEENAMIDALA",
+          "abilityId": "uniqueskill_QUEENAMIDALA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Queen Amidala unique omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "OMEGAS3",
+      "displayName": "Omega (Fugitive)",
+      "description": "Auto-generated archetype for Omega (Fugitive)",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "OMEGAS3"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "OMEGAS3",
+          "abilityId": "leaderskill_OMEGAS3",
+          "abilityType": "omicron",
+          "reason": "Omega (Fugitive) leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "OMEGAS3",
+          "abilityId": "basicskill_OMEGAS3",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Omega (Fugitive) special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "OMEGAS3",
+          "abilityId": "basicskill_OMEGAS3",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Omega (Fugitive) basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "OMEGAS3",
+          "abilityId": "specialskill_OMEGAS301",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Omega (Fugitive) special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "OMEGAS3",
+          "abilityId": "specialskill_OMEGAS301",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Omega (Fugitive) special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "OMEGAS3",
+          "abilityId": "specialskill_OMEGAS302",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Omega (Fugitive) special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "OMEGAS3",
+          "abilityId": "uniqueskill_OMEGAS301",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Omega (Fugitive) unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "BAYLANSKOLL",
+      "displayName": "Baylan Skoll",
+      "description": "Auto-generated archetype for Baylan Skoll",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BAYLANSKOLL"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "BAYLANSKOLL",
+          "abilityId": "leaderskill_BAYLANSKOLL",
+          "abilityType": "omicron",
+          "reason": "Baylan Skoll leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "BAYLANSKOLL",
+          "abilityId": "basicskill_BAYLANSKOLL",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Baylan Skoll basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BAYLANSKOLL",
+          "abilityId": "specialskill_BAYLANSKOLL01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Baylan Skoll special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BAYLANSKOLL",
+          "abilityId": "specialskill_BAYLANSKOLL02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Baylan Skoll special omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "BAYLANSKOLL",
+          "abilityId": "uniqueskill_BAYLANSKOLL01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Baylan Skoll unique omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "BAYLANSKOLL",
+          "abilityId": "uniqueskill_BAYLANSKOLL02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Baylan Skoll unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "INQUISITORBARRISS",
+      "displayName": "Inquisitor Barriss",
+      "description": "Auto-generated archetype for Inquisitor Barriss",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "INQUISITORBARRISS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "INQUISITORBARRISS",
+          "abilityId": "leaderskill_INQUISITORBARRISS",
+          "abilityType": "omicron",
+          "reason": "Inquisitor Barriss leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "INQUISITORBARRISS",
+          "abilityId": "basicskill_INQUISITORBARRISS",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Inquisitor Barriss basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "INQUISITORBARRISS",
+          "abilityId": "specialskill_INQUISITORBARRISS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Inquisitor Barriss special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "INQUISITORBARRISS",
+          "abilityId": "specialskill_INQUISITORBARRISS02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Inquisitor Barriss special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "INQUISITORBARRISS",
+          "abilityId": "specialskill_INQUISITORBARRISS02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Inquisitor Barriss special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "INQUISITORBARRISS",
+          "abilityId": "uniqueskill_INQUISITORBARRISS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Inquisitor Barriss unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "INQUISITORBARRISS",
+          "abilityId": "uniqueskill_INQUISITOR01_HEALER_BARRISS",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Inquisitor Barriss unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "EMBO",
+      "displayName": "Embo",
+      "description": "Auto-generated archetype for Embo",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "EMBO"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "EMBO",
+          "abilityId": "leaderskill_EMBO",
+          "abilityType": "zeta",
+          "reason": "Embo leadership zeta provides core squad mechanics"
+        },
+        {
+          "unitBaseId": "EMBO",
+          "abilityId": "leaderskill_EMBO",
+          "abilityType": "omicron",
+          "reason": "Embo leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "EMBO",
+          "abilityId": "basicskill_EMBO",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Embo basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "EMBO",
+          "abilityId": "specialskill_EMBO01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Embo special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "EMBO",
+          "abilityId": "uniqueskill_EMBO01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Embo unique omicron for specific game modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        },
+        {
+          "unitBaseId": "EMBO",
+          "abilityId": "contractskill_EMBO01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Embo basic omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "AHSOKATANO",
+      "displayName": "Ahsoka Tano (Snips)",
+      "description": "Auto-generated archetype for Ahsoka Tano (Snips)",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "AHSOKATANO"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "AHSOKATANO",
+          "abilityId": "leaderskill_AHSOKATANO",
+          "abilityType": "omicron",
+          "reason": "Ahsoka Tano (Snips) leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "AHSOKATANO",
+          "abilityId": "uniqueskill_AHSOKATANO01",
+          "abilityType": "zeta",
+          "reason": "Ahsoka Tano (Snips) unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "AHSOKATANO",
+          "abilityId": "basicskill_AHSOKATANO",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Ahsoka Tano (Snips) basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "AHSOKATANO",
+          "abilityId": "specialskill_AHSOKATANO01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Ahsoka Tano (Snips) special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "AHSOKATANO",
+          "abilityId": "uniqueskill_AHSOKATANO01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Ahsoka Tano (Snips) unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "ANAKINKNIGHT",
+      "displayName": "Jedi Knight Anakin",
+      "description": "Auto-generated archetype for Jedi Knight Anakin",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "ANAKINKNIGHT"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "ANAKINKNIGHT",
+          "abilityId": "leaderskill_ANAKINKNIGHT",
+          "abilityType": "omicron",
+          "reason": "Jedi Knight Anakin leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "ANAKINKNIGHT",
+          "abilityId": "uniqueskill_ANAKINKNIGHT01",
+          "abilityType": "zeta",
+          "reason": "Jedi Knight Anakin unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "ANAKINKNIGHT",
+          "abilityId": "basicskill_ANAKINKNIGHT",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Knight Anakin basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "ANAKINKNIGHT",
+          "abilityId": "specialskill_ANAKINKNIGHT01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Knight Anakin special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "ANAKINKNIGHT",
+          "abilityId": "uniqueskill_ANAKINKNIGHT01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Knight Anakin unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "GREEFKARGA",
+      "displayName": "Greef Karga",
+      "description": "Auto-generated archetype for Greef Karga",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GREEFKARGA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GREEFKARGA",
+          "abilityId": "leaderskill_GREEFKARGA",
+          "abilityType": "omicron",
+          "reason": "Greef Karga leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GREEFKARGA",
+          "abilityId": "basicskill_GREEFKARGA",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Greef Karga basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GREEFKARGA",
+          "abilityId": "specialskill_GREEFKARGA01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Greef Karga special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "GREEFKARGA",
+          "abilityId": "specialskill_GREEFKARGA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Greef Karga special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GREEFKARGA",
+          "abilityId": "specialskill_GREEFKARGA02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Greef Karga special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "GREEFKARGA",
+          "abilityId": "specialskill_GREEFKARGA02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Greef Karga special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GREEFKARGA",
+          "abilityId": "uniqueskill_GREEFKARGA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Greef Karga unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GREEFKARGA",
+          "abilityId": "contractskill_GREEFKARGA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Greef Karga basic omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "CC2224",
+      "displayName": "CC-2224 \"Cody\"",
+      "description": "Auto-generated archetype for CC-2224 \"Cody\"",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "CC2224"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "CC2224",
+          "abilityId": "leaderskill_CC2224",
+          "abilityType": "zeta",
+          "reason": "CC-2224 \"Cody\" leadership zeta provides core squad mechanics"
+        },
+        {
+          "unitBaseId": "CC2224",
+          "abilityId": "leaderskill_CC2224",
+          "abilityType": "omicron",
+          "reason": "CC-2224 \"Cody\" leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "CC2224",
+          "abilityId": "basicskill_CC2224",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "CC-2224 \"Cody\" basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "CC2224",
+          "abilityId": "specialskill_CC222401",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "CC-2224 \"Cody\" special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "CC2224",
+          "abilityId": "specialskill_CC222402",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "CC-2224 \"Cody\" special omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "BOUSHH",
+      "displayName": "Boushh (Leia Organa)",
+      "description": "Auto-generated archetype for Boushh (Leia Organa)",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BOUSHH"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "BOUSHH",
+          "abilityId": "leaderskill_BOUSHH",
+          "abilityType": "omicron",
+          "reason": "Boushh (Leia Organa) leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "BOUSHH",
+          "abilityId": "uniqueskill_BOUSHH01",
+          "abilityType": "zeta",
+          "reason": "Boushh (Leia Organa) unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "BOUSHH",
+          "abilityId": "basicskill_BOUSHH",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Boushh (Leia Organa) basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BOUSHH",
+          "abilityId": "specialskill_BOUSHH01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Boushh (Leia Organa) special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BOUSHH",
+          "abilityId": "uniqueskill_BOUSHH01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Boushh (Leia Organa) unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BOUSHH",
+          "abilityId": "uniqueskill_BOUSHH02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Boushh (Leia Organa) unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BOUSHH",
+          "abilityId": "contractskill_BOUSHH",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Boushh (Leia Organa) basic omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "STRANGER",
+      "displayName": "The Stranger",
+      "description": "Auto-generated archetype for The Stranger",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "STRANGER"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "STRANGER",
+          "abilityId": "leaderskill_STRANGER",
+          "abilityType": "omicron",
+          "reason": "The Stranger leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "STRANGER",
+          "abilityId": "basicskill_STRANGER",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "The Stranger basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "STRANGER",
+          "abilityId": "specialskill_STRANGER01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "The Stranger special omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "STRANGER",
+          "abilityId": "specialskill_STRANGER02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "The Stranger special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "STRANGER",
+          "abilityId": "specialskill_STRANGER02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "The Stranger special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "STRANGER",
+          "abilityId": "uniqueskill_STRANGER01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "The Stranger unique omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "DENGAR",
+      "displayName": "Dengar",
+      "description": "Auto-generated archetype for Dengar",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DENGAR"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DENGAR",
+          "abilityId": "leaderskill_DENGAR",
+          "abilityType": "omicron",
+          "reason": "Dengar leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "DENGAR",
+          "abilityId": "uniqueskill_DENGAR01",
+          "abilityType": "zeta",
+          "reason": "Dengar unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "DENGAR",
+          "abilityId": "basicskill_DENGAR",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Dengar basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "DENGAR",
+          "abilityId": "specialskill_DENGAR01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Dengar special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "DENGAR",
+          "abilityId": "specialskill_DENGAR02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Dengar special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "DENGAR",
+          "abilityId": "uniqueskill_DENGAR01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Dengar unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "DENGAR",
+          "abilityId": "contractskill_DENGAR01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Dengar basic omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "CADBANE",
+      "displayName": "Cad Bane",
+      "description": "Auto-generated archetype for Cad Bane",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "CADBANE"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "CADBANE",
+          "abilityId": "leaderskill_CADBANE",
+          "abilityType": "omicron",
+          "reason": "Cad Bane leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "CADBANE",
+          "abilityId": "basicskill_CADBANE",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Cad Bane basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "CADBANE",
+          "abilityId": "specialskill_CADBANE01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Cad Bane special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "CADBANE",
+          "abilityId": "uniqueskill_CADBANE01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Cad Bane unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "CADBANE",
+          "abilityId": "contractskill_CADBANE01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Cad Bane basic omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "VADER",
+      "displayName": "Darth Vader",
+      "description": "Auto-generated archetype for Darth Vader",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "VADER"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "VADER",
+          "abilityId": "leaderskill_VADER",
+          "abilityType": "zeta",
+          "reason": "Darth Vader leadership zeta provides core squad mechanics"
+        },
+        {
+          "unitBaseId": "VADER",
+          "abilityId": "leaderskill_VADER",
+          "abilityType": "omicron",
+          "reason": "Darth Vader leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "VADER",
+          "abilityId": "uniqueskill_VADER01",
+          "abilityType": "zeta",
+          "reason": "Darth Vader unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "VADER",
+          "abilityId": "basicskill_VADER",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Vader basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "VADER",
+          "abilityId": "specialskill_VADER02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Vader special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "VADER",
+          "abilityId": "specialskill_VADER01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Vader special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "VADER",
+          "abilityId": "uniqueskill_VADER01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Vader unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "VADER",
+          "abilityId": "specialskill_VADER03",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Darth Vader special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "VADER",
+          "abilityId": "specialskill_VADER03",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Vader special omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "DARTHBANE",
+      "displayName": "Darth Bane",
+      "description": "Auto-generated archetype for Darth Bane",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DARTHBANE"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DARTHBANE",
+          "abilityId": "leaderskill_DARTHBANE",
+          "abilityType": "zeta",
+          "reason": "Darth Bane leadership zeta provides core squad mechanics"
+        },
+        {
+          "unitBaseId": "DARTHBANE",
+          "abilityId": "leaderskill_DARTHBANE",
+          "abilityType": "omicron",
+          "reason": "Darth Bane leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "DARTHBANE",
+          "abilityId": "basicskill_DARTHBANE",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Darth Bane special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "DARTHBANE",
+          "abilityId": "basicskill_DARTHBANE",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Bane basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "DARTHBANE",
+          "abilityId": "specialskill_DARTHBANE01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Bane special omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "DARTHBANE",
+          "abilityId": "specialskill_DARTHBANE02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Bane special omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "DARTHBANE",
+          "abilityId": "uniqueskill_DARTHBANE01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Bane unique omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "COUNTDOOKU",
+      "displayName": "Count Dooku",
+      "description": "Auto-generated archetype for Count Dooku",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "COUNTDOOKU"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "COUNTDOOKU",
+          "abilityId": "leaderskill_COUNTDOOKU",
+          "abilityType": "omicron",
+          "reason": "Count Dooku leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "COUNTDOOKU",
+          "abilityId": "uniqueskill_COUNTDOOKU01",
+          "abilityType": "zeta",
+          "reason": "Count Dooku unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "COUNTDOOKU",
+          "abilityId": "basicskill_COUNTDOOKU",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Count Dooku basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "COUNTDOOKU",
+          "abilityId": "specialskill_COUNTDOOKU01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Count Dooku special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "COUNTDOOKU",
+          "abilityId": "specialskill_COUNTDOOKU02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Count Dooku special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "COUNTDOOKU",
+          "abilityId": "uniqueskill_COUNTDOOKU01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Count Dooku unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "FOTF_VADER",
+      "displayName": "Darth Vader",
+      "description": "Auto-generated archetype for Darth Vader",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "FOTF_VADER"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "FOTF_VADER",
+          "abilityId": "leaderskill_VADER",
+          "abilityType": "zeta",
+          "reason": "Darth Vader leadership zeta provides core squad mechanics"
+        },
+        {
+          "unitBaseId": "FOTF_VADER",
+          "abilityId": "leaderskill_VADER",
+          "abilityType": "omicron",
+          "reason": "Darth Vader leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "FOTF_VADER",
+          "abilityId": "uniqueskill_VADER01",
+          "abilityType": "zeta",
+          "reason": "Darth Vader unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "FOTF_VADER",
+          "abilityId": "basicskill_VADER",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Vader basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "FOTF_VADER",
+          "abilityId": "specialskill_VADER02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Vader special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "FOTF_VADER",
+          "abilityId": "specialskill_VADER01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Vader special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "FOTF_VADER",
+          "abilityId": "uniqueskill_VADER01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Vader unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "STORMTROOPERHAN",
+      "displayName": "Stormtrooper Han",
+      "description": "Auto-generated archetype for Stormtrooper Han",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "STORMTROOPERHAN"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "STORMTROOPERHAN",
+          "abilityId": "leaderskill_STORMTROOPERHAN",
+          "abilityType": "omicron",
+          "reason": "Stormtrooper Han leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "STORMTROOPERHAN",
+          "abilityId": "uniqueskill_STORMTROOPERHAN01",
+          "abilityType": "zeta",
+          "reason": "Stormtrooper Han unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "STORMTROOPERHAN",
+          "abilityId": "basicskill_STORMTROOPERHAN",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Stormtrooper Han basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "STORMTROOPERHAN",
+          "abilityId": "specialskill_STORMTROOPERHAN01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Stormtrooper Han special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "STORMTROOPERHAN",
+          "abilityId": "uniqueskill_STORMTROOPERHAN01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Stormtrooper Han unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "GLHONDO",
+      "displayName": "Pirate King Hondo Ohnaka",
+      "description": "Auto-generated archetype for Pirate King Hondo Ohnaka",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GLHONDO"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "leaderskill_GLHONDO",
+          "abilityType": "zeta",
+          "reason": "Pirate King Hondo Ohnaka leadership zeta provides core squad mechanics"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "leaderskill_GLHONDO",
+          "abilityType": "omicron",
+          "reason": "Pirate King Hondo Ohnaka leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "uniqueskill_GLHONDO01",
+          "abilityType": "zeta",
+          "reason": "Pirate King Hondo Ohnaka unique zeta enhances core mechanics"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "zeta",
+          "reason": "Pirate King Hondo Ohnaka unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "basicskill_GLHONDO",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Pirate King Hondo Ohnaka special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "basicskill_GLHONDO",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Pirate King Hondo Ohnaka basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "specialskill_GLHONDO01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Pirate King Hondo Ohnaka special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "specialskill_GLHONDO01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Pirate King Hondo Ohnaka special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "specialskill_GLHONDO02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Pirate King Hondo Ohnaka special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "specialskill_GLHONDO02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Pirate King Hondo Ohnaka special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "uniqueskill_GLHONDO01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Pirate King Hondo Ohnaka unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GLHONDO",
+          "abilityId": "uniqueskill_GALACTICLEGEND01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Pirate King Hondo Ohnaka unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "JANGOFETT",
+      "displayName": "Jango Fett",
+      "description": "Auto-generated archetype for Jango Fett",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "JANGOFETT"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "JANGOFETT",
+          "abilityId": "leaderskill_JANGOFETT",
+          "abilityType": "zeta",
+          "reason": "Jango Fett leadership zeta provides core squad mechanics"
+        },
+        {
+          "unitBaseId": "JANGOFETT",
+          "abilityId": "leaderskill_JANGOFETT",
+          "abilityType": "omicron",
+          "reason": "Jango Fett leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "JANGOFETT",
+          "abilityId": "uniqueskill_JANGOFETT01",
+          "abilityType": "zeta",
+          "reason": "Jango Fett unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "JANGOFETT",
+          "abilityId": "basicskill_JANGOFETT",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jango Fett basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "JANGOFETT",
+          "abilityId": "specialskill_JANGOFETT01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jango Fett special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "JANGOFETT",
+          "abilityId": "specialskill_JANGOFETT02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jango Fett special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "JANGOFETT",
+          "abilityId": "uniqueskill_JANGOFETT01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jango Fett unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "JANGOFETT",
+          "abilityId": "contractskill_JANGOFETT01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jango Fett basic omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "THIRDSISTER",
+      "displayName": "Third Sister",
+      "description": "Auto-generated archetype for Third Sister",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "THIRDSISTER"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "THIRDSISTER",
+          "abilityId": "leaderskill_THIRDSISTER",
+          "abilityType": "omicron",
+          "reason": "Third Sister leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "THIRDSISTER",
+          "abilityId": "basicskill_THIRDSISTER",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Third Sister basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "THIRDSISTER",
+          "abilityId": "specialskill_THIRDSISTER01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Third Sister special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "THIRDSISTER",
+          "abilityId": "specialskill_THIRDSISTER01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Third Sister special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "THIRDSISTER",
+          "abilityId": "specialskill_THIRDSISTER02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Third Sister special omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "THIRDSISTER",
+          "abilityId": "uniqueskill_THIRDSISTER01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Third Sister unique omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "THIRDSISTER",
+          "abilityId": "uniqueskill_INQUISITOR01_THIRDSISTER",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Third Sister unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "BOSSNASS",
+      "displayName": "Boss Nass",
+      "description": "Auto-generated archetype for Boss Nass",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BOSSNASS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "BOSSNASS",
+          "abilityId": "leaderskill_BOSSNASS",
+          "abilityType": "omicron",
+          "reason": "Boss Nass leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        },
+        {
+          "unitBaseId": "BOSSNASS",
+          "abilityId": "uniqueskill_BOSSNASS01",
+          "abilityType": "zeta",
+          "reason": "Boss Nass unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "BOSSNASS",
+          "abilityId": "basicskill_BOSSNASS",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Boss Nass basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BOSSNASS",
+          "abilityId": "specialskill_BOSSNASS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Boss Nass special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BOSSNASS",
+          "abilityId": "specialskill_BOSSNASS02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Boss Nass special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BOSSNASS",
+          "abilityId": "uniqueskill_BOSSNASS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Boss Nass unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "JEDIMASTERMACEWINDU",
+      "displayName": "Jedi Master Mace Windu",
+      "description": "Auto-generated archetype for Jedi Master Mace Windu",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "JEDIMASTERMACEWINDU"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "JEDIMASTERMACEWINDU",
+          "abilityId": "leaderskill_JEDIMASTERMACEWINDU",
+          "abilityType": "omicron",
+          "reason": "Jedi Master Mace Windu leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "JEDIMASTERMACEWINDU",
+          "abilityId": "basicskill_JEDIMASTERMACEWINDU",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Master Mace Windu basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "JEDIMASTERMACEWINDU",
+          "abilityId": "specialskill_JEDIMASTERMACEWINDU01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Jedi Master Mace Windu special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "JEDIMASTERMACEWINDU",
+          "abilityId": "specialskill_JEDIMASTERMACEWINDU01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Master Mace Windu special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "JEDIMASTERMACEWINDU",
+          "abilityId": "specialskill_JEDIMASTERMACEWINDU02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Master Mace Windu special omicron for specific game modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        },
+        {
+          "unitBaseId": "JEDIMASTERMACEWINDU",
+          "abilityId": "uniqueskill_JEDIMASTERMACEWINDU01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Master Mace Windu unique omicron for specific game modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "ADMIRALRADDUS",
+      "displayName": "Admiral Raddus",
+      "description": "Auto-generated archetype for Admiral Raddus",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "ADMIRALRADDUS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "ADMIRALRADDUS",
+          "abilityId": "leaderskill_ADMIRALRADDUS",
+          "abilityType": "omicron",
+          "reason": "Admiral Raddus leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "ADMIRALRADDUS",
+          "abilityId": "uniqueskill_ADMIRALRADDUS01",
+          "abilityType": "zeta",
+          "reason": "Admiral Raddus unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "ADMIRALRADDUS",
+          "abilityId": "basicskill_ADMIRALRADDUS",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Admiral Raddus basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "ADMIRALRADDUS",
+          "abilityId": "specialskill_ADMIRALRADDUS01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Admiral Raddus special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "ADMIRALRADDUS",
+          "abilityId": "specialskill_ADMIRALRADDUS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Admiral Raddus special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "ADMIRALRADDUS",
+          "abilityId": "specialskill_ADMIRALRADDUS02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Admiral Raddus special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "ADMIRALRADDUS",
+          "abilityId": "uniqueskill_ADMIRALRADDUS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Admiral Raddus unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "REYJEDITRAINING",
+      "displayName": "Rey (Jedi Training)",
+      "description": "Auto-generated archetype for Rey (Jedi Training)",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "REYJEDITRAINING"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "REYJEDITRAINING",
+          "abilityId": "leaderskill_REYJEDITRAINING",
+          "abilityType": "zeta",
+          "reason": "Rey (Jedi Training) leadership zeta provides core squad mechanics"
+        },
+        {
+          "unitBaseId": "REYJEDITRAINING",
+          "abilityId": "leaderskill_REYJEDITRAINING",
+          "abilityType": "omicron",
+          "reason": "Rey (Jedi Training) leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "REYJEDITRAINING",
+          "abilityId": "uniqueskill_REYJEDITRAINING01",
+          "abilityType": "zeta",
+          "reason": "Rey (Jedi Training) unique zeta enhances core mechanics"
+        },
+        {
+          "unitBaseId": "REYJEDITRAINING",
+          "abilityId": "uniqueskill_REYJEDITRAINING02",
+          "abilityType": "zeta",
+          "reason": "Rey (Jedi Training) unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "REYJEDITRAINING",
+          "abilityId": "basicskill_REYJEDITRAINING",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Rey (Jedi Training) basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "REYJEDITRAINING",
+          "abilityId": "specialskill_REYJEDITRAINING01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Rey (Jedi Training) special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "REYJEDITRAINING",
+          "abilityId": "specialskill_REYJEDITRAINING02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Rey (Jedi Training) special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "REYJEDITRAINING",
+          "abilityId": "uniqueskill_REYJEDITRAINING01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Rey (Jedi Training) unique omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "REYJEDITRAINING",
+          "abilityId": "uniqueskill_REYJEDITRAINING02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Rey (Jedi Training) unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "JEDIKNIGHTCAL",
+      "displayName": "Jedi Knight Cal Kestis",
+      "description": "Auto-generated archetype for Jedi Knight Cal Kestis",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "JEDIKNIGHTCAL"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "JEDIKNIGHTCAL",
+          "abilityId": "leaderskill_JEDIKNIGHTCAL",
+          "abilityType": "omicron",
+          "reason": "Jedi Knight Cal Kestis leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TW"
+          ]
+        },
+        {
+          "unitBaseId": "JEDIKNIGHTCAL",
+          "abilityId": "uniqueskill_JEDIKNIGHTCAL01",
+          "abilityType": "zeta",
+          "reason": "Jedi Knight Cal Kestis unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "JEDIKNIGHTCAL",
+          "abilityId": "basicskill_JEDIKNIGHTCAL",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Knight Cal Kestis basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "JEDIKNIGHTCAL",
+          "abilityId": "specialskill_JEDIKNIGHTCAL01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Knight Cal Kestis special omicron for specific game modes",
+          "modeGates": [
+            "TW"
+          ]
+        },
+        {
+          "unitBaseId": "JEDIKNIGHTCAL",
+          "abilityId": "specialskill_JEDIKNIGHTCAL02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Jedi Knight Cal Kestis special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "JEDIKNIGHTCAL",
+          "abilityId": "specialskill_JEDIKNIGHTCAL02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Knight Cal Kestis special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "JEDIKNIGHTCAL",
+          "abilityId": "specialskill_JEDIKNIGHTCAL03",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Knight Cal Kestis special omicron for specific game modes",
+          "modeGates": [
+            "TW"
+          ]
+        },
+        {
+          "unitBaseId": "JEDIKNIGHTCAL",
+          "abilityId": "uniqueskill_JEDIKNIGHTCAL01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Jedi Knight Cal Kestis unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "THEMANDALORIANBESKARARMOR",
+      "displayName": "The Mandalorian (Beskar Armor)",
+      "description": "Auto-generated archetype for The Mandalorian (Beskar Armor)",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "THEMANDALORIANBESKARARMOR"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "THEMANDALORIANBESKARARMOR",
+          "abilityId": "leaderskill_THEMANDALORIANBESKARARMOR",
+          "abilityType": "zeta",
+          "reason": "The Mandalorian (Beskar Armor) leadership zeta provides core squad mechanics"
+        },
+        {
+          "unitBaseId": "THEMANDALORIANBESKARARMOR",
+          "abilityId": "leaderskill_THEMANDALORIANBESKARARMOR",
+          "abilityType": "omicron",
+          "reason": "The Mandalorian (Beskar Armor) leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "THEMANDALORIANBESKARARMOR",
+          "abilityId": "uniqueskill_THEMANDALORIANBESKARARMOR01",
+          "abilityType": "zeta",
+          "reason": "The Mandalorian (Beskar Armor) unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "THEMANDALORIANBESKARARMOR",
+          "abilityId": "basicskill_THEMANDALORIANBESKARARMOR",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "The Mandalorian (Beskar Armor) basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "THEMANDALORIANBESKARARMOR",
+          "abilityId": "specialskill_THEMANDALORIANBESKARARMOR01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "The Mandalorian (Beskar Armor) special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "THEMANDALORIANBESKARARMOR",
+          "abilityId": "specialskill_THEMANDALORIANBESKARARMOR02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "The Mandalorian (Beskar Armor) special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "THEMANDALORIANBESKARARMOR",
+          "abilityId": "uniqueskill_THEMANDALORIANBESKARARMOR01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "The Mandalorian (Beskar Armor) unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "BARRISSOFFEE",
+      "displayName": "Barriss Offee",
+      "description": "Auto-generated archetype for Barriss Offee",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "BARRISSOFFEE"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "BARRISSOFFEE",
+          "abilityId": "leaderskill_BARRISSOFFEE",
+          "abilityType": "omicron",
+          "reason": "Barriss Offee leadership omicron enhances squad in specific modes"
+        },
+        {
+          "unitBaseId": "BARRISSOFFEE",
+          "abilityId": "uniqueskill_BARRISSOFFEE01",
+          "abilityType": "zeta",
+          "reason": "Barriss Offee unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "BARRISSOFFEE",
+          "abilityId": "basicskill_BARRISSOFFEE",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Barriss Offee basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BARRISSOFFEE",
+          "abilityId": "specialskill_BARRISSOFFEE01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Barriss Offee special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "BARRISSOFFEE",
+          "abilityId": "uniqueskill_BARRISSOFFEE01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Barriss Offee unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "50RT",
+      "displayName": "50R-T",
+      "description": "Auto-generated archetype for 50R-T",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "50RT"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "50RT",
+          "abilityId": "leaderskill_50RT",
+          "abilityType": "omicron",
+          "reason": "50R-T leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "GAC_3v3"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "50RT",
+          "abilityId": "basicskill_50RT",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "50R-T basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "50RT",
+          "abilityId": "specialskill_50RT01",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "50R-T special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "50RT",
+          "abilityId": "specialskill_50RT01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "50R-T special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "50RT",
+          "abilityId": "specialskill_50RT02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "50R-T special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "50RT",
+          "abilityId": "uniqueskill_50RT01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "50R-T unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "4LOM",
+      "displayName": "4-LOM",
+      "description": "Auto-generated archetype for 4-LOM",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "4LOM"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "4LOM",
+          "abilityId": "leaderskill_4LOM",
+          "abilityType": "omicron",
+          "reason": "4-LOM leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "4LOM",
+          "abilityId": "basicskill_4LOM",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "4-LOM basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "4LOM",
+          "abilityId": "specialskill_4LOM01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "4-LOM special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "4LOM",
+          "abilityId": "specialskill_4LOM02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "4-LOM special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "4LOM",
+          "abilityId": "uniqueskill_4LOM01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "4-LOM unique omicron for specific game modes",
+          "modeGates": [
+            "TW"
+          ]
+        },
+        {
+          "unitBaseId": "4LOM",
+          "abilityId": "contractskill_4LOM",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "4-LOM basic omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "MAZKANATA",
+      "displayName": "Maz Kanata",
+      "description": "Auto-generated archetype for Maz Kanata",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "MAZKANATA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "MAZKANATA",
+          "abilityId": "leaderskill_MAZKANATA",
+          "abilityType": "omicron",
+          "reason": "Maz Kanata leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "MAZKANATA",
+          "abilityId": "basicskill_MAZKANATA",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Maz Kanata basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "MAZKANATA",
+          "abilityId": "specialskill_MAZKANATA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Maz Kanata special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "MAZKANATA",
+          "abilityId": "specialskill_MAZKANATA02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Maz Kanata special omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        },
+        {
+          "unitBaseId": "MAZKANATA",
+          "abilityId": "uniqueskill_MAZKANATA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Maz Kanata unique omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "ITHANO",
+      "displayName": "Captain Ithano",
+      "description": "Auto-generated archetype for Captain Ithano",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "ITHANO"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "ITHANO",
+          "abilityId": "leaderskill_ITHANO",
+          "abilityType": "omicron",
+          "reason": "Captain Ithano leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "ITHANO",
+          "abilityId": "basicskill_ITHANO",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Captain Ithano basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "ITHANO",
+          "abilityId": "specialskill_ITHANO01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Captain Ithano special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "ITHANO",
+          "abilityId": "specialskill_ITHANO02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "Captain Ithano special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "ITHANO",
+          "abilityId": "specialskill_ITHANO02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Captain Ithano special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "ITHANO",
+          "abilityId": "uniqueskill_ITHANO01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Captain Ithano unique omicron for specific game modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "DARTHSIDIOUS",
+      "displayName": "Darth Sidious",
+      "description": "Auto-generated archetype for Darth Sidious",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "DARTHSIDIOUS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "DARTHSIDIOUS",
+          "abilityId": "leaderskill_DARTHSIDIOUS",
+          "abilityType": "omicron",
+          "reason": "Darth Sidious leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "DARTHSIDIOUS",
+          "abilityId": "basicskill_DARTHSIDIOUS",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Sidious basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "DARTHSIDIOUS",
+          "abilityId": "specialskill_DARTHSIDIOUS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Sidious special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "DARTHSIDIOUS",
+          "abilityId": "uniqueskill_DARTHSIDIOUS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Darth Sidious unique omicron for specific game modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "GENERALSYNDULLA",
+      "displayName": "General Syndulla",
+      "description": "Auto-generated archetype for General Syndulla",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "GENERALSYNDULLA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "GENERALSYNDULLA",
+          "abilityId": "leaderskill_GENERALSYNDULLA",
+          "abilityType": "omicron",
+          "reason": "General Syndulla leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "GENERALSYNDULLA",
+          "abilityId": "basicskill_GENERALSYNDULLA",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "General Syndulla basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GENERALSYNDULLA",
+          "abilityId": "specialskill_GENERALSYNDULLA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "General Syndulla special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GENERALSYNDULLA",
+          "abilityId": "specialskill_GENERALSYNDULLA02",
+          "abilityType": "zeta",
+          "confidenceWeight": 0.1,
+          "reason": "General Syndulla special zeta provides additional utility"
+        },
+        {
+          "unitBaseId": "GENERALSYNDULLA",
+          "abilityId": "specialskill_GENERALSYNDULLA02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "General Syndulla special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "GENERALSYNDULLA",
+          "abilityId": "uniqueskill_GENERALSYNDULLA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "General Syndulla unique omicron for specific game modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "FINN",
+      "displayName": "Finn",
+      "description": "Auto-generated archetype for Finn",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "FINN"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "FINN",
+          "abilityId": "leaderskill_FINN",
+          "abilityType": "omicron",
+          "reason": "Finn leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TW"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "FINN",
+          "abilityId": "basicskill_FINN",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Finn basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "FINN",
+          "abilityId": "specialskill_FINN01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Finn special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "FINN",
+          "abilityId": "specialskill_FINN02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Finn special omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "TARFFUL",
+      "displayName": "Tarfful",
+      "description": "Auto-generated archetype for Tarfful",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "TARFFUL"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "TARFFUL",
+          "abilityId": "leaderskill_TARFFUL",
+          "abilityType": "omicron",
+          "reason": "Tarfful leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        },
+        {
+          "unitBaseId": "TARFFUL",
+          "abilityId": "uniqueskill_TARFFUL01",
+          "abilityType": "zeta",
+          "reason": "Tarfful unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "TARFFUL",
+          "abilityId": "basicskill_TARFFUL",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Tarfful basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "TARFFUL",
+          "abilityId": "specialskill_TARFFUL01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Tarfful special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "TARFFUL",
+          "abilityId": "specialskill_TARFFUL02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Tarfful special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "TARFFUL",
+          "abilityId": "uniqueskill_TARFFUL01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Tarfful unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "HOTHLEIA",
+      "displayName": "Rebel Officer Leia Organa",
+      "description": "Auto-generated archetype for Rebel Officer Leia Organa",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "HOTHLEIA"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "HOTHLEIA",
+          "abilityId": "leaderskill_HOTHLEIA",
+          "abilityType": "omicron",
+          "reason": "Rebel Officer Leia Organa leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "TW"
+          ]
+        },
+        {
+          "unitBaseId": "HOTHLEIA",
+          "abilityId": "uniqueskill_HOTHLEIA01",
+          "abilityType": "zeta",
+          "reason": "Rebel Officer Leia Organa unique zeta enhances core mechanics"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "HOTHLEIA",
+          "abilityId": "basicskill_HOTHLEIA",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Rebel Officer Leia Organa basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "HOTHLEIA",
+          "abilityId": "specialskill_HOTHLEIA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Rebel Officer Leia Organa special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "HOTHLEIA",
+          "abilityId": "uniqueskill_HOTHLEIA01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Rebel Officer Leia Organa unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "SANASTARROS",
+      "displayName": "Sana Starros",
+      "description": "Auto-generated archetype for Sana Starros",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "SANASTARROS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "SANASTARROS",
+          "abilityId": "leaderskill_SANASTARROS",
+          "abilityType": "omicron",
+          "reason": "Sana Starros leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "SANASTARROS",
+          "abilityId": "basicskill_SANASTARROS",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Sana Starros basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "SANASTARROS",
+          "abilityId": "specialskill_SANASTARROS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Sana Starros special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "SANASTARROS",
+          "abilityId": "specialskill_SANASTARROS02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Sana Starros special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "SANASTARROS",
+          "abilityId": "uniqueskill_SANASTARROS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Sana Starros unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "CHIEFNEBIT",
+      "displayName": "Chief Nebit",
+      "description": "Auto-generated archetype for Chief Nebit",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "CHIEFNEBIT"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "CHIEFNEBIT",
+          "abilityId": "leaderskill_CHIEFNEBIT",
+          "abilityType": "omicron",
+          "reason": "Chief Nebit leadership omicron enhances squad in specific modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "CHIEFNEBIT",
+          "abilityId": "basicskill_CHIEFNEBIT",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Chief Nebit basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "CHIEFNEBIT",
+          "abilityId": "specialskill_CHIEFNEBIT01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Chief Nebit special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "CHIEFNEBIT",
+          "abilityId": "specialskill_CHIEFNEBIT02",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Chief Nebit special omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "SAVAGEOPRESS",
+      "displayName": "Savage Opress",
+      "description": "Auto-generated archetype for Savage Opress",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "SAVAGEOPRESS"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "SAVAGEOPRESS",
+          "abilityId": "leaderskill_SAVAGEOPRESS",
+          "abilityType": "omicron",
+          "reason": "Savage Opress leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "SAVAGEOPRESS",
+          "abilityId": "basicskill_SAVAGEOPRESS",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Savage Opress basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "SAVAGEOPRESS",
+          "abilityId": "specialskill_SAVAGEOPRESS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Savage Opress special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "SAVAGEOPRESS",
+          "abilityId": "uniqueskill_SAVAGEOPRESS01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "Savage Opress unique omicron for specific game modes",
+          "modeGates": [
+            "TB"
+          ]
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "URORRURRR",
+      "displayName": "URoRRuR'R'R",
+      "description": "Auto-generated archetype for URoRRuR'R'R",
+      "modes": [
+        "GAC_5v5",
+        "GAC_3v3",
+        "TW"
+      ],
+      "composition": {
+        "requiredUnits": [
+          "URORRURRR"
+        ]
+      },
+      "requiredAbilities": [
+        {
+          "unitBaseId": "URORRURRR",
+          "abilityId": "leaderskill_URORRURRR",
+          "abilityType": "omicron",
+          "reason": "URoRRuR'R'R leadership omicron enhances squad in specific modes"
+        }
+      ],
+      "optionalAbilities": [
+        {
+          "unitBaseId": "URORRURRR",
+          "abilityId": "basicskill_URORRURRR",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "URoRRuR'R'R basic omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "URORRURRR",
+          "abilityId": "specialskill_URORRURRR01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "URoRRuR'R'R special omicron for specific game modes"
+        },
+        {
+          "unitBaseId": "URORRURRR",
+          "abilityId": "uniqueskill_URORRURRR01",
+          "abilityType": "omicron",
+          "confidenceWeight": 0.15,
+          "reason": "URoRRuR'R'R unique omicron for specific game modes"
+        }
+      ],
+      "tags": []
+    }
+  ]
+}
