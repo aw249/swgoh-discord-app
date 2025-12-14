@@ -67,17 +67,23 @@ interface GeneratedArchetype {
 }
 
 // Omicron mode mapping from game data
+// Mode 1 = base/no omicron (applies to 1600+ skills), NOT an actual omicron
 const OMICRON_MODE_MAP: Record<number, string[]> = {
-  7: ['TW'],           // Territory War
-  8: ['GAC_3v3', 'GAC_5v5'], // Grand Arena
-  9: ['TB'],           // Territory Battle
-  10: ['CONQUEST'],    // Conquest
-  11: ['GAC_3v3'],     // GAC 3v3 only
-  12: ['GAC_5v5'],     // GAC 5v5 only
+  // 1: undefined - NOT an omicron, this is a base ability flag
+  4: ['GUILD_ACTIVITIES'],  // Guild raids/events (Boushh, Scout Trooper)
+  7: ['TW'],                // Territory War
+  8: ['GAC_3v3', 'GAC_5v5'], // Grand Arena (both formats)
+  9: ['TB'],                // Territory Battle
+  10: ['CONQUEST'],         // Conquest
+  11: ['GAC_3v3'],          // GAC 3v3 only
+  12: ['GAC_5v5'],          // GAC 5v5 only
+  14: ['GAC_3v3', 'GAC_5v5'], // GAC (Moff Tarkin, Tusken Chieftain)
+  15: ['GAC_3v3', 'GAC_5v5'], // GAC (Doctor Aphra)
 };
 
 function getOmicronModes(omicronMode?: number): string[] | undefined {
-  if (!omicronMode) return undefined;
+  // Mode 1 is not an actual omicron - it's a base ability flag
+  if (!omicronMode || omicronMode === 1) return undefined;
   return OMICRON_MODE_MAP[omicronMode];
 }
 
@@ -228,8 +234,9 @@ async function fetchUnitAbilities(): Promise<UnitAbilityData[]> {
       if (skillType === 'leader') hasLeadership = true;
       
       // Check for zeta/omicron - these are direct properties on the skill
+      // Note: omicronMode === 1 is a base ability flag, NOT an actual omicron
       const isZeta = skill.isZeta === true;
-      const isOmicron = skill.omicronMode !== undefined && skill.omicronMode > 0;
+      const isOmicron = skill.omicronMode !== undefined && skill.omicronMode > 1;
       const omicronMode: number | undefined = skill.omicronMode;
       
       // Only include abilities with zetas or omicrons

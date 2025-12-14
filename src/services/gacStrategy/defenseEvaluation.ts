@@ -3,10 +3,95 @@
  */
 import { GacTopDefenseSquad } from '../../types/swgohGgTypes';
 import { SwgohGgFullPlayerResponse } from '../../integrations/swgohGgApi';
-import { UniqueDefensiveSquad } from '../../types/gacStrategyTypes';
+import { UniqueDefensiveSquad, ArchetypeValidationInfo } from '../../types/gacStrategyTypes';
 import { logger } from '../../utils/logger';
 import { isGalacticLegend } from '../../config/gacConstants';
 import { generateDefenseSquadsFromRoster } from './defenseGeneration';
+import { ArchetypeConfig, LeaderArchetypeMapping } from '../../types/archetypeTypes';
+import { 
+  getArchetypeValidator, 
+  createRosterAdapter, 
+  RosterAdapter 
+} from '../archetypeValidation/archetypeValidator';
+import archetypesConfig from '../../config/archetypes/archetypes.json';
+import leaderMappingsConfig from '../../config/archetypes/leaderMappings.json';
+
+// GameMode values for archetype validation
+const GameModeValues = {
+  GAC_3v3: 'GAC_3v3',
+  GAC_5v5: 'GAC_5v5',
+  TW: 'TW',
+} as const;
+type GameModeValue = typeof GameModeValues[keyof typeof GameModeValues];
+
+// Flag to track if validator has been initialised
+let validatorInitialised = false;
+
+/**
+ * Ensure the archetype validator is initialised
+ */
+function ensureValidatorInitialised(): void {
+  if (!validatorInitialised) {
+    try {
+      const config = archetypesConfig as ArchetypeConfig;
+      const mappings = (leaderMappingsConfig as { mappings: LeaderArchetypeMapping[] }).mappings;
+      getArchetypeValidator(config, mappings);
+      validatorInitialised = true;
+    } catch (error) {
+      logger.warn(`Failed to initialise archetype validator for defense: ${error}`);
+    }
+  }
+}
+
+/**
+ * Convert format string to game mode string
+ */
+function getGameMode(format: string): GameModeValue {
+  return format === '3v3' ? GameModeValues.GAC_3v3 : GameModeValues.GAC_5v5;
+}
+
+/**
+ * Validate a defense squad against archetype requirements.
+ */
+function validateDefenseArchetype(
+  leaderBaseId: string,
+  rosterAdapter: RosterAdapter,
+  mode: GameModeValue
+): ArchetypeValidationInfo {
+  try {
+    ensureValidatorInitialised();
+    const validator = getArchetypeValidator();
+    const result = validator.validateCounterByLeader(rosterAdapter, leaderBaseId, mode as any);
+    
+    // Map the result to our info type
+    const missingRequired = result.missingRequired?.map(r => ({
+      abilityId: r.abilityId,
+      unitBaseId: r.unitBaseId,
+      reason: r.reason,
+    }));
+    
+    const missingOptional = result.missingOptional?.map(r => ({
+      abilityId: r.abilityId,
+      unitBaseId: r.unitBaseId,
+      reason: r.reason,
+    }));
+    
+    return {
+      viable: result.viable,
+      confidence: result.confidence / 100,
+      missingRequired,
+      missingOptional,
+      warnings: result.warnings,
+      archetypeId: result.archetypeId,
+    };
+  } catch (error) {
+    return {
+      viable: true,
+      confidence: 1.0,
+      warnings: ['No archetype defined - zeta/omicron requirements not validated'],
+    };
+  }
+}
 
 interface DefenseClient {
   getTopDefenseSquads(sortBy: 'count' | 'percent', seasonId?: string, format?: string): Promise<GacTopDefenseSquad[]>;
@@ -40,6 +125,7 @@ export async function evaluateRosterForDefense(
   score: number;
   isGL: boolean;
   reason: string;
+  archetypeValidation?: ArchetypeValidationInfo;
 }>> {
     if (!defenseClient) {
       logger.warn('Defense client not available, cannot evaluate roster for defense');
@@ -153,7 +239,12 @@ export async function evaluateRosterForDefense(
       score: number;
       isGL: boolean;
       reason: string;
+      archetypeValidation?: ArchetypeValidationInfo;
     }> = [];
+    
+    // Create roster adapter for archetype validation
+    const rosterAdapter = createRosterAdapter(userRoster);
+    const gameMode = getGameMode(format);
     
     // Find max seen count for normalization
     let maxSeenCount = 0;
@@ -215,7 +306,23 @@ export async function evaluateRosterForDefense(
         glBonus = 5; // Small bonus to ensure GLs are considered
       }
       
-      const totalScore = holdScore + seenScore + relicScore + glBonus;
+      // Archetype validation: check if user has required zetas/omicrons
+      const archetypeValidation = validateDefenseArchetype(leaderBaseId, rosterAdapter, gameMode);
+      
+      // Apply archetype penalties
+      let archetypePenalty = 0;
+      if (!archetypeValidation.viable) {
+        // Missing required abilities - significant penalty
+        archetypePenalty = -40;
+        logger.debug(
+          `Defense squad ${leaderBaseId} missing required abilities - penalty applied`
+        );
+      } else if (archetypeValidation.confidence < 1.0) {
+        // Missing optional abilities - smaller penalty proportional to confidence loss
+        archetypePenalty = -((1 - archetypeValidation.confidence) * 10);
+      }
+      
+      const totalScore = holdScore + seenScore + relicScore + glBonus + archetypePenalty;
       
       candidates.push({
         squad: {
@@ -235,7 +342,8 @@ export async function evaluateRosterForDefense(
         avgBanners: defenseSquad.avgBanners,
         score: totalScore,
         isGL,
-        reason: `Hold: ${holdPercentage?.toFixed(1) ?? 'N/A'}%, Seen: ${defenseSquad.seenCount?.toLocaleString() ?? 'N/A'}, Avg Relic: ${avgRelic.toFixed(1)}`
+        reason: `Hold: ${holdPercentage?.toFixed(1) ?? 'N/A'}%, Seen: ${defenseSquad.seenCount?.toLocaleString() ?? 'N/A'}, Avg Relic: ${avgRelic.toFixed(1)}`,
+        archetypeValidation
       });
     }
     

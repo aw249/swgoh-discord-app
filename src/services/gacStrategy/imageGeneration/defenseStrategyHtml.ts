@@ -133,6 +133,42 @@ export function generateDefenseStrategyHtml(
       ? (holdPercentage >= 50 ? '#7cb342' : holdPercentage >= 30 ? '#fbbf24' : '#ef5350')
       : '#8b7355';
 
+    // Build archetype warning if needed
+    let archetypeWarningHtml = '';
+    if (defense.archetypeValidation) {
+      const archVal = defense.archetypeValidation;
+      if (!archVal.viable) {
+        // Missing required abilities - show critical warning
+        const missingAbilities = archVal.missingRequired?.slice(0, 2).map(m => {
+          const unitId = m.unitBaseId.replace(/_/g, ' ');
+          return unitId;
+        }) || ['abilities'];
+        const missingText = missingAbilities.join(', ');
+        archetypeWarningHtml = `
+          <div class="archetype-warning critical">
+            <span style="font-size: 14px;">⚠️</span>
+            <span>Missing: ${missingText}</span>
+          </div>
+        `;
+      } else if (archVal.confidence < 0.9 && archVal.missingOptional && archVal.missingOptional.length > 0) {
+        // Missing optional abilities - show info warning
+        archetypeWarningHtml = `
+          <div class="archetype-warning info">
+            <span style="font-size: 12px;">ℹ️</span>
+            <span>Missing optional zetas</span>
+          </div>
+        `;
+      } else if (archVal.warnings && archVal.warnings.length > 0 && archVal.warnings[0] !== 'No archetype defined - zeta/omicron requirements not validated') {
+        // Other warnings
+        archetypeWarningHtml = `
+          <div class="archetype-warning info">
+            <span style="font-size: 12px;">ℹ️</span>
+            <span>${archVal.warnings[0]}</span>
+          </div>
+        `;
+      }
+    }
+
     return `
       <div class="squad-row">
         <div class="squad-header">
@@ -140,6 +176,7 @@ export function generateDefenseStrategyHtml(
           <div class="squad-stats">
             <span class="hold-stat" style="color: ${holdColor};">🛡️ Hold: ${holdText}</span>
             <span class="seen-stat">Seen: ${seenText}</span>
+            ${archetypeWarningHtml}
           </div>
         </div>
         <div class="squad-characters">
@@ -319,6 +356,23 @@ export function generateDefenseStrategyHtml(
     .stat-value {
       color: #f5deb3;
       font-weight: bold;
+    }
+    .archetype-warning {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .archetype-warning.critical {
+      background: rgba(239, 68, 68, 0.9);
+      color: #fff;
+    }
+    .archetype-warning.info {
+      background: rgba(251, 191, 36, 0.9);
+      color: #1a1a1a;
     }
   </style>
 </head>

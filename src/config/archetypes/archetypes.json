@@ -94,7 +94,8 @@
         "troopers",
         "tm-train",
         "3v3-specialist"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "CLS_REBELS_BASE",
@@ -226,8 +227,7 @@
           "abilityId": "leaderskill_DASHRENDAR",
           "abilityType": "omicron",
           "modeGates": [
-            "GAC_3v3",
-            "GAC_5v5"
+            "TB"
           ],
           "reason": "GAC omicron is essential - provides massive TM and damage boost"
         }
@@ -236,7 +236,8 @@
         "scoundrels",
         "smugglers",
         "gac-specialist"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "PADME_PROTECTION_UP",
@@ -582,7 +583,8 @@
       "tags": [
         "nightsisters",
         "gac-specialist"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "GEOS_BROOD_ALPHA",
@@ -722,7 +724,8 @@
         "solo",
         "undersized",
         "gac-specialist"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "PHASMA_FO_GAC",
@@ -761,7 +764,8 @@
         "solo",
         "undersized",
         "gac-specialist"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "SITH_TRIO",
@@ -1036,7 +1040,8 @@
       ],
       "tags": [
         "first-order"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "MOTHMA_REBELS_BASE",
@@ -1106,7 +1111,8 @@
         "rebels",
         "rebel-fighters",
         "tw-specialist"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "BAD_BATCH_HUNTER",
@@ -1368,7 +1374,8 @@
         "galactic-legend",
         "sith",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "GL_JMK_BASE",
@@ -1409,7 +1416,8 @@
         "galactic-republic",
         "jedi",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "GL_JMK_WITH_CAT",
@@ -1445,7 +1453,8 @@
         "jedi",
         "light-side",
         "top-tier"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "GL_LV_BASE",
@@ -1486,7 +1495,8 @@
         "empire",
         "sith",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "GL_LV_WITH_MAUL",
@@ -1572,7 +1582,8 @@
         "hutt-cartel",
         "scoundrels",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "GL_LEIA_STANDARD",
@@ -1612,7 +1623,8 @@
         "galactic-legend",
         "rebels",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "GL_AHSOKA_STANDARD",
@@ -1651,7 +1663,8 @@
       "tags": [
         "galactic-legend",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "APHRA_DROIDS",
@@ -1678,7 +1691,8 @@
       "tags": [
         "scoundrels",
         "droids"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "GRAND_INQUISITOR_BASE",
@@ -1706,7 +1720,8 @@
         "inquisitors",
         "empire",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "MAUL_MANDALORIANS",
@@ -1776,7 +1791,8 @@
       "tags": [
         "sith",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "FENNEC_SCOUNDRELS",
@@ -1803,7 +1819,8 @@
       "tags": [
         "scoundrels",
         "bounty-hunters"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "BOKATAN_MANDALORIANS",
@@ -1830,7 +1847,8 @@
       "tags": [
         "mandalorians",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "MANDALOR_BOKATAN",
@@ -1857,7 +1875,8 @@
       "tags": [
         "mandalorians",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "SAW_GERRERA_REBELS_BASE",
@@ -1885,7 +1904,8 @@
       "tags": [
         "rebels",
         "light-side"
-      ]
+      ],
+      "requiredAbilities": []
     },
     {
       "id": "SAW_GERRERA_REBELS_GAC",
@@ -1912,7 +1932,8 @@
         "rebels",
         "light-side",
         "gac-specialist"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "NUTE_SEPARATISTS",
@@ -1939,7 +1960,8 @@
       "tags": [
         "separatists",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "IDEN_EMPIRE",
@@ -1967,7 +1989,8 @@
         "empire",
         "troopers",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "MACE_WINDU_JEDI",
@@ -2023,7 +2046,9 @@
       "tags": [
         "bounty-hunters",
         "scoundrels"
-      ]
+      ],
+      "requiredAbilities": [],
+      "optionalAbilities": []
     },
     {
       "id": "BOBA_FETT_CLASSIC",
@@ -2050,7 +2075,8 @@
       "tags": [
         "bounty-hunters",
         "scoundrels"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "EMPEROR_PALPATINE_EMPIRE",
@@ -2084,7 +2110,8 @@
         "empire",
         "sith",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "THRAWN_EMPIRE",
@@ -2117,7 +2144,8 @@
       "tags": [
         "empire",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "GMY_JEDI",
@@ -2181,7 +2209,8 @@
         "jedi",
         "old-republic",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "CERE_MALICOS_BASE",
@@ -2219,7 +2248,8 @@
         "jedi",
         "fallen-order",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "CERE_MALICOS_GAC",
@@ -2251,7 +2281,8 @@
         "light-side",
         "gac-specialist",
         "gl-counter"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "QUIGON_JEDI",
@@ -2271,7 +2302,9 @@
         "jedi",
         "galactic-republic",
         "light-side"
-      ]
+      ],
+      "requiredAbilities": [],
+      "optionalAbilities": []
     },
     {
       "id": "ASAJJ_NIGHTSISTERS",
@@ -2290,7 +2323,9 @@
       "tags": [
         "nightsisters",
         "dark-side"
-      ]
+      ],
+      "requiredAbilities": [],
+      "optionalAbilities": []
     },
     {
       "id": "ASAJJ_DARK_DISCIPLE",
@@ -2310,7 +2345,9 @@
         "bounty-hunters",
         "scoundrels",
         "dark-side"
-      ]
+      ],
+      "requiredAbilities": [],
+      "optionalAbilities": []
     },
     {
       "id": "TUSKEN_CHIEFTAIN",
@@ -2337,7 +2374,8 @@
       "tags": [
         "tuskens",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "CHIRPA_EWOKS_BASE",
@@ -2356,7 +2394,9 @@
       "tags": [
         "ewoks",
         "light-side"
-      ]
+      ],
+      "requiredAbilities": [],
+      "optionalAbilities": []
     },
     {
       "id": "CHIRPA_EWOKS_GAC",
@@ -2373,8 +2413,7 @@
           "abilityId": "leaderskill_CHIEFCHIRPA",
           "abilityType": "omicron",
           "modeGates": [
-            "GAC_3v3",
-            "GAC_5v5"
+            "TB"
           ],
           "reason": "GAC omicron massively boosts Ewok survivability and TM gain"
         }
@@ -2386,7 +2425,8 @@
         "ewoks",
         "light-side",
         "gac-specialist"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "ADMIRAL_ACKBAR_REBELS",
@@ -2405,7 +2445,9 @@
       "tags": [
         "rebels",
         "light-side"
-      ]
+      ],
+      "requiredAbilities": [],
+      "optionalAbilities": []
     },
     {
       "id": "TARKIN_EMPIRE_BASE",
@@ -2433,7 +2475,8 @@
       "tags": [
         "empire",
         "dark-side"
-      ]
+      ],
+      "requiredAbilities": []
     },
     {
       "id": "TARKIN_EMPIRE_GAC",
@@ -2463,7 +2506,8 @@
         "empire",
         "dark-side",
         "gac-specialist"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "KRENNIC_EMPIRE",
@@ -2490,7 +2534,8 @@
       "tags": [
         "empire",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "CAPTAIN_ENOCH",
@@ -2517,7 +2562,8 @@
       "tags": [
         "empire",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "DAKA_NIGHTSISTERS",
@@ -2544,7 +2590,8 @@
       "tags": [
         "nightsisters",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "AURRA_SING_BH",
@@ -2608,7 +2655,8 @@
       "tags": [
         "separatists",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "LUMINARA_JEDI",
@@ -2636,7 +2684,8 @@
         "jedi",
         "galactic-republic",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "NIHILUS_SITH",
@@ -2670,7 +2719,8 @@
         "sith",
         "old-republic",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "QIRA_SCOUNDRELS",
@@ -2697,7 +2747,8 @@
       "tags": [
         "scoundrels",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "CARTH_OLD_REPUBLIC",
@@ -2716,7 +2767,9 @@
       "tags": [
         "old-republic",
         "light-side"
-      ]
+      ],
+      "requiredAbilities": [],
+      "optionalAbilities": []
     },
     {
       "id": "HONDO_SCOUNDRELS",
@@ -2742,7 +2795,8 @@
       ],
       "tags": [
         "scoundrels"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "RH_FINN_RESISTANCE",
@@ -2769,7 +2823,8 @@
       "tags": [
         "resistance",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "CAPTAIN_SILVO",
@@ -2796,7 +2851,8 @@
       "tags": [
         "empire",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "DARTHMALGUS",
@@ -2872,15 +2928,7 @@
           "reason": "Unique zeta is essential for the Hero mechanic"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "JEDIKNIGHTLUKE",
-          "abilityId": "leaderskill_JEDIKNIGHTLUKE",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Leadership omicron enhances squad in specific modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": [
         "jedi",
         "rebels",
@@ -2909,15 +2957,7 @@
           "reason": "Unique zeta provides critical Soresu defense"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "GENERALKENOBI",
-          "abilityId": "leaderskill_GENERALKENOBI",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Leadership omicron enhances Galactic Republic allies"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": [
         "galactic-republic",
         "jedi",
@@ -2978,14 +3018,7 @@
           "ARMORER"
         ]
       },
-      "requiredAbilities": [
-        {
-          "unitBaseId": "ARMORER",
-          "abilityId": "leaderskill_ARMORER",
-          "abilityType": "omicron",
-          "reason": "Leadership omicron is essential for the beskar mechanic"
-        }
-      ],
+      "requiredAbilities": [],
       "optionalAbilities": [
         {
           "unitBaseId": "ARMORER",
@@ -3017,12 +3050,6 @@
       "requiredAbilities": [
         {
           "unitBaseId": "CT7567",
-          "abilityId": "leaderskill_REX",
-          "abilityType": "omicron",
-          "reason": "Leadership omicron is essential for the clone TM train"
-        },
-        {
-          "unitBaseId": "CT7567",
           "abilityId": "uniqueskill_REX01",
           "abilityType": "zeta",
           "reason": "Unique zeta provides clone synergy"
@@ -3032,7 +3059,8 @@
         "501st",
         "clones",
         "galactic-republic"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "MOFFGIDEON_S3",
@@ -3062,7 +3090,11 @@
           "abilityId": "leaderskill_MOFFGIDEONS3",
           "abilityType": "omicron",
           "confidenceWeight": 0.15,
-          "reason": "Leadership omicron enhances in specific modes"
+          "reason": "Leadership omicron enhances in specific modes",
+          "modeGates": [
+            "GAC_3v3",
+            "GAC_5v5"
+          ]
         }
       ],
       "tags": [
@@ -3105,7 +3137,8 @@
       "tags": [
         "jedi",
         "light-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "HK47_DROIDS",
@@ -3124,12 +3157,6 @@
       "requiredAbilities": [
         {
           "unitBaseId": "HK47",
-          "abilityId": "leaderskill_HK47",
-          "abilityType": "omicron",
-          "reason": "Leadership omicron is essential for droid synergy"
-        },
-        {
-          "unitBaseId": "HK47",
           "abilityId": "uniqueskill_HK4701",
           "abilityType": "zeta",
           "reason": "Unique zeta provides critical damage mechanics"
@@ -3145,7 +3172,8 @@
         "droids",
         "sith-empire",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "THEMANDALORIAN_BH",
@@ -3175,15 +3203,7 @@
           "reason": "Unique zeta is essential for Disintegrate mechanic"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "THEMANDALORIAN",
-          "abilityId": "leaderskill_THEMANDALORIAN",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Leadership omicron enhances in specific modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": [
         "bounty-hunters",
         "mandalorians",
@@ -3221,7 +3241,8 @@
       "tags": [
         "first-order",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "SECONDSISTER_INQUISITORS",
@@ -3259,7 +3280,8 @@
         "empire",
         "inquisitors",
         "dark-side"
-      ]
+      ],
+      "optionalAbilities": []
     },
     {
       "id": "OLDBENKENOBI_REBELS",
@@ -3283,15 +3305,7 @@
           "reason": "Unique zeta provides If You Strike Me Down mechanic"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "OLDBENKENOBI",
-          "abilityId": "leaderskill_OLDBENKENOBI",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Leadership omicron enhances Rebel allies"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": [
         "jedi",
         "rebels",
@@ -3326,13 +3340,6 @@
       "optionalAbilities": [
         {
           "unitBaseId": "QUEENAMIDALA",
-          "abilityId": "basicskill_QUEENAMIDALA",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Queen Amidala basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "QUEENAMIDALA",
           "abilityId": "specialskill_QUEENAMIDALA01",
           "abilityType": "omicron",
           "confidenceWeight": 0.15,
@@ -3340,13 +3347,6 @@
           "modeGates": [
             "TB"
           ]
-        },
-        {
-          "unitBaseId": "QUEENAMIDALA",
-          "abilityId": "specialskill_QUEENAMIDALA02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Queen Amidala special omicron for specific game modes"
         },
         {
           "unitBaseId": "QUEENAMIDALA",
@@ -3396,38 +3396,10 @@
         },
         {
           "unitBaseId": "OMEGAS3",
-          "abilityId": "basicskill_OMEGAS3",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Omega (Fugitive) basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "OMEGAS3",
           "abilityId": "specialskill_OMEGAS301",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Omega (Fugitive) special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "OMEGAS3",
-          "abilityId": "specialskill_OMEGAS301",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Omega (Fugitive) special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "OMEGAS3",
-          "abilityId": "specialskill_OMEGAS302",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Omega (Fugitive) special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "OMEGAS3",
-          "abilityId": "uniqueskill_OMEGAS301",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Omega (Fugitive) unique omicron for specific game modes"
         }
       ],
       "tags": []
@@ -3460,20 +3432,6 @@
       "optionalAbilities": [
         {
           "unitBaseId": "BAYLANSKOLL",
-          "abilityId": "basicskill_BAYLANSKOLL",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Baylan Skoll basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BAYLANSKOLL",
-          "abilityId": "specialskill_BAYLANSKOLL01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Baylan Skoll special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BAYLANSKOLL",
           "abilityId": "specialskill_BAYLANSKOLL02",
           "abilityType": "omicron",
           "confidenceWeight": 0.15,
@@ -3491,13 +3449,6 @@
           "modeGates": [
             "TB"
           ]
-        },
-        {
-          "unitBaseId": "BAYLANSKOLL",
-          "abilityId": "uniqueskill_BAYLANSKOLL02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Baylan Skoll unique omicron for specific game modes"
         }
       ],
       "tags": []
@@ -3530,45 +3481,10 @@
       "optionalAbilities": [
         {
           "unitBaseId": "INQUISITORBARRISS",
-          "abilityId": "basicskill_INQUISITORBARRISS",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Inquisitor Barriss basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "INQUISITORBARRISS",
-          "abilityId": "specialskill_INQUISITORBARRISS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Inquisitor Barriss special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "INQUISITORBARRISS",
           "abilityId": "specialskill_INQUISITORBARRISS02",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Inquisitor Barriss special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "INQUISITORBARRISS",
-          "abilityId": "specialskill_INQUISITORBARRISS02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Inquisitor Barriss special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "INQUISITORBARRISS",
-          "abilityId": "uniqueskill_INQUISITORBARRISS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Inquisitor Barriss unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "INQUISITORBARRISS",
-          "abilityId": "uniqueskill_INQUISITOR01_HEALER_BARRISS",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Inquisitor Barriss unique omicron for specific game modes"
         }
       ],
       "tags": []
@@ -3593,29 +3509,9 @@
           "abilityId": "leaderskill_EMBO",
           "abilityType": "zeta",
           "reason": "Embo leadership zeta provides core squad mechanics"
-        },
-        {
-          "unitBaseId": "EMBO",
-          "abilityId": "leaderskill_EMBO",
-          "abilityType": "omicron",
-          "reason": "Embo leadership omicron enhances squad in specific modes"
         }
       ],
       "optionalAbilities": [
-        {
-          "unitBaseId": "EMBO",
-          "abilityId": "basicskill_EMBO",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Embo basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "EMBO",
-          "abilityId": "specialskill_EMBO01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Embo special omicron for specific game modes"
-        },
         {
           "unitBaseId": "EMBO",
           "abilityId": "uniqueskill_EMBO01",
@@ -3626,13 +3522,6 @@
             "GAC_3v3",
             "GAC_5v5"
           ]
-        },
-        {
-          "unitBaseId": "EMBO",
-          "abilityId": "contractskill_EMBO01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Embo basic omicron for specific game modes"
         }
       ],
       "tags": []
@@ -3654,40 +3543,12 @@
       "requiredAbilities": [
         {
           "unitBaseId": "AHSOKATANO",
-          "abilityId": "leaderskill_AHSOKATANO",
-          "abilityType": "omicron",
-          "reason": "Ahsoka Tano (Snips) leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "AHSOKATANO",
           "abilityId": "uniqueskill_AHSOKATANO01",
           "abilityType": "zeta",
           "reason": "Ahsoka Tano (Snips) unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "AHSOKATANO",
-          "abilityId": "basicskill_AHSOKATANO",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Ahsoka Tano (Snips) basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "AHSOKATANO",
-          "abilityId": "specialskill_AHSOKATANO01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Ahsoka Tano (Snips) special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "AHSOKATANO",
-          "abilityId": "uniqueskill_AHSOKATANO01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Ahsoka Tano (Snips) unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -3707,40 +3568,12 @@
       "requiredAbilities": [
         {
           "unitBaseId": "ANAKINKNIGHT",
-          "abilityId": "leaderskill_ANAKINKNIGHT",
-          "abilityType": "omicron",
-          "reason": "Jedi Knight Anakin leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "ANAKINKNIGHT",
           "abilityId": "uniqueskill_ANAKINKNIGHT01",
           "abilityType": "zeta",
           "reason": "Jedi Knight Anakin unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "ANAKINKNIGHT",
-          "abilityId": "basicskill_ANAKINKNIGHT",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jedi Knight Anakin basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "ANAKINKNIGHT",
-          "abilityId": "specialskill_ANAKINKNIGHT01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jedi Knight Anakin special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "ANAKINKNIGHT",
-          "abilityId": "uniqueskill_ANAKINKNIGHT01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jedi Knight Anakin unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -3757,24 +3590,10 @@
           "GREEFKARGA"
         ]
       },
-      "requiredAbilities": [
-        {
-          "unitBaseId": "GREEFKARGA",
-          "abilityId": "leaderskill_GREEFKARGA",
-          "abilityType": "omicron",
-          "reason": "Greef Karga leadership omicron enhances squad in specific modes"
-        }
-      ],
+      "requiredAbilities": [],
       "optionalAbilities": [
         {
           "unitBaseId": "GREEFKARGA",
-          "abilityId": "basicskill_GREEFKARGA",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Greef Karga basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "GREEFKARGA",
           "abilityId": "specialskill_GREEFKARGA01",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
@@ -3782,38 +3601,10 @@
         },
         {
           "unitBaseId": "GREEFKARGA",
-          "abilityId": "specialskill_GREEFKARGA01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Greef Karga special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "GREEFKARGA",
           "abilityId": "specialskill_GREEFKARGA02",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Greef Karga special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "GREEFKARGA",
-          "abilityId": "specialskill_GREEFKARGA02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Greef Karga special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "GREEFKARGA",
-          "abilityId": "uniqueskill_GREEFKARGA01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Greef Karga unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "GREEFKARGA",
-          "abilityId": "contractskill_GREEFKARGA01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Greef Karga basic omicron for specific game modes"
         }
       ],
       "tags": []
@@ -3838,37 +3629,9 @@
           "abilityId": "leaderskill_CC2224",
           "abilityType": "zeta",
           "reason": "CC-2224 \"Cody\" leadership zeta provides core squad mechanics"
-        },
-        {
-          "unitBaseId": "CC2224",
-          "abilityId": "leaderskill_CC2224",
-          "abilityType": "omicron",
-          "reason": "CC-2224 \"Cody\" leadership omicron enhances squad in specific modes"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "CC2224",
-          "abilityId": "basicskill_CC2224",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "CC-2224 \"Cody\" basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "CC2224",
-          "abilityId": "specialskill_CC222401",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "CC-2224 \"Cody\" special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "CC2224",
-          "abilityId": "specialskill_CC222402",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "CC-2224 \"Cody\" special omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -3888,12 +3651,6 @@
       "requiredAbilities": [
         {
           "unitBaseId": "BOUSHH",
-          "abilityId": "leaderskill_BOUSHH",
-          "abilityType": "omicron",
-          "reason": "Boushh (Leia Organa) leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "BOUSHH",
           "abilityId": "uniqueskill_BOUSHH01",
           "abilityType": "zeta",
           "reason": "Boushh (Leia Organa) unique zeta enhances core mechanics"
@@ -3902,38 +3659,13 @@
       "optionalAbilities": [
         {
           "unitBaseId": "BOUSHH",
-          "abilityId": "basicskill_BOUSHH",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Boushh (Leia Organa) basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BOUSHH",
-          "abilityId": "specialskill_BOUSHH01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Boushh (Leia Organa) special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BOUSHH",
-          "abilityId": "uniqueskill_BOUSHH01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Boushh (Leia Organa) unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BOUSHH",
           "abilityId": "uniqueskill_BOUSHH02",
           "abilityType": "omicron",
           "confidenceWeight": 0.15,
-          "reason": "Boushh (Leia Organa) unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BOUSHH",
-          "abilityId": "contractskill_BOUSHH",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Boushh (Leia Organa) basic omicron for specific game modes"
+          "reason": "Boushh (Leia Organa) unique omicron for specific game modes",
+          "modeGates": [
+            "GUILD_ACTIVITIES"
+          ]
         }
       ],
       "tags": []
@@ -3966,13 +3698,6 @@
       "optionalAbilities": [
         {
           "unitBaseId": "STRANGER",
-          "abilityId": "basicskill_STRANGER",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "The Stranger basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "STRANGER",
           "abilityId": "specialskill_STRANGER01",
           "abilityType": "omicron",
           "confidenceWeight": 0.15,
@@ -3987,13 +3712,6 @@
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "The Stranger special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "STRANGER",
-          "abilityId": "specialskill_STRANGER02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "The Stranger special omicron for specific game modes"
         },
         {
           "unitBaseId": "STRANGER",
@@ -4025,54 +3743,12 @@
       "requiredAbilities": [
         {
           "unitBaseId": "DENGAR",
-          "abilityId": "leaderskill_DENGAR",
-          "abilityType": "omicron",
-          "reason": "Dengar leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "DENGAR",
           "abilityId": "uniqueskill_DENGAR01",
           "abilityType": "zeta",
           "reason": "Dengar unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "DENGAR",
-          "abilityId": "basicskill_DENGAR",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Dengar basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "DENGAR",
-          "abilityId": "specialskill_DENGAR01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Dengar special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "DENGAR",
-          "abilityId": "specialskill_DENGAR02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Dengar special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "DENGAR",
-          "abilityId": "uniqueskill_DENGAR01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Dengar unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "DENGAR",
-          "abilityId": "contractskill_DENGAR01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Dengar basic omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -4089,44 +3765,8 @@
           "CADBANE"
         ]
       },
-      "requiredAbilities": [
-        {
-          "unitBaseId": "CADBANE",
-          "abilityId": "leaderskill_CADBANE",
-          "abilityType": "omicron",
-          "reason": "Cad Bane leadership omicron enhances squad in specific modes"
-        }
-      ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "CADBANE",
-          "abilityId": "basicskill_CADBANE",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Cad Bane basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "CADBANE",
-          "abilityId": "specialskill_CADBANE01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Cad Bane special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "CADBANE",
-          "abilityId": "uniqueskill_CADBANE01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Cad Bane unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "CADBANE",
-          "abilityId": "contractskill_CADBANE01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Cad Bane basic omicron for specific game modes"
-        }
-      ],
+      "requiredAbilities": [],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -4152,12 +3792,6 @@
         },
         {
           "unitBaseId": "VADER",
-          "abilityId": "leaderskill_VADER",
-          "abilityType": "omicron",
-          "reason": "Darth Vader leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "VADER",
           "abilityId": "uniqueskill_VADER01",
           "abilityType": "zeta",
           "reason": "Darth Vader unique zeta enhances core mechanics"
@@ -4166,45 +3800,10 @@
       "optionalAbilities": [
         {
           "unitBaseId": "VADER",
-          "abilityId": "basicskill_VADER",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Vader basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "VADER",
-          "abilityId": "specialskill_VADER02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Vader special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "VADER",
-          "abilityId": "specialskill_VADER01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Vader special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "VADER",
-          "abilityId": "uniqueskill_VADER01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Vader unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "VADER",
           "abilityId": "specialskill_VADER03",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Darth Vader special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "VADER",
-          "abilityId": "specialskill_VADER03",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Vader special omicron for specific game modes"
         }
       ],
       "tags": []
@@ -4229,12 +3828,6 @@
           "abilityId": "leaderskill_DARTHBANE",
           "abilityType": "zeta",
           "reason": "Darth Bane leadership zeta provides core squad mechanics"
-        },
-        {
-          "unitBaseId": "DARTHBANE",
-          "abilityId": "leaderskill_DARTHBANE",
-          "abilityType": "omicron",
-          "reason": "Darth Bane leadership omicron enhances squad in specific modes"
         }
       ],
       "optionalAbilities": [
@@ -4244,13 +3837,6 @@
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Darth Bane special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "DARTHBANE",
-          "abilityId": "basicskill_DARTHBANE",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Bane basic omicron for specific game modes"
         },
         {
           "unitBaseId": "DARTHBANE",
@@ -4302,47 +3888,12 @@
       "requiredAbilities": [
         {
           "unitBaseId": "COUNTDOOKU",
-          "abilityId": "leaderskill_COUNTDOOKU",
-          "abilityType": "omicron",
-          "reason": "Count Dooku leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "COUNTDOOKU",
           "abilityId": "uniqueskill_COUNTDOOKU01",
           "abilityType": "zeta",
           "reason": "Count Dooku unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "COUNTDOOKU",
-          "abilityId": "basicskill_COUNTDOOKU",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Count Dooku basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "COUNTDOOKU",
-          "abilityId": "specialskill_COUNTDOOKU01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Count Dooku special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "COUNTDOOKU",
-          "abilityId": "specialskill_COUNTDOOKU02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Count Dooku special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "COUNTDOOKU",
-          "abilityId": "uniqueskill_COUNTDOOKU01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Count Dooku unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -4368,47 +3919,12 @@
         },
         {
           "unitBaseId": "FOTF_VADER",
-          "abilityId": "leaderskill_VADER",
-          "abilityType": "omicron",
-          "reason": "Darth Vader leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "FOTF_VADER",
           "abilityId": "uniqueskill_VADER01",
           "abilityType": "zeta",
           "reason": "Darth Vader unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "FOTF_VADER",
-          "abilityId": "basicskill_VADER",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Vader basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "FOTF_VADER",
-          "abilityId": "specialskill_VADER02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Vader special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "FOTF_VADER",
-          "abilityId": "specialskill_VADER01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Vader special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "FOTF_VADER",
-          "abilityId": "uniqueskill_VADER01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Vader unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -4428,40 +3944,12 @@
       "requiredAbilities": [
         {
           "unitBaseId": "STORMTROOPERHAN",
-          "abilityId": "leaderskill_STORMTROOPERHAN",
-          "abilityType": "omicron",
-          "reason": "Stormtrooper Han leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "STORMTROOPERHAN",
           "abilityId": "uniqueskill_STORMTROOPERHAN01",
           "abilityType": "zeta",
           "reason": "Stormtrooper Han unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "STORMTROOPERHAN",
-          "abilityId": "basicskill_STORMTROOPERHAN",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Stormtrooper Han basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "STORMTROOPERHAN",
-          "abilityId": "specialskill_STORMTROOPERHAN01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Stormtrooper Han special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "STORMTROOPERHAN",
-          "abilityId": "uniqueskill_STORMTROOPERHAN01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Stormtrooper Han unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -4487,12 +3975,6 @@
         },
         {
           "unitBaseId": "GLHONDO",
-          "abilityId": "leaderskill_GLHONDO",
-          "abilityType": "omicron",
-          "reason": "Pirate King Hondo Ohnaka leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "GLHONDO",
           "abilityId": "uniqueskill_GLHONDO01",
           "abilityType": "zeta",
           "reason": "Pirate King Hondo Ohnaka unique zeta enhances core mechanics"
@@ -4514,13 +3996,6 @@
         },
         {
           "unitBaseId": "GLHONDO",
-          "abilityId": "basicskill_GLHONDO",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Pirate King Hondo Ohnaka basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "GLHONDO",
           "abilityId": "specialskill_GLHONDO01",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
@@ -4528,38 +4003,10 @@
         },
         {
           "unitBaseId": "GLHONDO",
-          "abilityId": "specialskill_GLHONDO01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Pirate King Hondo Ohnaka special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "GLHONDO",
           "abilityId": "specialskill_GLHONDO02",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Pirate King Hondo Ohnaka special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "GLHONDO",
-          "abilityId": "specialskill_GLHONDO02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Pirate King Hondo Ohnaka special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "GLHONDO",
-          "abilityId": "uniqueskill_GLHONDO01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Pirate King Hondo Ohnaka unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "GLHONDO",
-          "abilityId": "uniqueskill_GALACTICLEGEND01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Pirate King Hondo Ohnaka unique omicron for specific game modes"
         }
       ],
       "tags": []
@@ -4587,54 +4034,12 @@
         },
         {
           "unitBaseId": "JANGOFETT",
-          "abilityId": "leaderskill_JANGOFETT",
-          "abilityType": "omicron",
-          "reason": "Jango Fett leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "JANGOFETT",
           "abilityId": "uniqueskill_JANGOFETT01",
           "abilityType": "zeta",
           "reason": "Jango Fett unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "JANGOFETT",
-          "abilityId": "basicskill_JANGOFETT",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jango Fett basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "JANGOFETT",
-          "abilityId": "specialskill_JANGOFETT01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jango Fett special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "JANGOFETT",
-          "abilityId": "specialskill_JANGOFETT02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jango Fett special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "JANGOFETT",
-          "abilityId": "uniqueskill_JANGOFETT01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jango Fett unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "JANGOFETT",
-          "abilityId": "contractskill_JANGOFETT01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jango Fett basic omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -4665,24 +4070,10 @@
       "optionalAbilities": [
         {
           "unitBaseId": "THIRDSISTER",
-          "abilityId": "basicskill_THIRDSISTER",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Third Sister basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "THIRDSISTER",
           "abilityId": "specialskill_THIRDSISTER01",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Third Sister special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "THIRDSISTER",
-          "abilityId": "specialskill_THIRDSISTER01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Third Sister special omicron for specific game modes"
         },
         {
           "unitBaseId": "THIRDSISTER",
@@ -4703,13 +4094,6 @@
           "modeGates": [
             "TB"
           ]
-        },
-        {
-          "unitBaseId": "THIRDSISTER",
-          "abilityId": "uniqueskill_INQUISITOR01_THIRDSISTER",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Third Sister unique omicron for specific game modes"
         }
       ],
       "tags": []
@@ -4746,36 +4130,7 @@
           "reason": "Boss Nass unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "BOSSNASS",
-          "abilityId": "basicskill_BOSSNASS",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Boss Nass basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BOSSNASS",
-          "abilityId": "specialskill_BOSSNASS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Boss Nass special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BOSSNASS",
-          "abilityId": "specialskill_BOSSNASS02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Boss Nass special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BOSSNASS",
-          "abilityId": "uniqueskill_BOSSNASS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Boss Nass unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -4807,24 +4162,10 @@
       "optionalAbilities": [
         {
           "unitBaseId": "JEDIMASTERMACEWINDU",
-          "abilityId": "basicskill_JEDIMASTERMACEWINDU",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jedi Master Mace Windu basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "JEDIMASTERMACEWINDU",
           "abilityId": "specialskill_JEDIMASTERMACEWINDU01",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Jedi Master Mace Windu special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "JEDIMASTERMACEWINDU",
-          "abilityId": "specialskill_JEDIMASTERMACEWINDU01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jedi Master Mace Windu special omicron for specific game modes"
         },
         {
           "unitBaseId": "JEDIMASTERMACEWINDU",
@@ -4885,38 +4226,10 @@
       "optionalAbilities": [
         {
           "unitBaseId": "ADMIRALRADDUS",
-          "abilityId": "basicskill_ADMIRALRADDUS",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Admiral Raddus basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "ADMIRALRADDUS",
           "abilityId": "specialskill_ADMIRALRADDUS01",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Admiral Raddus special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "ADMIRALRADDUS",
-          "abilityId": "specialskill_ADMIRALRADDUS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Admiral Raddus special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "ADMIRALRADDUS",
-          "abilityId": "specialskill_ADMIRALRADDUS02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Admiral Raddus special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "ADMIRALRADDUS",
-          "abilityId": "uniqueskill_ADMIRALRADDUS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Admiral Raddus unique omicron for specific game modes"
         }
       ],
       "tags": []
@@ -4944,12 +4257,6 @@
         },
         {
           "unitBaseId": "REYJEDITRAINING",
-          "abilityId": "leaderskill_REYJEDITRAINING",
-          "abilityType": "omicron",
-          "reason": "Rey (Jedi Training) leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "REYJEDITRAINING",
           "abilityId": "uniqueskill_REYJEDITRAINING01",
           "abilityType": "zeta",
           "reason": "Rey (Jedi Training) unique zeta enhances core mechanics"
@@ -4961,43 +4268,7 @@
           "reason": "Rey (Jedi Training) unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "REYJEDITRAINING",
-          "abilityId": "basicskill_REYJEDITRAINING",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Rey (Jedi Training) basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "REYJEDITRAINING",
-          "abilityId": "specialskill_REYJEDITRAINING01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Rey (Jedi Training) special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "REYJEDITRAINING",
-          "abilityId": "specialskill_REYJEDITRAINING02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Rey (Jedi Training) special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "REYJEDITRAINING",
-          "abilityId": "uniqueskill_REYJEDITRAINING01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Rey (Jedi Training) unique omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "REYJEDITRAINING",
-          "abilityId": "uniqueskill_REYJEDITRAINING02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Rey (Jedi Training) unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -5034,13 +4305,6 @@
       "optionalAbilities": [
         {
           "unitBaseId": "JEDIKNIGHTCAL",
-          "abilityId": "basicskill_JEDIKNIGHTCAL",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jedi Knight Cal Kestis basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "JEDIKNIGHTCAL",
           "abilityId": "specialskill_JEDIKNIGHTCAL01",
           "abilityType": "omicron",
           "confidenceWeight": 0.15,
@@ -5058,13 +4322,6 @@
         },
         {
           "unitBaseId": "JEDIKNIGHTCAL",
-          "abilityId": "specialskill_JEDIKNIGHTCAL02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jedi Knight Cal Kestis special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "JEDIKNIGHTCAL",
           "abilityId": "specialskill_JEDIKNIGHTCAL03",
           "abilityType": "omicron",
           "confidenceWeight": 0.15,
@@ -5072,13 +4329,6 @@
           "modeGates": [
             "TW"
           ]
-        },
-        {
-          "unitBaseId": "JEDIKNIGHTCAL",
-          "abilityId": "uniqueskill_JEDIKNIGHTCAL01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Jedi Knight Cal Kestis unique omicron for specific game modes"
         }
       ],
       "tags": []
@@ -5106,47 +4356,12 @@
         },
         {
           "unitBaseId": "THEMANDALORIANBESKARARMOR",
-          "abilityId": "leaderskill_THEMANDALORIANBESKARARMOR",
-          "abilityType": "omicron",
-          "reason": "The Mandalorian (Beskar Armor) leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "THEMANDALORIANBESKARARMOR",
           "abilityId": "uniqueskill_THEMANDALORIANBESKARARMOR01",
           "abilityType": "zeta",
           "reason": "The Mandalorian (Beskar Armor) unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "THEMANDALORIANBESKARARMOR",
-          "abilityId": "basicskill_THEMANDALORIANBESKARARMOR",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "The Mandalorian (Beskar Armor) basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "THEMANDALORIANBESKARARMOR",
-          "abilityId": "specialskill_THEMANDALORIANBESKARARMOR01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "The Mandalorian (Beskar Armor) special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "THEMANDALORIANBESKARARMOR",
-          "abilityId": "specialskill_THEMANDALORIANBESKARARMOR02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "The Mandalorian (Beskar Armor) special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "THEMANDALORIANBESKARARMOR",
-          "abilityId": "uniqueskill_THEMANDALORIANBESKARARMOR01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "The Mandalorian (Beskar Armor) unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -5166,40 +4381,12 @@
       "requiredAbilities": [
         {
           "unitBaseId": "BARRISSOFFEE",
-          "abilityId": "leaderskill_BARRISSOFFEE",
-          "abilityType": "omicron",
-          "reason": "Barriss Offee leadership omicron enhances squad in specific modes"
-        },
-        {
-          "unitBaseId": "BARRISSOFFEE",
           "abilityId": "uniqueskill_BARRISSOFFEE01",
           "abilityType": "zeta",
           "reason": "Barriss Offee unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "BARRISSOFFEE",
-          "abilityId": "basicskill_BARRISSOFFEE",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Barriss Offee basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BARRISSOFFEE",
-          "abilityId": "specialskill_BARRISSOFFEE01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Barriss Offee special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "BARRISSOFFEE",
-          "abilityId": "uniqueskill_BARRISSOFFEE01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Barriss Offee unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -5230,38 +4417,10 @@
       "optionalAbilities": [
         {
           "unitBaseId": "50RT",
-          "abilityId": "basicskill_50RT",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "50R-T basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "50RT",
           "abilityId": "specialskill_50RT01",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "50R-T special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "50RT",
-          "abilityId": "specialskill_50RT01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "50R-T special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "50RT",
-          "abilityId": "specialskill_50RT02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "50R-T special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "50RT",
-          "abilityId": "uniqueskill_50RT01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "50R-T unique omicron for specific game modes"
         }
       ],
       "tags": []
@@ -5280,36 +4439,8 @@
           "4LOM"
         ]
       },
-      "requiredAbilities": [
-        {
-          "unitBaseId": "4LOM",
-          "abilityId": "leaderskill_4LOM",
-          "abilityType": "omicron",
-          "reason": "4-LOM leadership omicron enhances squad in specific modes"
-        }
-      ],
+      "requiredAbilities": [],
       "optionalAbilities": [
-        {
-          "unitBaseId": "4LOM",
-          "abilityId": "basicskill_4LOM",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "4-LOM basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "4LOM",
-          "abilityId": "specialskill_4LOM01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "4-LOM special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "4LOM",
-          "abilityId": "specialskill_4LOM02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "4-LOM special omicron for specific game modes"
-        },
         {
           "unitBaseId": "4LOM",
           "abilityId": "uniqueskill_4LOM01",
@@ -5319,13 +4450,6 @@
           "modeGates": [
             "TW"
           ]
-        },
-        {
-          "unitBaseId": "4LOM",
-          "abilityId": "contractskill_4LOM",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "4-LOM basic omicron for specific game modes"
         }
       ],
       "tags": []
@@ -5356,20 +4480,6 @@
         }
       ],
       "optionalAbilities": [
-        {
-          "unitBaseId": "MAZKANATA",
-          "abilityId": "basicskill_MAZKANATA",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Maz Kanata basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "MAZKANATA",
-          "abilityId": "specialskill_MAZKANATA01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Maz Kanata special omicron for specific game modes"
-        },
         {
           "unitBaseId": "MAZKANATA",
           "abilityId": "specialskill_MAZKANATA02",
@@ -5407,42 +4517,14 @@
           "ITHANO"
         ]
       },
-      "requiredAbilities": [
-        {
-          "unitBaseId": "ITHANO",
-          "abilityId": "leaderskill_ITHANO",
-          "abilityType": "omicron",
-          "reason": "Captain Ithano leadership omicron enhances squad in specific modes"
-        }
-      ],
+      "requiredAbilities": [],
       "optionalAbilities": [
-        {
-          "unitBaseId": "ITHANO",
-          "abilityId": "basicskill_ITHANO",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Captain Ithano basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "ITHANO",
-          "abilityId": "specialskill_ITHANO01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Captain Ithano special omicron for specific game modes"
-        },
         {
           "unitBaseId": "ITHANO",
           "abilityId": "specialskill_ITHANO02",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "Captain Ithano special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "ITHANO",
-          "abilityId": "specialskill_ITHANO02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Captain Ithano special omicron for specific game modes"
         },
         {
           "unitBaseId": "ITHANO",
@@ -5472,29 +4554,8 @@
           "DARTHSIDIOUS"
         ]
       },
-      "requiredAbilities": [
-        {
-          "unitBaseId": "DARTHSIDIOUS",
-          "abilityId": "leaderskill_DARTHSIDIOUS",
-          "abilityType": "omicron",
-          "reason": "Darth Sidious leadership omicron enhances squad in specific modes"
-        }
-      ],
+      "requiredAbilities": [],
       "optionalAbilities": [
-        {
-          "unitBaseId": "DARTHSIDIOUS",
-          "abilityId": "basicskill_DARTHSIDIOUS",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Sidious basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "DARTHSIDIOUS",
-          "abilityId": "specialskill_DARTHSIDIOUS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Darth Sidious special omicron for specific game modes"
-        },
         {
           "unitBaseId": "DARTHSIDIOUS",
           "abilityId": "uniqueskill_DARTHSIDIOUS01",
@@ -5523,42 +4584,14 @@
           "GENERALSYNDULLA"
         ]
       },
-      "requiredAbilities": [
-        {
-          "unitBaseId": "GENERALSYNDULLA",
-          "abilityId": "leaderskill_GENERALSYNDULLA",
-          "abilityType": "omicron",
-          "reason": "General Syndulla leadership omicron enhances squad in specific modes"
-        }
-      ],
+      "requiredAbilities": [],
       "optionalAbilities": [
-        {
-          "unitBaseId": "GENERALSYNDULLA",
-          "abilityId": "basicskill_GENERALSYNDULLA",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "General Syndulla basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "GENERALSYNDULLA",
-          "abilityId": "specialskill_GENERALSYNDULLA01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "General Syndulla special omicron for specific game modes"
-        },
         {
           "unitBaseId": "GENERALSYNDULLA",
           "abilityId": "specialskill_GENERALSYNDULLA02",
           "abilityType": "zeta",
           "confidenceWeight": 0.1,
           "reason": "General Syndulla special zeta provides additional utility"
-        },
-        {
-          "unitBaseId": "GENERALSYNDULLA",
-          "abilityId": "specialskill_GENERALSYNDULLA02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "General Syndulla special omicron for specific game modes"
         },
         {
           "unitBaseId": "GENERALSYNDULLA",
@@ -5599,29 +4632,7 @@
           ]
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "FINN",
-          "abilityId": "basicskill_FINN",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Finn basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "FINN",
-          "abilityId": "specialskill_FINN01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Finn special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "FINN",
-          "abilityId": "specialskill_FINN02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Finn special omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -5656,36 +4667,7 @@
           "reason": "Tarfful unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "TARFFUL",
-          "abilityId": "basicskill_TARFFUL",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Tarfful basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "TARFFUL",
-          "abilityId": "specialskill_TARFFUL01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Tarfful special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "TARFFUL",
-          "abilityId": "specialskill_TARFFUL02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Tarfful special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "TARFFUL",
-          "abilityId": "uniqueskill_TARFFUL01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Tarfful unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -5719,29 +4701,7 @@
           "reason": "Rebel Officer Leia Organa unique zeta enhances core mechanics"
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "HOTHLEIA",
-          "abilityId": "basicskill_HOTHLEIA",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Rebel Officer Leia Organa basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "HOTHLEIA",
-          "abilityId": "specialskill_HOTHLEIA01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Rebel Officer Leia Organa special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "HOTHLEIA",
-          "abilityId": "uniqueskill_HOTHLEIA01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Rebel Officer Leia Organa unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -5770,36 +4730,7 @@
           ]
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "SANASTARROS",
-          "abilityId": "basicskill_SANASTARROS",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Sana Starros basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "SANASTARROS",
-          "abilityId": "specialskill_SANASTARROS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Sana Starros special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "SANASTARROS",
-          "abilityId": "specialskill_SANASTARROS02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Sana Starros special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "SANASTARROS",
-          "abilityId": "uniqueskill_SANASTARROS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Sana Starros unique omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -5828,29 +4759,7 @@
           ]
         }
       ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "CHIEFNEBIT",
-          "abilityId": "basicskill_CHIEFNEBIT",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Chief Nebit basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "CHIEFNEBIT",
-          "abilityId": "specialskill_CHIEFNEBIT01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Chief Nebit special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "CHIEFNEBIT",
-          "abilityId": "specialskill_CHIEFNEBIT02",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Chief Nebit special omicron for specific game modes"
-        }
-      ],
+      "optionalAbilities": [],
       "tags": []
     },
     {
@@ -5867,29 +4776,8 @@
           "SAVAGEOPRESS"
         ]
       },
-      "requiredAbilities": [
-        {
-          "unitBaseId": "SAVAGEOPRESS",
-          "abilityId": "leaderskill_SAVAGEOPRESS",
-          "abilityType": "omicron",
-          "reason": "Savage Opress leadership omicron enhances squad in specific modes"
-        }
-      ],
+      "requiredAbilities": [],
       "optionalAbilities": [
-        {
-          "unitBaseId": "SAVAGEOPRESS",
-          "abilityId": "basicskill_SAVAGEOPRESS",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Savage Opress basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "SAVAGEOPRESS",
-          "abilityId": "specialskill_SAVAGEOPRESS01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "Savage Opress special omicron for specific game modes"
-        },
         {
           "unitBaseId": "SAVAGEOPRESS",
           "abilityId": "uniqueskill_SAVAGEOPRESS01",
@@ -5917,37 +4805,8 @@
           "URORRURRR"
         ]
       },
-      "requiredAbilities": [
-        {
-          "unitBaseId": "URORRURRR",
-          "abilityId": "leaderskill_URORRURRR",
-          "abilityType": "omicron",
-          "reason": "URoRRuR'R'R leadership omicron enhances squad in specific modes"
-        }
-      ],
-      "optionalAbilities": [
-        {
-          "unitBaseId": "URORRURRR",
-          "abilityId": "basicskill_URORRURRR",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "URoRRuR'R'R basic omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "URORRURRR",
-          "abilityId": "specialskill_URORRURRR01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "URoRRuR'R'R special omicron for specific game modes"
-        },
-        {
-          "unitBaseId": "URORRURRR",
-          "abilityId": "uniqueskill_URORRURRR01",
-          "abilityType": "omicron",
-          "confidenceWeight": 0.15,
-          "reason": "URoRRuR'R'R unique omicron for specific game modes"
-        }
-      ],
+      "requiredAbilities": [],
+      "optionalAbilities": [],
       "tags": []
     }
   ]

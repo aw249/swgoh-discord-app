@@ -3,7 +3,7 @@
  * Takes offense counters and defense suggestions and finds the optimal balance.
  */
 import { SwgohGgFullPlayerResponse } from '../../integrations/swgohGgApi';
-import { UniqueDefensiveSquad, MatchedCounterSquad } from '../../types/gacStrategyTypes';
+import { UniqueDefensiveSquad, MatchedCounterSquad, ArchetypeValidationInfo } from '../../types/gacStrategyTypes';
 import { logger } from '../../utils/logger';
 import { isGalacticLegend } from '../../config/gacConstants';
 import { counterCache } from '../../storage/counterCache';
@@ -111,6 +111,7 @@ export async function balanceOffenseAndDefense(
     avgBanners: number | null;
     score: number;
     reason: string;
+    archetypeValidation?: ArchetypeValidationInfo;
   }>;
 }> {
     // Track all used characters across both offense and defense
@@ -557,6 +558,7 @@ export async function balanceOffenseAndDefense(
       avgBanners: number | null;
       score: number;
       reason: string;
+      archetypeValidation?: ArchetypeValidationInfo;
     }> = [];
     
     // For defensive strategy, prioritize defense first, then add offense

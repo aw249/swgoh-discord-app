@@ -2,7 +2,7 @@
  * Suggest defense squads based on top defense squads from swgoh.gg
  */
 import { SwgohGgFullPlayerResponse } from '../../integrations/swgohGgApi';
-import { UniqueDefensiveSquad } from '../../types/gacStrategyTypes';
+import { UniqueDefensiveSquad, ArchetypeValidationInfo } from '../../types/gacStrategyTypes';
 import { logger } from '../../utils/logger';
 import { isGalacticLegend } from '../../config/gacConstants';
 import { evaluateRosterForDefense } from './defenseEvaluation';
@@ -37,6 +37,7 @@ export async function suggestDefenseSquads(
     score: number;
     isGL: boolean;
     reason: string;
+    archetypeValidation?: ArchetypeValidationInfo;
   }> | undefined,
   strategyPreference: 'defensive' | 'balanced' | 'offensive',
   defenseClient: DefenseClient | undefined,
@@ -49,6 +50,7 @@ export async function suggestDefenseSquads(
   avgBanners: number | null;
   score: number;
   reason: string;
+  archetypeValidation?: ArchetypeValidationInfo;
 }>> {
     // If candidates provided, use them; otherwise evaluate roster
     let candidates: Array<{
@@ -59,6 +61,7 @@ export async function suggestDefenseSquads(
       score: number;
       isGL: boolean;
       reason: string;
+      archetypeValidation?: ArchetypeValidationInfo;
     }>;
     
     if (defenseCandidates && defenseCandidates.length > 0) {
@@ -107,6 +110,7 @@ export async function suggestDefenseSquads(
       avgBanners: number | null;
       score: number;
       reason: string;
+      archetypeValidation?: ArchetypeValidationInfo;
     }> = [];
 
     // First pass: Select GL squads if user has GLs
@@ -256,7 +260,8 @@ export async function suggestDefenseSquads(
         score: candidate.score,
         reason: hasMinorConflicts 
           ? `${candidate.reason} (GL, ${characterConflicts.length} char conflict(s), ${offenseConflicts.length} offense conflict(s) - balance logic will filter)`
-          : candidate.reason + ' (GL)'
+          : candidate.reason + ' (GL)',
+        archetypeValidation: candidate.archetypeValidation
       });
         usedLeaders.add(leaderId);
         
@@ -400,7 +405,8 @@ export async function suggestDefenseSquads(
         score: candidate.score,
         reason: hasOffenseConflicts || defenseConflicts.length > 0
           ? `${candidate.reason} (${offenseConflicts.length} offense conflict(s), ${defenseConflicts.length} defense conflict(s) - balance logic will filter)`
-          : candidate.reason
+          : candidate.reason,
+        archetypeValidation: candidate.archetypeValidation
       });
       
       usedLeaders.add(candidate.squad.leader.baseId);
@@ -456,7 +462,8 @@ export async function suggestDefenseSquads(
           seenCount: candidate.seenCount,
           avgBanners: candidate.avgBanners,
           score: candidate.score,
-          reason: candidate.reason + ' (balance logic will check offense conflicts)'
+          reason: candidate.reason + ' (balance logic will check offense conflicts)',
+          archetypeValidation: candidate.archetypeValidation
         });
         
         usedLeaders.add(candidate.squad.leader.baseId);

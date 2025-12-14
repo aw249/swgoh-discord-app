@@ -23,13 +23,18 @@ import {
 import { comlinkClient } from '../../integrations/comlink/comlinkClient';
 
 // Omicron mode mapping from game data
+// Mode 1 = base/no omicron (applies to 1600+ skills), NOT an actual omicron
 const OMICRON_MODE_MAP: Record<number, GameMode[]> = {
-  7: ['TW'],
-  8: ['GAC_3v3', 'GAC_5v5'],
-  9: ['TB'],
-  10: ['CONQUEST'],
-  11: ['GAC_3v3'],
-  12: ['GAC_5v5'],
+  // 1: undefined - NOT an omicron, this is a base ability flag
+  4: ['TB'],                // Guild activities (treating as TB for simplicity)
+  7: ['TW'],                // Territory War
+  8: ['GAC_3v3', 'GAC_5v5'], // Grand Arena (both formats)
+  9: ['TB'],                // Territory Battle
+  10: ['CONQUEST'],         // Conquest
+  11: ['GAC_3v3'],          // GAC 3v3 only
+  12: ['GAC_5v5'],          // GAC 5v5 only
+  14: ['GAC_3v3', 'GAC_5v5'], // GAC (Moff Tarkin, Tusken Chieftain)
+  15: ['GAC_3v3', 'GAC_5v5'], // GAC (Doctor Aphra)
 };
 
 interface UnitAbilityInfo {

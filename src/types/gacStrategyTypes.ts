@@ -58,4 +58,6 @@ export interface DefenseSuggestion {
   avgBanners: number | null;
   score: number;
   reason: string;
+  /** Archetype validation result for this defense squad */
+  archetypeValidation?: ArchetypeValidationInfo;
 }
