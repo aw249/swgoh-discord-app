@@ -52,6 +52,7 @@ export interface ComlinkSkill {
   id: string;
   tier: number;
   isZeta?: boolean;
+  isOmicron?: boolean;
 }
 
 export interface ComlinkMod {

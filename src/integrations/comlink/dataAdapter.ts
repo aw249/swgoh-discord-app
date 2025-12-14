@@ -182,16 +182,15 @@ function adaptUnit(unit: ComlinkRosterUnit): SwgohGgUnit {
   }
 
   // Count zetas and omicrons from skills
+  // The Comlink API provides isZeta and isOmicron boolean flags on each skill
   const zetaAbilities: string[] = [];
   const omicronAbilities: string[] = [];
 
   for (const skill of unit.skill || []) {
-    // Zetas are typically tier 8 abilities
-    if (skill.tier >= 8 && skill.id.includes('zeta')) {
+    if (skill.isZeta) {
       zetaAbilities.push(skill.id);
     }
-    // Omicrons are typically marked differently
-    if (skill.id.includes('omicron')) {
+    if (skill.isOmicron) {
       omicronAbilities.push(skill.id);
     }
   }
@@ -323,4 +322,3 @@ export function adaptComlinkPlayerDataOnly(
   const fullResponse = adaptComlinkPlayerToSwgohGg(comlinkPlayer);
   return fullResponse.data;
 }
-
