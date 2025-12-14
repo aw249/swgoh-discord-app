@@ -2,8 +2,27 @@
  * Utility functions for player comparison
  */
 import { SwgohGgFullPlayerResponse, SwgohGgUnit } from '../../integrations/swgohGgApi';
+import { gameDataService } from '../gameDataService';
 
-// Galactic Legend base IDs in display order
+/**
+ * Get Galactic Legend IDs dynamically from GameDataService.
+ * Falls back to a static list if GameDataService is not ready.
+ */
+export function getGalacticLegendIds(): string[] {
+  if (gameDataService.isReady()) {
+    return gameDataService.getAllGalacticLegends();
+  }
+  // Fallback static list
+  return [
+    'GLREY', 'SUPREMELEADERKYLOREN', 'GRANDMASTERLUKE', 'SITHPALPATINE',
+    'JEDIMASTERKENOBI', 'LORDVADER', 'JABBATHEHUTT', 'GLLEIA',
+    'GLAHSOKATANO', 'GLHONDO'
+  ];
+}
+
+/**
+ * @deprecated Use getGalacticLegendIds() instead
+ */
 export const GALACTIC_LEGEND_IDS = [
   'GLREY',
   'SUPREMELEADERKYLOREN',

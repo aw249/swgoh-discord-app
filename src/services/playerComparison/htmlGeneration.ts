@@ -3,7 +3,7 @@
  */
 import { SwgohGgFullPlayerResponse, SwgohGgUnit } from '../../integrations/swgohGgApi';
 import { 
-  GALACTIC_LEGEND_IDS, 
+  getGalacticLegendIds,
   getGLStats, 
   fmt, 
   escapeHtml, 
@@ -12,6 +12,8 @@ import {
   countGearLevel, 
   calculateModStats 
 } from './utils';
+import { gameDataService } from '../gameDataService';
+import { getDisplayRelicLevel, getUnitLevelDisplay } from '../../utils/unitLevelUtils';
 
 export   function generateHTML(
     p1: SwgohGgFullPlayerResponse,
@@ -421,45 +423,57 @@ export   function generateGalacticLegends(
     const glMap = new Map<string, SwgohGgUnit>();
     const otherGlMap = new Map<string, SwgohGgUnit>();
     
+    // Get dynamic GL list from GameDataService
+    const glIds = getGalacticLegendIds();
+    const glIdSet = new Set(glIds);
+    
     for (const u of player.units) {
-      // Use our authoritative GL list OR the API flag
-      if (GALACTIC_LEGEND_IDS.includes(u.data.base_id) || u.data.is_galactic_legend) {
+      // Use GameDataService GL list OR the API flag
+      if (glIdSet.has(u.data.base_id) || u.data.is_galactic_legend) {
         glMap.set(u.data.base_id, u);
       }
     }
     
     for (const u of otherPlayer.units) {
-      // Use our authoritative GL list OR the API flag
-      if (GALACTIC_LEGEND_IDS.includes(u.data.base_id) || u.data.is_galactic_legend) {
+      // Use GameDataService GL list OR the API flag
+      if (glIdSet.has(u.data.base_id) || u.data.is_galactic_legend) {
         otherGlMap.set(u.data.base_id, u);
       }
     }
 
+    // Original PNG icons from swgoh.gg
     const speedIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA4ElEQVQ4jc2SsQ3CMBRF/7cZgIqGhgFYgJKGkoINqGhoqBiACRiABShp2IANKCkoGIC/RYoUKXZiQKLhNU7O9bU/n5Ox+3sxBiIyBdAB0AUwAtAAsAPwKCJv50R+4B64BzCpFxC8AfgNggxAL4dKqV4ZM5fJXJXJKoNO3cEygGQNwH7TRXb9CrIDT5+wvt9kSCnlqc3gmgkAKK0EIK8A4JpScqeqAhhaaw4hTDLGPFp0TgHsjDF2GWMurWwdg0spP0Z2HdxcOGD/4wBV7wIAr2PMpZbLRmZV7wJBEATBQ+AD0iZBQXRqp1YAAAAASUVORK5CYII=';
     const healthIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA2klEQVQ4jc2SMQrCQBRE3/wNFrGwsLCxsfEAnsALeAIPYGNjY2djYWFhYePCb9xCWMhP4gp24IOBZf7M7C5J+HdpAg4lcvXYt4ArUIQTrp8t4O5CJxDANezfPqkZngAOLlSH8BWYu9BpvJAaOoB5g4b5eo8fBHbu6tpDLgAAAABJRU5ErkJggg==';
     const protectionIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA00lEQVQ4jc2SwQ3CIBSG/9cZXMARHMENHMENHMERHEE3cARHcAQ3YARHcATdQF9jGkMpFKI38CXk8Xjf4xH+XepAVdcA1gC2ACYAHgDuAI4icvfOxB8oRXV/KiB5A/DTBDmAWQhFKTUN2WhkmUvFKoJJ3cE4gGQFwPHQRw79DrIDz5+wvh9kSKfTqcrg2gkAuFYCUK4A4OY0la2qCoChMYbD8/woo+wMwI8xhpZS0q6VzWNwl8vnkd0Ht1cPqL8cIOtNAODVWnuq5bKRWdW7QBCEQfAC+wZEE29CkGEAAAAASUVORK5CYII=';
     const tenacityIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAABJElEQVQ4jc2RsUoDQRCG/5ndO7AQBAtBsLCxsfEBfAIfwAfQxsbGzsbCwsLCxoS9xEYQJHeSO0gKfQAfwAfQxsbGzsbCYmGxceF2bALhQi6JBvzhmGX++WdmCP8uNYCIDADsAtgBMAZwBnAG4KSu6+m6Sk+gqhpjvGBmFpERgA2AHYBpCGFczgkhDBqNxjDG+O4cx1UK1A2INxvxEMBBXdfH5RoRaabT6YQx5gVj7JeJrgI4NsYMGGP2yrlQKLSz2azDGHMRQnjYINdlAN1er9cNIbwppbyMoijt9/tDlVIaABOl1NPe3l5XKZWGECZSynMAJ1JKvb+/f5kxZpzIllK+1e/3ryul7jLG/Nr6O4A/6/L9DwxAqKr67dv/k25/HCDYpvPxFYBPX4xJbfQ9JWUAAAAASUVORK5CYII=';
     const potencyIconBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA70lEQVQ4jc2SMQ6CQBBF/8wuFhQWFBYWFhYewBN4AQ9gY2NjZ2NhYWFhY8LOYiMIEvYAHsAL2NjY2NlYWCwsFs7OWAgEAokW/mYyM/tn5s+Q/l0aQETGAHYB7ACMARwDOAZwVFXV5bpKj6CqGmO8Y2YWEREB2ACwA3BclmXTOI7juq6/nPM0heIGhPeNOABwUFXVYblGRJppmmbM7MIY86uJLgI4NMb0GWN2yzlPKLTz+bzNGHMeQrjbINdFAK1ut9sKIdxLKc/CMEy63e6QSymNiAyllE97e3stkUojIjMp5TGAQyml3t/fv8wYM46k/r+B/wPwDhMzgFUAAAAASUVORK5CYII=';
 
-    // GL name mapping for display
-    const glNames: Record<string, string> = {
-      'GLREY': 'Rey',
-      'SUPREMELEADERKYLOREN': 'Supreme Leader Kylo Ren',
-      'GRANDMASTERLUKE': 'Jedi Master Luke',
-      'SITHPALPATINE': 'Sith Eternal Emperor',
-      'JEDIMASTERKENOBI': 'Jedi Master Kenobi',
-      'LORDVADER': 'Lord Vader',
-      'JABBATHEHUTT': 'Jabba the Hutt',
-      'GLLEIA': 'Leia Organa',
-      'GLAHSOKATANO': 'Ahsoka Tano',
-      'GLHONDO': 'Hondo Ohnaka'
+    // GL name lookup - use GameDataService for dynamic names, with fallback
+    const getGLName = (baseId: string): string => {
+      if (gameDataService.isReady()) {
+        return gameDataService.getUnitName(baseId);
+      }
+      // Fallback static names
+      const fallbackNames: Record<string, string> = {
+        'GLREY': 'Rey',
+        'SUPREMELEADERKYLOREN': 'Supreme Leader Kylo Ren',
+        'GRANDMASTERLUKE': 'Jedi Master Luke',
+        'SITHPALPATINE': 'Sith Eternal Emperor',
+        'JEDIMASTERKENOBI': 'Jedi Master Kenobi',
+        'LORDVADER': 'Lord Vader',
+        'JABBATHEHUTT': 'Jabba the Hutt',
+        'GLLEIA': 'Leia Organa',
+        'GLAHSOKATANO': 'Ahsoka Tano',
+        'GLHONDO': 'Hondo Ohnaka'
+      };
+      return fallbackNames[baseId] || baseId;
     };
 
     let html = '';
     let hasAnyGL = false;
 
     // Iterate through ALL GLs - show both owned and not owned to ensure alignment
-    for (const glId of GALACTIC_LEGEND_IDS) {
+    for (const glId of glIds) {
       const gl = glMap.get(glId);
       const otherGl = otherGlMap.get(glId);
       
@@ -470,7 +484,7 @@ export   function generateGalacticLegends(
 
       // Get character image from cache
       const charImage = characterImageCache.get(glId) || '';
-      const glName = glNames[glId] || glId;
+      const glName = getGLName(glId);
 
       // If this player doesn't have the GL, show "Not Owned" placeholder
       if (!gl) {
@@ -483,7 +497,7 @@ export   function generateGalacticLegends(
                     <div class="legend-table">
                         <div class="legend-image-cell">${iconHtml}</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <span>Relic</span>
+                            <span>Gear Level</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
                         <div class="legend-table-cell stat-label-cell">
@@ -519,16 +533,13 @@ export   function generateGalacticLegends(
       const stats = getGLStats(gl);
       const otherStats = otherGl ? getGLStats(otherGl) : null;
 
-      // Get relic levels using the same logic as strategy service
-      let relicLevel: number | null = null;
-      if (gl.data.gear_level >= 13 && gl.data.relic_tier !== null && gl.data.relic_tier !== undefined) {
-        relicLevel = Math.max(0, gl.data.relic_tier - 2);
-      }
+      // Get unit level display (relic for G13+, gear for others)
+      const levelDisplay = getUnitLevelDisplay(gl.data);
+      const otherLevelDisplay = otherGl ? getUnitLevelDisplay(otherGl.data) : null;
       
-      let otherRelicLevel: number | null = null;
-      if (otherGl && otherGl.data.gear_level >= 13 && otherGl.data.relic_tier !== null && otherGl.data.relic_tier !== undefined) {
-        otherRelicLevel = Math.max(0, otherGl.data.relic_tier - 2);
-      }
+      // For comparison, use the display values
+      const relicLevel = levelDisplay.isRelic ? levelDisplay.value : null;
+      const otherRelicLevel = otherLevelDisplay?.isRelic ? otherLevelDisplay.value : null;
 
       // Determine colors - if other player doesn't have GL, this player is better (green/red)
       const relicColor = !otherGl 
@@ -567,16 +578,17 @@ export   function generateGalacticLegends(
         ? `<img src="${charImage}" alt="${gl.data.name}" />`
         : '<div style="width: 70px; height: 70px; background: #4a4a4a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #f5deb3; font-size: 10px;">GL</div>';
 
-      const relicDisplay = relicLevel !== null ? `R${relicLevel}` : 'None';
+      // Use the level display label (e.g., "R8" or "G12")
+      const levelDisplayLabel = levelDisplay.label;
 
       html += `
                 <div class="legend-item">
                     <div class="legend-table">
                         <div class="legend-image-cell">${iconHtml}</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <span>Relic</span>
+                            <span>Gear Level</span>
                         </div>
-                        <div class="legend-table-cell stat-value-cell ${relicColor}">${relicDisplay}</div>
+                        <div class="legend-table-cell stat-value-cell ${relicColor}">${levelDisplayLabel}</div>
                         <div class="legend-table-cell stat-label-cell">
                             <img class="legend-stat-icon" src="${speedIconBase64}" alt="speed">
                             <span>Speed</span>

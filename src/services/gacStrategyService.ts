@@ -412,6 +412,44 @@ export class GacStrategyService {
       await defensePage.close();
     }
 
+    // Calculate unused GLs for the offense image
+    const unusedGLs: string[] = [];
+    if (userRoster) {
+      // Get all GLs from user roster
+      const allUserGLs = new Set<string>();
+      for (const unit of userRoster.units || []) {
+        if (unit.data.combat_type === 1 && (isGalacticLegend(unit.data.base_id) || unit.data.is_galactic_legend)) {
+          allUserGLs.add(unit.data.base_id);
+        }
+      }
+      
+      // Get GLs used in offense
+      const usedGLs = new Set<string>();
+      for (const counter of balancedOffense) {
+        if (counter.offense.leader.baseId && isGalacticLegend(counter.offense.leader.baseId)) {
+          usedGLs.add(counter.offense.leader.baseId);
+        }
+      }
+      
+      // Get GLs used in defense
+      for (const defense of balancedDefense) {
+        if (isGalacticLegend(defense.squad.leader.baseId)) {
+          usedGLs.add(defense.squad.leader.baseId);
+        }
+      }
+      
+      // Find unused GLs
+      for (const gl of allUserGLs) {
+        if (!usedGLs.has(gl)) {
+          unusedGLs.push(gl);
+        }
+      }
+      
+      if (unusedGLs.length > 0) {
+        logger.info(`[Strategy Images] ${unusedGLs.length} GL(s) not placed in strategy: ${unusedGLs.join(', ')}`);
+      }
+    }
+
     // Generate offense image
     const offensePage = await browser.newPage();
     let offenseImage: Buffer;
@@ -424,7 +462,8 @@ export class GacStrategyService {
         format,
         maxSquads,
         userRoster,
-        opponentRoster
+        opponentRoster,
+        unusedGLs
       );
       await offensePage.setContent(offenseHtml, { waitUntil: 'networkidle0' });
       offenseImage = await offensePage.screenshot({ type: 'png', fullPage: true }) as Buffer;

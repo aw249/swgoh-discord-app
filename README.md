@@ -35,20 +35,34 @@ A Discord bot for Star Wars: Galaxy of Heroes, focused on Grand Arena Championsh
      ```
      DISCORD_BOT_TOKEN=your_discord_bot_token_here
      DISCORD_CLIENT_ID=your_discord_client_id_here
-     SWGOH_API_KEY=your_swgoh_api_key_here
+     COMLINK_URL=http://localhost:3200
      ```
 
-4. Build the project:
+4. Set up SWGoH Comlink (for real-time game data):
+   ```bash
+   # Download the Comlink binary for your platform from:
+   # https://github.com/swgoh-utils/swgoh-comlink/releases
+   
+   # For macOS:
+   mkdir -p bin
+   curl -L "https://github.com/swgoh-utils/swgoh-comlink/releases/latest/download/swgoh-comlink-macos-4.0.0.zip" -o bin/comlink.zip
+   cd bin && unzip comlink.zip && chmod +x swgoh-comlink-* && cd ..
+   
+   # Start Comlink (run in a separate terminal):
+   ./bin/swgoh-comlink-4.0.0 --port 3200
+   ```
+
+5. Build the project:
    ```bash
    npm run build
    ```
 
-5. Deploy commands (one-time setup):
+6. Deploy commands (one-time setup):
    ```bash
    npm run deploy:commands
    ```
 
-6. Run the bot in development mode:
+7. Run the bot in development mode:
    ```bash
    npm run dev
    ```
@@ -57,6 +71,26 @@ A Discord bot for Star Wars: Galaxy of Heroes, focused on Grand Arena Championsh
    ```bash
    npm start
    ```
+
+## Data Sources
+
+This bot uses two data sources:
+
+### SWGoH Comlink (Primary - Recommended)
+[SWGoH Comlink](https://github.com/swgoh-utils/swgoh-comlink) provides direct, real-time access to Capital Games' game APIs. This gives you:
+- **Real-time data**: No delay waiting for third-party sites to update
+- **GAC brackets and leaderboards**: Current season data as it happens
+- **Player and guild profiles**: Full roster data including mods
+- **Game events**: Current and upcoming GAC schedule
+
+### swgoh.gg (Fallback)
+The bot can also use swgoh.gg as a fallback data source, though this may experience delays when swgoh.gg hasn't updated their data after game changes.
+
+### Testing Comlink Integration
+```bash
+# Ensure Comlink is running, then:
+npx ts-node scripts/test-comlink.ts
+```
 
 ## Commands
 

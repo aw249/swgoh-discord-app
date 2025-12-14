@@ -9,6 +9,7 @@ import { getTop80CharactersRoster, getGalacticLegendsFromRoster, createCharacter
 import { isGalacticLegend } from '../../../config/gacConstants';
 import { getCharacterPortraitUrl } from '../../../config/characterPortraits';
 import { logger } from '../../../utils/logger';
+import { getUnitLevelDisplay } from '../../../utils/unitLevelUtils';
 
 export function generateBalancedStrategyHtml(
     opponentLabel: string,
@@ -187,10 +188,22 @@ export function generateBalancedStrategyHtml(
           </div>
         `;
         }
-        let relic: string | number = '?';
-        if (typeof unit.relicLevel === 'number') {
-          relic = Math.max(0, Math.min(10, unit.relicLevel));
+        // Get level display - show gear level (G12) for non-G13, relic (R8) for G13+
+        let levelLabel = '?';
+        if (typeof unit.gearLevel === 'number' && unit.gearLevel > 0) {
+          // Use gearLevel if available
+          if (unit.gearLevel < 13) {
+            levelLabel = `G${unit.gearLevel}`;
+          } else if (typeof unit.relicLevel === 'number') {
+            levelLabel = `R${Math.max(0, Math.min(10, unit.relicLevel))}`;
+          } else {
+            levelLabel = 'R0';
+          }
+        } else if (typeof unit.relicLevel === 'number') {
+          // Fall back to relic level only (G13+ assumed)
+          levelLabel = `R${Math.max(0, Math.min(10, unit.relicLevel))}`;
         }
+        
         // Construct portrait URL from baseId if not provided
         // swgoh.gg serves character portraits from game-assets.swgoh.gg
         const portraitUrl = unit.portraitUrl || (unit.baseId ? getCharacterPortraitUrl(unit.baseId) : null);
@@ -209,7 +222,7 @@ export function generateBalancedStrategyHtml(
             <div class="character-portrait dark">
               ${portraitImg}
               <div class="character-placeholder" style="display: ${portraitImg ? 'none' : 'flex'};"></div>
-              <div class="relic-number">${relic}</div>
+              <div class="relic-number">${levelLabel}</div>
             </div>
             <div class="character-stats-table">
               <div class="stat-row">
@@ -327,10 +340,20 @@ export function generateBalancedStrategyHtml(
           </div>
         `;
         }
-        let relic: string | number = '?';
-        if (typeof unit.relicLevel === 'number') {
-          relic = Math.max(0, Math.min(10, unit.relicLevel));
+        // Get level display - show gear level (G12) for non-G13, relic (R8) for G13+
+        let levelLabel = '?';
+        if (typeof unit.gearLevel === 'number' && unit.gearLevel > 0) {
+          if (unit.gearLevel < 13) {
+            levelLabel = `G${unit.gearLevel}`;
+          } else if (typeof unit.relicLevel === 'number') {
+            levelLabel = `R${Math.max(0, Math.min(10, unit.relicLevel))}`;
+          } else {
+            levelLabel = 'R0';
+          }
+        } else if (typeof unit.relicLevel === 'number') {
+          levelLabel = `R${Math.max(0, Math.min(10, unit.relicLevel))}`;
         }
+        
         // Construct portrait URL from baseId if not provided
         // swgoh.gg serves character portraits from game-assets.swgoh.gg
         const portraitUrl = unit.portraitUrl || (unit.baseId ? getCharacterPortraitUrl(unit.baseId) : null);
@@ -349,7 +372,7 @@ export function generateBalancedStrategyHtml(
             <div class="character-portrait ${isOffense ? 'offense' : 'dark'}">
               ${portraitImg}
               <div class="character-placeholder" style="display: ${portraitImg ? 'none' : 'flex'};"></div>
-              <div class="relic-number">${relic}</div>
+              <div class="relic-number">${levelLabel}</div>
             </div>
             <div class="character-stats-table">
               <div class="stat-row">
@@ -428,17 +451,17 @@ export function generateBalancedStrategyHtml(
       logger.info(`[Image Generation] Row ${index + 1}: Defense=${myDefense?.squad.leader.baseId || 'none'}, Offense=${myOffense?.offense.leader.baseId || 'none'}, OpponentDef=${opponentDef?.leader.baseId || 'none'} (source: ${opponentDefSource})`);
 
       const myDefenseHtml = myDefense ? renderDefenseSquad(myDefense.squad, expectedSquadSize) : renderDefenseSquad({
-        leader: { baseId: '', relicLevel: null, portraitUrl: null },
+        leader: { baseId: '', gearLevel: null, relicLevel: null, portraitUrl: null },
         members: []
       }, expectedSquadSize);
       
       const myOffenseHtml = myOffense ? renderOffenseSquad(myOffense, expectedSquadSize) : renderSquad({
-        leader: { baseId: '', relicLevel: null, portraitUrl: null },
+        leader: { baseId: '', gearLevel: null, relicLevel: null, portraitUrl: null },
         members: []
       }, expectedSquadSize, true);
       
       const opponentDefHtml = opponentDef ? renderSquad(opponentDef, expectedSquadSize, false) : renderSquad({
-        leader: { baseId: '', relicLevel: null, portraitUrl: null },
+        leader: { baseId: '', gearLevel: null, relicLevel: null, portraitUrl: null },
         members: []
       }, expectedSquadSize, false);
 

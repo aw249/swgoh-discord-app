@@ -8,10 +8,22 @@ import {
 import { PlayerService } from '../services/playerService';
 import { GacService } from '../services/gacService';
 import { PlayerComparisonService } from '../services/playerComparisonService';
-import { SwgohGgApiClient } from '../integrations/swgohGgApi';
+import { SwgohGgApiClient, SwgohGgFullPlayerResponse, GacDefensiveSquad, GacCounterSquad, GacTopDefenseSquad } from '../integrations/swgohGgApi';
+import { CombinedApiClient } from '../integrations/comlink';
 import { GacStrategyService } from '../services/gacStrategyService';
 import { logger } from '../utils/logger';
 import { RequestQueue } from '../utils/requestQueue';
+
+/**
+ * API client interface that works with both SwgohGgApiClient and CombinedApiClient
+ */
+interface GacApiClient {
+  getFullPlayer(allyCode: string): Promise<SwgohGgFullPlayerResponse>;
+  getFullPlayerWithStats?(allyCode: string): Promise<SwgohGgFullPlayerResponse>;
+  getPlayerRecentGacDefensiveSquads(allyCode: string, format: string, maxRounds?: number): Promise<GacDefensiveSquad[]>;
+  getCounterSquads(defensiveLeaderBaseId: string, seasonId?: string): Promise<GacCounterSquad[]>;
+  getTopDefenseSquads(sortBy?: 'percent' | 'count' | 'banners', seasonId?: string, format?: string): Promise<GacTopDefenseSquad[]>;
+}
 
 // Global queue for GAC commands so that only one heavy GAC request
 // is processed at a time. This helps avoid multiple concurrent
@@ -89,7 +101,7 @@ export const gacCommand = {
     interaction: ChatInputCommandInteraction,
     playerService: PlayerService,
     gacService: GacService,
-    swgohGgApiClient: SwgohGgApiClient
+    swgohGgApiClient: GacApiClient
   ): Promise<void> {
     // Declare statusMessage outside try block so it's accessible in catch block
     let statusMessage: import('discord.js').Message | null = null;
@@ -304,9 +316,11 @@ export const gacCommand = {
   ): Promise<void> {
     const summary = await gacService.getBracketSummary(yourAllyCode, yourAllyCode);
 
+    const dataSourceIndicator = summary.isRealTime ? '🟢 Real-time' : '🟡 Cached';
+    
     const embed = new EmbedBuilder()
       .setTitle('🏆 GAC Bracket')
-      .setDescription(`**${summary.league}** League - Season ${summary.seasonNumber}`)
+      .setDescription(`**${summary.league}** League - Season ${summary.seasonNumber}\n*${dataSourceIndicator} data*`)
       .addFields(
         {
           name: 'Your Status',
@@ -316,23 +330,38 @@ export const gacCommand = {
           inline: true
         },
         {
-          name: 'Bracket Info',
-          value: `Bracket ID: ${summary.bracketId}\nPlayers: ${summary.playerCount}`,
+          name: 'Round Info',
+          value: `Round: ${summary.currentRound}/3\nBracket ID: ${summary.bracketId}`,
           inline: true
         }
       )
       .setColor(0x0099ff)
       .setTimestamp(new Date(summary.startTime));
 
+    // Add current opponent if detected
+    if (summary.currentOpponent) {
+      embed.addFields({
+        name: `⚔️ Current Opponent (Round ${summary.currentRound})`,
+        value: `**${summary.currentOpponent.name}**\n` +
+          `${summary.currentOpponent.galacticPower.toLocaleString()} GP • Score: ${summary.currentOpponent.score}\n` +
+          `Guild: ${summary.currentOpponent.guildName}`,
+        inline: false
+      });
+    }
+
     // Add opponents (limit to top 8 to avoid embed field limits)
     const topOpponents = summary.opponents.slice(0, 8);
     if (topOpponents.length > 0) {
       const opponentsList = topOpponents
-        .map(opp => `**${opp.rank}.** ${opp.name} (${opp.galacticPower.toLocaleString()} GP) - ${opp.score} pts`)
+        .map(opp => {
+          const isCurrent = summary.currentOpponent && opp.allyCode === summary.currentOpponent.allyCode;
+          const marker = isCurrent ? ' ⚔️' : '';
+          return `**${opp.rank}.** ${opp.name}${marker} (${opp.galacticPower.toLocaleString()} GP) - ${opp.score} pts`;
+        })
         .join('\n');
 
       embed.addFields({
-        name: 'Opponents',
+        name: 'All Bracket Players',
         value: opponentsList.length > 1024 ? opponentsList.substring(0, 1020) + '...' : opponentsList,
         inline: false
       });
@@ -346,7 +375,7 @@ export const gacCommand = {
     yourAllyCode: string,
     opponentAllyCode: string | null,
     gacService: GacService,
-    swgohGgApiClient: SwgohGgApiClient
+    swgohGgApiClient: GacApiClient
   ): Promise<void> {
     // Get your bracket first
     const bracketData = await gacService.getBracketForAllyCode(yourAllyCode);
@@ -355,37 +384,32 @@ export const gacCommand = {
     let resolvedOpponentAllyCode: string | null = null;
 
     if (opponentAllyCode) {
+      // Normalize ally code by removing dashes (users may type "123-456-789" but URLs need "123456789")
+      const normalizedAllyCode = opponentAllyCode.replace(/-/g, '');
       // Look for specific opponent in bracket (for bracket-selected opponents)
-      const found = gacService.findOpponentInBracket(bracketData, opponentAllyCode);
+      const found = gacService.findOpponentInBracket(bracketData, normalizedAllyCode);
       if (found) {
         opponentBracketPlayer = found;
-        resolvedOpponentAllyCode = opponentAllyCode;
+        resolvedOpponentAllyCode = normalizedAllyCode;
       } else {
         // If not in the bracket, still allow comparison by ally code (e.g. a guild member)
-        resolvedOpponentAllyCode = opponentAllyCode;
+        resolvedOpponentAllyCode = normalizedAllyCode;
       }
     } else {
-      // Use Swiss-system matchmaking to find best opponent:
-      // 1. Filter by same score (Swiss-system requirement)
-      // 2. Sort by closest Top 80 Character GP
-      const yourPlayer = bracketData.bracket_players.find(p => p.ally_code.toString() === yourAllyCode);
-      if (!yourPlayer) {
-        throw new Error('You are not found in this bracket.');
-      }
-
-      // Fetch your roster first (needed for Top 80 GP calculation)
-      const yourPlayerData = await swgohGgApiClient.getFullPlayer(yourAllyCode);
+      // Get live bracket data which includes real-time opponent detection
+      const liveBracket = await gacService.getLiveBracket(yourAllyCode);
       
-      // Find best opponent using Swiss-system matching
-      const bestMatch = await gacService.findBestOpponent(bracketData, yourAllyCode, yourPlayerData);
-      
-      if (bestMatch) {
-        opponentBracketPlayer = bestMatch.opponent;
-        resolvedOpponentAllyCode = bestMatch.opponent.ally_code.toString();
+      if (liveBracket.currentOpponent) {
+        opponentBracketPlayer = liveBracket.currentOpponent;
+        resolvedOpponentAllyCode = liveBracket.currentOpponent.ally_code.toString();
         logger.info(
-          `Swiss-system matched opponent: ${bestMatch.opponent.player_name} ` +
-          `(Score: ${bestMatch.opponent.bracket_score}, Top 80 GP: ${bestMatch.top80GP.toLocaleString()})`
+          `Real-time opponent detected for Round ${liveBracket.currentRound}: ` +
+          `${liveBracket.currentOpponent.player_name} ` +
+          `(Score: ${liveBracket.currentOpponent.bracket_score}, ` +
+          `Real-time: ${liveBracket.isRealTime})`
         );
+      } else {
+        logger.warn('Could not determine current opponent from live bracket data');
       }
     }
 
@@ -399,10 +423,15 @@ export const gacCommand = {
       return;
     }
 
-    // Fetch full player data for both players
+    // Fetch full player data for both players WITH STATS (comparison needs calculated stats)
+    // Use getFullPlayerWithStats which always fetches from swgoh.gg since Comlink doesn't provide stats
+    const getPlayerWithStats = swgohGgApiClient.getFullPlayerWithStats 
+      ? swgohGgApiClient.getFullPlayerWithStats.bind(swgohGgApiClient)
+      : swgohGgApiClient.getFullPlayer.bind(swgohGgApiClient);
+    
     const [yourPlayerData, opponentPlayerData] = await Promise.all([
-      swgohGgApiClient.getFullPlayer(yourAllyCode),
-      swgohGgApiClient.getFullPlayer(resolvedOpponentAllyCode)
+      getPlayerWithStats(yourAllyCode),
+      getPlayerWithStats(resolvedOpponentAllyCode)
     ]);
 
     // Generate comparison image
@@ -490,7 +519,7 @@ export const gacCommand = {
       if (!bracketData) {
         try {
           bracketData = await Promise.race([
-            gacService.getBracketForAllyCode(yourAllyCode),
+            gacService.getLiveBracket(yourAllyCode),
             new Promise<never>((_, reject) =>
               setTimeout(() => reject(new Error('Timeout')), 2000)
             )
@@ -501,6 +530,11 @@ export const gacCommand = {
           await interaction.respond([]);
           return;
         }
+      }
+
+      if (!bracketData) {
+        await interaction.respond([]);
+        return;
       }
 
       const query = (typeof focused.value === 'string' ? focused.value : String(focused.value))
@@ -551,7 +585,7 @@ export const gacCommand = {
     strategyPreference: 'defensive' | 'balanced' | 'offensive',
     gacService: GacService,
     gacStrategyService: GacStrategyService,
-    swgohGgApiClient: SwgohGgApiClient,
+    swgohGgApiClient: GacApiClient,
     updateStatus?: (content: string) => Promise<void>
   ): Promise<void> {
     // Determine which opponent to analyse – either explicit ally code or your next bracket opponent
@@ -564,54 +598,36 @@ export const gacCommand = {
     }
 
     if (opponentAllyCode) {
-      targetAllyCode = opponentAllyCode;
+      // Normalize ally code by removing dashes (users may type "123-456-789" but URLs need "123456789")
+      targetAllyCode = opponentAllyCode.replace(/-/g, '');
       // Fetch player data to get the player's name
       try {
-        const opponentPlayerData = await swgohGgApiClient.getFullPlayer(opponentAllyCode);
+        const opponentPlayerData = await swgohGgApiClient.getFullPlayer(targetAllyCode);
         targetName = opponentPlayerData.data.name;
       } catch (error) {
         // If we can't fetch player data, fall back to ally code
-        logger.warn(`Could not fetch player name for ally code ${opponentAllyCode}:`, error);
+        logger.warn(`Could not fetch player name for ally code ${targetAllyCode}:`, error);
         targetName = null;
       }
       // League is optional - will use default max if unavailable
       opponentLeague = null;
     } else {
-      // Use Swiss-system matchmaking to find best opponent:
-      // 1. Filter by same score (Swiss-system requirement)
-      // 2. Sort by closest Top 80 Character GP
-      const bracketData = await gacService.getBracketForAllyCode(yourAllyCode);
-      const yourPlayer = bracketData.bracket_players.find(
-        p => p.ally_code.toString() === yourAllyCode
-      );
-
-      if (!yourPlayer) {
-        throw new Error('You are not found in this GAC bracket.');
-      }
+      // Get live bracket data which includes real-time opponent detection
+      const liveBracket = await gacService.getLiveBracket(yourAllyCode);
 
       // Use the bracket's league (all players in a bracket are in the same league)
-      opponentLeague = bracketData.league;
+      opponentLeague = liveBracket.league;
 
-      if (updateStatus) {
-        await updateStatus('🔍 Finding your opponent...');
+      if (!liveBracket.currentOpponent) {
+        throw new Error('Could not determine your next GAC opponent from live bracket data.');
       }
 
-      // Fetch your roster for Top 80 GP calculation
-      const yourPlayerData = await swgohGgApiClient.getFullPlayer(yourAllyCode);
-      
-      // Find best opponent using Swiss-system matching
-      const bestMatch = await gacService.findBestOpponent(bracketData, yourAllyCode, yourPlayerData);
-      
-      if (!bestMatch) {
-        throw new Error('Could not determine your next GAC opponent.');
-      }
-
-      targetAllyCode = bestMatch.opponent.ally_code.toString();
-      targetName = bestMatch.opponent.player_name;
+      targetAllyCode = liveBracket.currentOpponent.ally_code.toString();
+      targetName = liveBracket.currentOpponent.player_name;
       
       logger.info(
-        `Swiss-system matched opponent for strategy: ${targetName} ` +
-        `(Score: ${bestMatch.opponent.bracket_score}, Top 80 GP: ${bestMatch.top80GP.toLocaleString()})`
+        `Real-time opponent for strategy (Round ${liveBracket.currentRound}): ${targetName} ` +
+        `(Score: ${liveBracket.currentOpponent.bracket_score}, Real-time: ${liveBracket.isRealTime})`
       );
     }
 
@@ -638,8 +654,11 @@ export const gacCommand = {
       await updateStatus('📊 Analysing your roster and matching counters...');
     }
 
-    // Get user's roster to match counters
-    const userRoster = await swgohGgApiClient.getFullPlayer(yourAllyCode);
+    // Get user's roster to match counters (with stats for proper analysis)
+    const getRosterWithStats = swgohGgApiClient.getFullPlayerWithStats 
+      ? swgohGgApiClient.getFullPlayerWithStats.bind(swgohGgApiClient)
+      : swgohGgApiClient.getFullPlayer.bind(swgohGgApiClient);
+    const userRoster = await getRosterWithStats(yourAllyCode);
 
     // Get season ID from bracket if available (for counter matching)
     // Always use the PREVIOUS season of the requested format, as the current season

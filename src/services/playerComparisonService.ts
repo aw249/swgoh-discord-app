@@ -3,7 +3,7 @@ import { SwgohGgFullPlayerResponse } from '../integrations/swgohGgApi';
 import { logger } from '../utils/logger';
 import { generateHTML } from './playerComparison/htmlGeneration';
 import { getCharacterPortraitUrl } from '../config/characterPortraits';
-import { GALACTIC_LEGEND_IDS } from './playerComparison/utils';
+import { getGalacticLegendIds } from './playerComparison/utils';
 
 export class PlayerComparisonService {
   private browser: Browser | null = null;
@@ -27,20 +27,23 @@ export class PlayerComparisonService {
   }
 
   /**
-   * Build character image cache using existing portrait URLs from our cache
+   * Build character image cache using existing portrait URLs from our cache.
+   * Uses GameDataService to get all GL IDs dynamically.
    */
   private buildCharacterImageCache(): Map<string, string> {
     const cache = new Map<string, string>();
     
-    // Only need GL images for the comparison view
-    for (const glId of GALACTIC_LEGEND_IDS) {
+    // Get GL IDs dynamically from GameDataService
+    const glIds = getGalacticLegendIds();
+    
+    for (const glId of glIds) {
       const url = getCharacterPortraitUrl(glId);
       if (url) {
         cache.set(glId, url);
       }
     }
     
-    logger.debug(`Built character image cache with ${cache.size} GL portraits`);
+    logger.debug(`Built character image cache with ${cache.size} GL portraits (${glIds.length} GLs detected)`);
     return cache;
   }
 

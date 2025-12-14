@@ -3,9 +3,17 @@
  */
 import { ChatInputCommandInteraction, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 import { GacService } from '../../services/gacService';
-import { SwgohGgApiClient } from '../../integrations/swgohGgApi';
+import { SwgohGgFullPlayerResponse } from '../../integrations/swgohGgApi';
 import { GacStrategyService } from '../../services/gacStrategyService';
 import { logger } from '../../utils/logger';
+
+/**
+ * API client interface for player data
+ */
+interface PlayerApiClient {
+  getFullPlayer(allyCode: string): Promise<SwgohGgFullPlayerResponse>;
+  getFullPlayerWithStats?(allyCode: string): Promise<SwgohGgFullPlayerResponse>;
+}
 
 export async function handleStrategyCommand(
   interaction: ChatInputCommandInteraction,
@@ -15,7 +23,7 @@ export async function handleStrategyCommand(
   strategyPreference: 'defensive' | 'balanced' | 'offensive',
   gacService: GacService,
   gacStrategyService: GacStrategyService,
-  swgohGgApiClient: SwgohGgApiClient,
+  apiClient: PlayerApiClient,
   updateStatus?: (content: string) => Promise<void>
 ): Promise<void> {
     // Determine which opponent to analyse – either explicit ally code or your next bracket opponent
@@ -31,7 +39,7 @@ export async function handleStrategyCommand(
       targetAllyCode = opponentAllyCode;
       // Fetch player data to get the player's name
       try {
-        const opponentPlayerData = await swgohGgApiClient.getFullPlayer(opponentAllyCode);
+        const opponentPlayerData = await apiClient.getFullPlayer(opponentAllyCode);
         targetName = opponentPlayerData.data.name;
       } catch (error) {
         // If we can't fetch player data, fall back to ally code
@@ -41,33 +49,23 @@ export async function handleStrategyCommand(
       // League is optional - will use default max if unavailable
       opponentLeague = null;
     } else {
-      const bracketData = await gacService.getBracketForAllyCode(yourAllyCode);
-      const yourPlayer = bracketData.bracket_players.find(
-        p => p.ally_code.toString() === yourAllyCode
-      );
-
-      if (!yourPlayer) {
-        throw new Error('You are not found in this GAC bracket.');
-      }
+      // Get live bracket data which includes real-time opponent detection
+      const liveBracket = await gacService.getLiveBracket(yourAllyCode);
 
       // Use the bracket's league (all players in a bracket are in the same league)
-      opponentLeague = bracketData.league;
+      opponentLeague = liveBracket.league;
 
-      const nextOpponent = bracketData.bracket_players
-        .filter(p => p.ally_code.toString() !== yourAllyCode)
-        .sort((a, b) => a.bracket_rank - b.bracket_rank)
-        .find(p => p.bracket_rank > yourPlayer.bracket_rank) ||
-        bracketData.bracket_players
-          .filter(p => p.ally_code.toString() !== yourAllyCode)
-          .sort((a, b) => b.bracket_rank - a.bracket_rank)
-          .find(p => p.bracket_rank < yourPlayer.bracket_rank);
-
-      if (!nextOpponent) {
-        throw new Error('Could not determine your next GAC opponent.');
+      if (!liveBracket.currentOpponent) {
+        throw new Error('Could not determine your next GAC opponent from live bracket data.');
       }
 
-      targetAllyCode = nextOpponent.ally_code.toString();
-      targetName = nextOpponent.player_name;
+      targetAllyCode = liveBracket.currentOpponent.ally_code.toString();
+      targetName = liveBracket.currentOpponent.player_name;
+      
+      logger.info(
+        `Real-time opponent for strategy (Round ${liveBracket.currentRound}): ${targetName} ` +
+        `(Score: ${liveBracket.currentOpponent.bracket_score}, Real-time: ${liveBracket.isRealTime})`
+      );
     }
 
     if (!targetAllyCode) {
@@ -93,8 +91,11 @@ export async function handleStrategyCommand(
       await updateStatus('📊 Analysing your roster and matching counters...');
     }
 
-    // Get user's roster to match counters
-    const userRoster = await swgohGgApiClient.getFullPlayer(yourAllyCode);
+    // Get user's roster to match counters (with stats for proper analysis)
+    const getPlayerWithStats = apiClient.getFullPlayerWithStats 
+      ? apiClient.getFullPlayerWithStats.bind(apiClient)
+      : apiClient.getFullPlayer.bind(apiClient);
+    const userRoster = await getPlayerWithStats(yourAllyCode);
 
     // Get season ID from bracket if available (for counter matching)
     // Always use the PREVIOUS season of the requested format, as the current season

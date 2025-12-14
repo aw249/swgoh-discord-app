@@ -11,7 +11,9 @@ import { GacService } from '../services/gacService';
 import { filePlayerStore as playerStore } from '../storage/fileStore';
 
 import { SwgohGgApiClient } from '../integrations/swgohGgApi';
+import { CombinedApiClient } from '../integrations/comlink';
 import { ensureInitialized as initCharacterPortraits, flushCache as flushCharacterPortraits } from '../storage/characterPortraitCache';
+import { initializeGameData, gameDataService } from '../services/gameDataService';
 
 async function main(): Promise<void> {
   try {
@@ -21,7 +23,32 @@ async function main(): Promise<void> {
     // Initialise services
     const playerService = new PlayerService(playerStore);
     const swgohGgApiClient = new SwgohGgApiClient();
-    const gacService = new GacService(swgohGgApiClient);
+    
+    // Create combined client (Comlink primary, swgoh.gg fallback)
+    const combinedClient = new CombinedApiClient(swgohGgApiClient, {
+      preferComlink: true,
+      fallbackToSwgohGg: true,
+    });
+    
+    // GacService uses combined client for real-time bracket data (Comlink + swgoh.gg hybrid)
+    const gacService = new GacService(combinedClient);
+    
+    // Log Comlink status and initialize game data
+    const comlinkReady = await combinedClient.getComlinkClient().isReady().catch(() => false);
+    if (comlinkReady) {
+      logger.info('✅ Comlink is available - using real-time CG game data');
+      
+      // Initialize game data from Comlink (unit definitions, localization)
+      try {
+        await initializeGameData();
+        const glCount = gameDataService.getAllGalacticLegends().length;
+        logger.info(`✅ GameDataService initialized - ${glCount} GLs detected`);
+      } catch (error) {
+        logger.warn('⚠️ Failed to initialize GameDataService, using fallback data:', error);
+      }
+    } else {
+      logger.warn('⚠️ Comlink is not available - falling back to swgoh.gg and static game data');
+    }
 
     // Initialize caches
     await initCharacterPortraits();
@@ -61,7 +88,8 @@ async function main(): Promise<void> {
         if (commandName === 'register') {
           await registerCommand.execute(interaction, playerService);
         } else if (commandName === 'gac') {
-          await gacCommand.execute(interaction, playerService, gacService, swgohGgApiClient);
+          // Use combined client for player data (Comlink first, swgoh.gg fallback)
+          await gacCommand.execute(interaction, playerService, gacService, combinedClient);
         } else if (commandName === 'help') {
           await helpCommand.execute(interaction);
         }
@@ -118,7 +146,7 @@ async function main(): Promise<void> {
     process.on('SIGINT', async () => {
       logger.info('Shutting down gracefully...');
       await flushCharacterPortraits();
-      await swgohGgApiClient.close();
+      await combinedClient.close();
       await client.destroy();
       process.exit(0);
     });
@@ -126,7 +154,7 @@ async function main(): Promise<void> {
     process.on('SIGTERM', async () => {
       logger.info('Shutting down gracefully...');
       await flushCharacterPortraits();
-      await swgohGgApiClient.close();
+      await combinedClient.close();
       await client.destroy();
       process.exit(0);
     });

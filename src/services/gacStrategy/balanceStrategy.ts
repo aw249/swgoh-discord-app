@@ -892,6 +892,7 @@ export async function balanceOffenseAndDefense(
           );
         }
       }
+    }
     
     const usedGLsForPlacement = new Set<string>();
     for (const offenseCounter of balancedOffense) {
@@ -907,11 +908,22 @@ export async function balanceOffenseAndDefense(
     
     const unusedGLsForPlacement = Array.from(allUserGLsForPlacement).filter(gl => !usedGLsForPlacement.has(gl));
     if (unusedGLsForPlacement.length > 0) {
-      logger.warn(
-        `CRITICAL: ${unusedGLsForPlacement.length} GL(s) are UNUSED and must be placed: ${unusedGLsForPlacement.join(', ')}. ` +
-        `GLs are the strongest characters in the game and should NEVER be left out.`
+      // Log unused GLs for visibility, but don't force placement
+      // The aggressive placement logic was causing issues and false positives
+      logger.info(
+        `[Unused GLs] ${unusedGLsForPlacement.length} GL(s) not placed in initial strategy: ${unusedGLsForPlacement.join(', ')}. ` +
+        `These may be placed via low win rate replacement if better alternatives exist.`
       );
       
+      /* COMMENTED OUT: Aggressive unused GL placement logic
+       * This was causing issues by:
+       * - Creating synthetic squads with suboptimal compositions
+       * - Replacing good non-GL counters unnecessarily
+       * - Using default win rates when no data exists
+       * 
+       * The low win rate replacement logic below will still prioritise unused GLs
+       * when they offer genuinely better alternatives.
+       
       // For balanced strategy, aim for roughly 50/50 split of GLs between offense and defense
       const glsOnOffense = Array.from(usedGLsForPlacement).filter(gl => 
         balancedOffense.some(c => c.offense.leader.baseId === gl)
@@ -1383,6 +1395,7 @@ export async function balanceOffenseAndDefense(
       }
       }
       }
+      */
     }
     
     // Post-processing: Replace low win rate counters (< 75%) with better alternatives, especially unused GLs
@@ -1522,6 +1535,10 @@ export async function balanceOffenseAndDefense(
       }
     }
     
+    /* COMMENTED OUT: Force placement of unused GLs
+     * This was the most aggressive part - creating synthetic squads
+     * and replacing the "weakest" counters regardless of actual strategy quality.
+     
     // CRITICAL: If there are STILL unused GLs after low win rate replacement, 
     // force them onto offense by replacing the lowest priority non-GL counter
     // GLs are too valuable to leave unused - they should ALWAYS be deployed
@@ -1745,6 +1762,32 @@ export async function balanceOffenseAndDefense(
           );
         }
       }
+    }
+    */
+    
+    // Log final GL placement status (informational only, no forced placement)
+    const finalUsedGLs = new Set<string>();
+    for (const offenseCounter of balancedOffense) {
+      if (offenseCounter.offense.leader.baseId && isGalacticLegend(offenseCounter.offense.leader.baseId)) {
+        finalUsedGLs.add(offenseCounter.offense.leader.baseId);
+      }
+    }
+    for (const defenseSquad of balancedDefense) {
+      if (isGalacticLegend(defenseSquad.squad.leader.baseId)) {
+        finalUsedGLs.add(defenseSquad.squad.leader.baseId);
+      }
+    }
+    
+    const finalUnusedGLs = Array.from(allUserGLsForPlacement).filter(gl => !finalUsedGLs.has(gl));
+    if (finalUnusedGLs.length > 0) {
+      logger.info(
+        `[Final GL Status] ${finalUnusedGLs.length} GL(s) remain unused after strategy generation: ${finalUnusedGLs.join(', ')}. ` +
+        `This may be intentional if their teams conflict with higher-priority placements.`
+      );
+    } else {
+      logger.info(
+        `[Final GL Status] All ${allUserGLsForPlacement.size} GL(s) successfully placed in strategy.`
+      );
     }
     
     // Second pass: Add defense squads that don't conflict with offense

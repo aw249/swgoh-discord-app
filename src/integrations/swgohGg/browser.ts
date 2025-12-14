@@ -15,6 +15,12 @@ export class BrowserManager {
   private browser: Browser | null = null;
 
   async getBrowser(): Promise<Browser> {
+    // Check if existing browser is still connected
+    if (this.browser && !this.browser.connected) {
+      logger.warn('Browser disconnected, clearing stale reference');
+      this.browser = null;
+    }
+
     if (!this.browser) {
       this.browser = await puppeteer.launch({
         headless: true,
@@ -27,6 +33,12 @@ export class BrowserManager {
           '--no-zygote',
           '--disable-gpu'
         ]
+      });
+
+      // Listen for disconnection to clear the reference immediately
+      this.browser.on('disconnected', () => {
+        logger.warn('Browser disconnected unexpectedly');
+        this.browser = null;
       });
     }
     return this.browser;

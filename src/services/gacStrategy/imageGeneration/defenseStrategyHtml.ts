@@ -7,6 +7,7 @@ import { SwgohGgFullPlayerResponse } from '../../../integrations/swgohGgApi';
 import { isGalacticLegend } from '../../../config/gacConstants';
 import { getCharacterPortraitUrl } from '../../../config/characterPortraits';
 import { logger } from '../../../utils/logger';
+import { getDisplayRelicLevel, getUnitLevelDisplay } from '../../../utils/unitLevelUtils';
 
 // Base64 stat icons (same as player comparison for consistency)
 const SPEED_ICON = 'data:image/webp;base64,UklGRh4CAABXRUJQVlA4TBICAAAvH8AHEJVAbCRJkbT+Ox0PvbP3YEA9Qx1ESAIAsIykrm3b9v5s27Zt27Zt27Zt28b51pmAvKIQYCJCg50EY77S1Bhz7EIRuiW4BBhxE6dU49W2O/+AfbOIVuARYcFPsjpDFmx66irnlREsVFT40WKlwJqf+UnuoUS4R2XkESTUJ/4JauhLUPG5bmtPOlmU2h85whTsTrVRSKDhpMJGgFwNuo04AUYfRhW59uxAB8FEKVBRCVQcVNnwl6/H7Gfrtx1fbevTf5cysSVEvQIOUWcXDDRVrTAoVBV7bVvf3jxopKa3/c8iOvt1hiC5+vVo1znGFcg4uFFMoqqjj0FyDoJDiYv92+CFDnPD/gGese1Ax0ntIluzaadefXRWvkEBh0ec8OzCJcFeiHK9Zm0492vyh8gGnRQ2CjzaJrX/p0lQuR38J7BBJwQLDSEa7KqAUV0OwiXKkp9sNQZsuPMfGL3gO0SSMR+Fuiw68OB70r1Bx/+RJTARUfE4XZViOYLBg5+ScSQifQP1y7+29cgT7pocoPVbLhNHrXfWNC32sQkKSxeV/re9tVUNcYOQ8HLVtl7V4F0IRGbOb0DbT3QblASLQp9AW7eCYO4lZ0b6HAFlskEzKQNe29YS5YUkCAWIzSK9M9BWzFoClTC1Pw48RMhSol6jcmtAawXuGhjoqAnSZMqBtzDp6nQbsWI19lzR3qBXEQ==';
@@ -27,8 +28,8 @@ export function generateDefenseStrategyHtml(
   const expectedSquadSize = format === '3v3' ? 3 : 5;
   const visibleDefense = defenseSquads.slice(0, maxSquads);
 
-  // Create character stats AND relic mapping from FULL user roster (not just top 80)
-  const characterStatsMap = new Map<string, { speed: number; health: number; protection: number; relic: number | null }>();
+  // Create character stats AND level mapping from FULL user roster (not just top 80)
+  const characterStatsMap = new Map<string, { speed: number; health: number; protection: number; relic: number | null; gearLevel: number; levelLabel: string }>();
   if (userRoster && userRoster.units) {
     // Use FULL roster to ensure all characters have stats
     for (const unit of userRoster.units) {
@@ -37,12 +38,17 @@ export function generateDefenseStrategyHtml(
         const speed = Math.round(stats['5'] || 0);
         const health = (stats['1'] || 0) / 1000;
         const protection = (stats['28'] || 0) / 1000;
-        // Calculate relic level: if gear_level >= 13 and relic_tier exists, relic = relic_tier - 2
-        let relic: number | null = null;
-        if (unit.data.gear_level >= 13 && unit.data.relic_tier !== null && unit.data.relic_tier !== undefined) {
-          relic = Math.max(0, unit.data.relic_tier - 2);
-        }
-        characterStatsMap.set(unit.data.base_id, { speed, health, protection, relic });
+        // Get relic level using utility function
+        const relic = getDisplayRelicLevel(unit.data.gear_level, unit.data.relic_tier);
+        const levelDisplay = getUnitLevelDisplay(unit.data);
+        characterStatsMap.set(unit.data.base_id, { 
+          speed, 
+          health, 
+          protection, 
+          relic,
+          gearLevel: unit.data.gear_level,
+          levelLabel: levelDisplay.label
+        });
       }
     }
     logger.info(`[Defense Image] Built stats map for ${characterStatsMap.size} characters from full roster`);
@@ -57,7 +63,7 @@ export function generateDefenseStrategyHtml(
     logger.info(`[Defense Image] Squad ${idx + 1}: Leader=${leaderBaseId}(R${leaderRelic ?? '?'}, stats=${leaderStats ? 'found' : 'MISSING'}), Members=[${memberIds}]`);
   });
 
-  const getCharacterStats = (baseId: string): { speed: number; health: number; protection: number; relic: number | null } | null => {
+  const getCharacterStats = (baseId: string): { speed: number; health: number; protection: number; relic: number | null; gearLevel: number; levelLabel: string } | null => {
     return characterStatsMap.get(baseId) || null;
   };
 
@@ -79,10 +85,17 @@ export function generateDefenseStrategyHtml(
 
     const stats = getCharacterStats(unit.baseId);
     // Use unit's relic level if available, otherwise fall back to roster data
-    const relicFromUnit = typeof unit.relicLevel === 'number' ? unit.relicLevel : null;
-    const relicFromRoster = stats?.relic ?? null;
-    const relicLevel = relicFromUnit ?? relicFromRoster;
-    const relic = relicLevel !== null ? Math.max(0, Math.min(10, relicLevel)) : '?';
+    // levelLabel shows "R8" for relics or "G12" for gear
+    let levelLabel = '?';
+    if (stats?.levelLabel) {
+      levelLabel = stats.levelLabel;
+    } else if (typeof unit.relicLevel === 'number') {
+      levelLabel = `R${Math.max(0, Math.min(10, unit.relicLevel))}`;
+    } else if (stats?.relic !== null && stats?.relic !== undefined) {
+      levelLabel = `R${stats.relic}`;
+    } else if (stats?.gearLevel !== undefined && stats.gearLevel < 13) {
+      levelLabel = `G${stats.gearLevel}`;
+    }
     
     const portraitUrl = unit.portraitUrl || getCharacterPortraitUrl(unit.baseId);
     const speedValue = stats ? stats.speed.toLocaleString() : '-';
@@ -96,7 +109,7 @@ export function generateDefenseStrategyHtml(
           <img src="${portraitUrl}" alt="${unit.baseId}" onerror="this.style.display='none';" />
         </div>
         <div class="character-stats">
-          <div class="stat-row"><span class="stat-label">Relic</span><span class="stat-value relic-value">R${relic}</span></div>
+          <div class="stat-row"><span class="stat-label">Level</span><span class="stat-value relic-value">${levelLabel}</span></div>
           <div class="stat-row"><span class="stat-label"><img src="${SPEED_ICON}" class="stat-icon" alt="Speed">Speed</span><span class="stat-value">${speedValue}</span></div>
           <div class="stat-row"><span class="stat-label"><img src="${HEALTH_ICON}" class="stat-icon" alt="Health">Health</span><span class="stat-value">${healthValue}</span></div>
           <div class="stat-row"><span class="stat-label"><img src="${PROTECTION_ICON}" class="stat-icon" alt="Prot">Prot</span><span class="stat-value">${protValue}</span></div>
@@ -109,7 +122,7 @@ export function generateDefenseStrategyHtml(
     const allUnits = [defense.squad.leader, ...defense.squad.members];
     const paddedUnits = [...allUnits];
     while (paddedUnits.length < expectedSquadSize) {
-      paddedUnits.push({ baseId: '', relicLevel: null, portraitUrl: null });
+      paddedUnits.push({ baseId: '', gearLevel: null, relicLevel: null, portraitUrl: null });
     }
 
     const holdPercentage = defense.holdPercentage;
