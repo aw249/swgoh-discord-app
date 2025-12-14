@@ -5,9 +5,10 @@ A Discord bot for Star Wars: Galaxy of Heroes, focused on Grand Arena Championsh
 ## Features
 
 - **Player Registration**: Link your Discord account to your SWGOH ally code
-- **Roster Analysis**: View your roster summary including Galactic Power, Galactic Legends, and key squads
-- **GAC Opponent Analysis**: Compare rosters and review current opponent capabilities (coming soon)
-- **GAC Strategy Planning**: Analyse opponent defensive strategies based on previous rounds (coming soon)
+- **GAC Bracket View**: See your current bracket, opponents, ranks, and scores
+- **GAC Opponent Analysis**: Compare your roster against any opponent with visual comparison
+- **GAC Strategy Planning**: Get personalised offense and defense recommendations based on opponent's recent defensive history
+- **Archetype Management**: Admin tools for managing squad archetypes and ability requirements
 
 ## Setup
 
@@ -101,17 +102,54 @@ Link your Discord account to your SWGOH ally code.
 
 The ally code can be provided with or without dashes (e.g., `123456789` or `123-456-789`).
 
-### `/roster`
-View your roster summary including:
-- Player name
-- Ally code
-- Galactic Power
-- Galactic Legends count
-- Key squads
+### `/gac bracket`
+View your current GAC bracket including:
+- Your rank and score
+- Current round information
+- All bracket opponents with their GP and scores
+- Your current opponent (if a round is active)
 
-**Usage**: `/roster`
+**Usage**: `/gac bracket`
 
 **Note**: You must register your ally code first using `/register`.
+
+### `/gac opponent`
+View a detailed comparison between your roster and an opponent's roster.
+
+**Usage**:
+- `/gac opponent` — Compare against your current bracket opponent
+- `/gac opponent allycode:123456789` — Compare against a specific player
+- `/gac opponent bracket_opponent:<name>` — Select from autocomplete list
+
+Generates a visual comparison image showing key roster differences.
+
+### `/gac strategy`
+Analyse an opponent's recent GAC defensive squads and get personalised offense and defense recommendations.
+
+**Usage**: `/gac strategy format:5v5` or `/gac strategy format:3v3`
+
+**Options**:
+- `format` (required): Choose between `5v5` or `3v3`
+- `allycode` (optional): Analyse a specific player instead of your bracket opponent
+- `bracket_opponent` (optional): Select from autocomplete list
+- `strategy` (optional): Choose strategy preference:
+  - `Defensive` — Prioritise building strong defense first
+  - `Balanced` — Balance between offense and defense (default)
+  - `Offensive` — Prioritise keeping best counters for offense
+
+Generates two images:
+1. **Defense recommendations** — Suggested squads to place on defense based on hold percentages
+2. **Offense recommendations** — Counter squads to beat opponent's expected defense
+
+### `/archetype` (Admin)
+Manage squad archetype configurations for ability validation.
+
+**Subcommands**:
+- `/archetype list` — List all archetypes (with optional search)
+- `/archetype info <id>` — Show details of a specific archetype
+- `/archetype generate <unit_id>` — Generate archetype template from Comlink data
+- `/archetype missing` — Show leaders without archetypes
+- `/archetype stats` — Show archetype coverage statistics
 
 ### `/help`
 Display a list of available commands and their usage.
@@ -149,4 +187,3 @@ npm test
 ## License
 
 ISC
-
