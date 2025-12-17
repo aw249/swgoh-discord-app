@@ -9,9 +9,12 @@
     "dev:bot": "ts-node src/bot/index.ts",
     "comlink": "./bin/swgoh-comlink-4.0.0 --port 3200 --name swgoh-discord-app",
     "start": "node dist/bot/index.js",
+    "start:prod": "NODE_ENV=production node dist/bot/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "deploy:commands": "ts-node src/bot/commandRegistry.ts"
+    "deploy:commands": "ts-node src/bot/commandRegistry.ts",
+    "deploy": "./deploy.sh",
+    "deploy:fresh": "./deploy.sh --fresh"
   },
   "keywords": [
     "discord",
@@ -22,10 +25,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@swgoh-utils/comlink": "^1.4.1",
     "axios": "^1.6.0",
     "canvas": "^3.2.0",
-    "cloudscraper": "^4.6.0",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
     "puppeteer": "^24.31.0"

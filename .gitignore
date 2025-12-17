@@ -15,6 +15,7 @@ data/
 *.pid
 *.seed
 *.pid.lock
+logs/
 
 # Diagnostic output files
 gac-strategy-diagnostic-*.txt
