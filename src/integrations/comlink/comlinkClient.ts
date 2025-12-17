@@ -297,6 +297,15 @@ export class ComlinkClient {
   }
 
   /**
+   * Get player data by player ID (useful when we don't have the ally code)
+   */
+  async getPlayerById(playerId: string): Promise<ComlinkPlayerData> {
+    return this.post<ComlinkPlayerData>('/player', {
+      playerId,
+    });
+  }
+
+  /**
    * Get player arena profile (includes current arena squads)
    */
   async getPlayerArena(allyCode: string): Promise<ComlinkPlayerArenaProfile> {
@@ -445,6 +454,183 @@ export class ComlinkClient {
   async getEnums(): Promise<unknown> {
     const response = await fetch(`${this.url}/enums`);
     return response.json();
+  }
+
+  /**
+   * Get the current active GAC event instance.
+   * Returns the instance ID and event details.
+   * 
+   * Note: The `joined` flag from the events API doesn't indicate bracket availability.
+   * Brackets may be available even when joined=false.
+   */
+  async getCurrentGacInstance(): Promise<{
+    /** Full event ID (e.g., "CHAMPIONSHIPS_GRAND_ARENA_GA2_EVENT_SEASON_73") */
+    eventId: string;
+    /** Full eventInstanceId for leaderboard queries */
+    eventInstanceId: string;
+    /** Just the instance part (e.g., "O1765922400000") */
+    instanceId: string;
+    /** Whether we're within the event time window */
+    isActive: boolean;
+    startTime: number;
+    endTime: number;
+  } | null> {
+    try {
+      const events = await this.getEvents();
+      const gacEvent = events.gameEvent.find(e => 
+        e.id.includes('CHAMPIONSHIPS_GRAND_ARENA')
+      );
+
+      if (!gacEvent || !gacEvent.instance) {
+        return null;
+      }
+
+      const now = Date.now();
+      const activeInstance = gacEvent.instance.find(inst => {
+        const start = parseInt(inst.startTime, 10);
+        const end = parseInt(inst.endTime, 10);
+        return now >= start && now <= end;
+      });
+
+      if (!activeInstance) {
+        return null;
+      }
+
+      // The correct eventInstanceId format for leaderboard queries:
+      // CHAMPIONSHIPS_GRAND_ARENA_GA2_EVENT_SEASON_73:O1765922400000
+      const eventInstanceId = `${gacEvent.id}:${activeInstance.id}`;
+
+      return {
+        eventId: gacEvent.id,
+        eventInstanceId,
+        instanceId: activeInstance.id,
+        isActive: true,
+        startTime: parseInt(activeInstance.startTime, 10),
+        endTime: parseInt(activeInstance.endTime, 10),
+      };
+    } catch (error) {
+      logger.warn('Failed to get current GAC instance:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Find a player's GAC bracket by searching through brackets.
+   * This is used when we don't know the bracketId from swgoh.gg.
+   * 
+   * @param playerId - The player's ID (from Comlink)
+   * @param playerName - The player's name (fallback match)
+   * @param eventInstanceId - The event instance ID
+   * @param league - The player's league (e.g., "AURODIUM")
+   * @param options - Search options
+   * @returns The bracket data if found, null otherwise
+   */
+  async findPlayerBracket(
+    playerId: string,
+    playerName: string,
+    eventInstanceId: string,
+    league: string,
+    options: {
+      /** Maximum brackets to search (default: 10000) */
+      maxBrackets?: number;
+      /** Hint - start searching near this bracket ID first */
+      hintBracketId?: number;
+      /** Range to search around the hint before expanding (default: 200) */
+      hintRange?: number;
+    } = {}
+  ): Promise<{
+    bracketId: number;
+    players: ComlinkBracketPlayer[];
+    yourData: ComlinkBracketPlayer;
+  } | null> {
+    const { maxBrackets = 10000, hintBracketId, hintRange = 200 } = options;
+    const batchSize = 100;
+
+    // Helper function to search a range of brackets
+    const searchRange = async (startBracket: number, endBracket: number): Promise<{
+      bracketId: number;
+      players: ComlinkBracketPlayer[];
+      yourData: ComlinkBracketPlayer;
+    } | null> => {
+      for (let start = startBracket; start < endBracket; start += batchSize) {
+        const promises: Promise<{ bracketId: number; data: ComlinkBracketResponse | null }>[] = [];
+        
+        for (let i = start; i < start + batchSize && i < endBracket; i++) {
+          const groupId = `${eventInstanceId}:${league}:${i}`;
+          
+          promises.push(
+            this.getGacBracketLeaderboard(eventInstanceId, groupId)
+              .then(data => ({ bracketId: i, data }))
+              .catch(() => ({ bracketId: i, data: null }))
+          );
+        }
+
+        const results = await Promise.all(promises);
+        
+        for (const { bracketId, data } of results) {
+          if (data?.leaderboard?.[0]?.player) {
+            const players = data.leaderboard[0].player;
+            
+            // Check if our player is in this bracket
+            const ourPlayer = players.find(p => 
+              p.id === playerId || p.name.toLowerCase() === playerName.toLowerCase()
+            );
+            
+            if (ourPlayer) {
+              logger.info(`Found player ${playerName} in Comlink bracket ${bracketId}`);
+              return {
+                bracketId,
+                players: players.sort((a, b) => {
+                  const rankA = a.pvpStatus?.rank ?? 999;
+                  const rankB = b.pvpStatus?.rank ?? 999;
+                  return rankA - rankB;
+                }),
+                yourData: ourPlayer,
+              };
+            }
+          }
+        }
+      }
+      return null;
+    };
+
+    // If we have a hint, search around it first
+    if (hintBracketId !== undefined && hintBracketId >= 0) {
+      const hintStart = Math.max(0, hintBracketId - hintRange);
+      const hintEnd = Math.min(maxBrackets, hintBracketId + hintRange);
+      
+      logger.info(`Searching near hint bracket ${hintBracketId} (${hintStart}-${hintEnd})...`);
+      const result = await searchRange(hintStart, hintEnd);
+      if (result) return result;
+      
+      // Hint didn't work, search the rest (excluding the hint range)
+      logger.info(`Hint search failed, searching all brackets...`);
+      
+      // Search before the hint range
+      if (hintStart > 0) {
+        const result = await searchRange(0, hintStart);
+        if (result) return result;
+      }
+      
+      // Search after the hint range
+      if (hintEnd < maxBrackets) {
+        const result = await searchRange(hintEnd, maxBrackets);
+        if (result) return result;
+      }
+    } else {
+      // No hint, search from the beginning
+      for (let start = 0; start < maxBrackets; start += batchSize) {
+        const result = await searchRange(start, Math.min(start + batchSize, maxBrackets));
+        if (result) return result;
+
+        // Log progress every 500 brackets
+        if (start > 0 && start % 500 === 0) {
+          logger.debug(`Searched ${start} Comlink brackets, continuing...`);
+        }
+      }
+    }
+
+    return null;
   }
 }
 

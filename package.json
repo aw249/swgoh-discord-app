@@ -5,7 +5,9 @@
   "main": "dist/bot/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node src/bot/index.ts",
+    "dev": "concurrently --kill-others --names comlink,bot --prefix-colors cyan,green \"npm run comlink\" \"npm run dev:bot\"",
+    "dev:bot": "ts-node src/bot/index.ts",
+    "comlink": "./bin/swgoh-comlink-4.0.0 --port 3200 --name swgoh-discord-app",
     "start": "node dist/bot/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -31,6 +33,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.11",
     "@types/node": "^20.19.25",
+    "concurrently": "^9.2.1",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.2",

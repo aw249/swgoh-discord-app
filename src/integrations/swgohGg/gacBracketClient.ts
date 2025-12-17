@@ -1,7 +1,6 @@
 /**
  * Client for fetching GAC bracket data from swgoh.gg
  */
-import { logger } from '../../utils/logger';
 import { GacBracketData } from '../../types/swgohGgTypes';
 import { BrowserManager } from './browser';
 
@@ -17,28 +16,27 @@ export class GacBracketClient {
       const data = await this.browserManager.fetchWithPuppeteer(url);
       
       if (!data || !data.data) {
-        throw new Error('Invalid response format from swgoh.gg API');
+        throw new Error('No active GAC bracket found - player may not be in an active GAC event');
       }
       
       return data.data;
     } catch (error: any) {
-      logger.error(`Error fetching GAC bracket for ally code ${allyCode}:`, error);
+      // Don't log here - let callers decide how to handle/log based on context
+      // (e.g. warmup errors should be silent, user commands should show friendly errors)
       
       if (error.message?.includes('404') || error.message?.includes('not found')) {
-        throw new Error('GAC bracket not found. The player may not be in an active GAC bracket.');
+        throw new Error('GAC bracket not found - player may not be in an active GAC event');
       }
       
       if (error.message?.includes('Cloudflare')) {
-        throw new Error(
-          'Cloudflare challenge could not be resolved. Please try again in a few moments.'
-        );
+        throw new Error('Cloudflare challenge could not be resolved - please try again later');
       }
       
-      if (error.message) {
-        throw new Error(`Failed to fetch GAC bracket: ${error.message}`);
+      if (error.message?.includes('No active GAC bracket')) {
+        throw error; // Re-throw as-is, it's already a friendly message
       }
       
-      throw new Error('Failed to fetch GAC bracket. Please try again later.');
+      throw new Error(`Failed to fetch GAC bracket: ${error.message || 'Unknown error'}`);
     }
   }
 }

@@ -2,6 +2,32 @@ import { GacBracketData, GacBracketPlayer, SwgohGgFullPlayerResponse } from '../
 import { CombinedApiClient, LiveBracketData } from '../integrations/comlink/combinedClient';
 import { logger } from '../utils/logger';
 
+/**
+ * GAC status from Comlink player data
+ */
+export interface GacStatus {
+  /** Whether the player is enrolled in an active season */
+  isEnrolled: boolean;
+  /** Current season ID (e.g. "4zone_3v3_ga2_c3s1_73a") */
+  seasonId: string | null;
+  /** Current event instance ID */
+  eventInstanceId: string | null;
+  /** Player's league (e.g. "AURODIUM") */
+  league: string | null;
+  /** Player's division (5-25, where 25 = Division 1) */
+  division: number | null;
+  /** Current wins this season */
+  wins: number;
+  /** Current losses this season */
+  losses: number;
+  /** Current season rank */
+  rank: number | null;
+  /** Season points */
+  seasonPoints: number;
+  /** End time of the season (Unix timestamp) */
+  seasonEndTime: number | null;
+}
+
 export interface GacBracketSummary {
   league: string;
   seasonNumber: number;
@@ -167,6 +193,103 @@ export class GacService {
     // Sum top 80 characters
     const top80 = characters.slice(0, 80);
     return top80.reduce((sum, gp) => sum + gp, 0);
+  }
+
+  /**
+   * Get the player's current GAC status from Comlink.
+   * This can be used to check if GAC is active before attempting bracket lookups.
+   */
+  async getGacStatus(allyCode: string): Promise<GacStatus> {
+    try {
+      const comlinkClient = this.apiClient.getComlinkClient();
+      const isComlinkReady = await comlinkClient.isReady().catch(() => false);
+      
+      if (!isComlinkReady) {
+        return {
+          isEnrolled: false,
+          seasonId: null,
+          eventInstanceId: null,
+          league: null,
+          division: null,
+          wins: 0,
+          losses: 0,
+          rank: null,
+          seasonPoints: 0,
+          seasonEndTime: null,
+        };
+      }
+
+      const playerData = await comlinkClient.getPlayer(allyCode.replace(/-/g, ''));
+      
+      // Find the most recent/active season status
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const seasonStatuses = (playerData as any).seasonStatus || [];
+      
+      if (seasonStatuses.length === 0) {
+        return {
+          isEnrolled: false,
+          seasonId: null,
+          eventInstanceId: null,
+          league: null,
+          division: null,
+          wins: 0,
+          losses: 0,
+          rank: null,
+          seasonPoints: 0,
+          seasonEndTime: null,
+        };
+      }
+
+      // Get the most recent season (last in array, or sort by endTime)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const latestSeason = seasonStatuses.reduce((latest: any, current: any) => {
+        const latestEnd = parseInt(latest.endTime || '0', 10);
+        const currentEnd = parseInt(current.endTime || '0', 10);
+        return currentEnd > latestEnd ? current : latest;
+      });
+
+      return {
+        isEnrolled: true,
+        seasonId: latestSeason.seasonId || null,
+        eventInstanceId: latestSeason.eventInstanceId || null,
+        league: latestSeason.league || null,
+        division: latestSeason.division || null,
+        wins: latestSeason.wins || 0,
+        losses: latestSeason.losses || 0,
+        rank: latestSeason.rank || null,
+        seasonPoints: latestSeason.seasonPoints || 0,
+        seasonEndTime: latestSeason.endTime ? parseInt(latestSeason.endTime, 10) : null,
+      };
+    } catch (error) {
+      logger.warn('Failed to get GAC status from Comlink:', error);
+      return {
+        isEnrolled: false,
+        seasonId: null,
+        eventInstanceId: null,
+        league: null,
+        division: null,
+        wins: 0,
+        losses: 0,
+        rank: null,
+        seasonPoints: 0,
+        seasonEndTime: null,
+      };
+    }
+  }
+
+  /**
+   * Get a user-friendly description of the current GAC state.
+   */
+  getGacStatusDescription(status: GacStatus): string {
+    if (!status.isEnrolled) {
+      return 'Not enrolled in GAC';
+    }
+
+    const leagueDisplay = status.league || 'Unknown';
+    const divisionDisplay = status.division ? `Division ${Math.floor((30 - status.division) / 5)}` : '';
+    const record = `${status.wins}W-${status.losses}L`;
+    
+    return `${leagueDisplay} ${divisionDisplay} (${record}, Rank #${status.rank || '?'})`;
   }
 }
 

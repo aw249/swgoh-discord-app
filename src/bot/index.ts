@@ -33,8 +33,24 @@ async function main(): Promise<void> {
     // GacService uses combined client for real-time bracket data (Comlink + swgoh.gg hybrid)
     const gacService = new GacService(combinedClient);
     
-    // Log Comlink status and initialize game data
-    const comlinkReady = await combinedClient.getComlinkClient().isReady().catch(() => false);
+    // Wait for Comlink to be ready (it may be starting up concurrently)
+    // Comlink needs time to: discover public IP, generate guest accounts, start server
+    const waitForComlink = async (maxAttempts = 20, delayMs = 1000): Promise<boolean> => {
+      logger.info('⏳ Waiting for Comlink to be ready...');
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const ready = await combinedClient.getComlinkClient().isReady().catch(() => false);
+        if (ready) return true;
+        if (attempt < maxAttempts) {
+          if (attempt % 5 === 0) {
+            logger.debug(`Still waiting for Comlink (attempt ${attempt}/${maxAttempts})...`);
+          }
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+      }
+      return false;
+    };
+
+    const comlinkReady = await waitForComlink();
     if (comlinkReady) {
       logger.info('✅ Comlink is available - using real-time CG game data');
       
@@ -114,32 +130,8 @@ async function main(): Promise<void> {
     client.once(Events.ClientReady, async (readyClient) => {
       logger.info(`Bot logged in as ${readyClient.user.tag}`);
       
-      // Pre-warm browser and GAC bracket cache for registered users (background task)
-      // This ensures autocomplete responds quickly on first use
-      (async () => {
-        try {
-          if (playerStore.getAllAllyCodes) {
-            const allyCodes = await playerStore.getAllAllyCodes();
-            if (allyCodes.length > 0) {
-              logger.info(`Pre-warming GAC bracket cache for ${allyCodes.length} registered user(s)...`);
-              
-              for (const allyCode of allyCodes) {
-                try {
-                  await gacService.getBracketForAllyCode(allyCode);
-                  logger.info(`Pre-warmed GAC bracket cache for ally code ${allyCode}`);
-                } catch (error) {
-                  // Ignore errors during warmup - user may not be in active GAC
-                  logger.debug(`Could not pre-warm cache for ${allyCode}: ${error}`);
-                }
-              }
-              
-              logger.info('GAC bracket cache pre-warming complete');
-            }
-          }
-        } catch (error) {
-          logger.warn('Failed to pre-warm bracket cache:', error);
-        }
-      })();
+      // Bracket discovery now happens on-demand when users run /gac commands
+      // Bracket IDs are cached persistently to disk for fast subsequent lookups
     });
 
     // Handle graceful shutdown

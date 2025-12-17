@@ -138,12 +138,16 @@ export function generateDefenseStrategyHtml(
     if (defense.archetypeValidation) {
       const archVal = defense.archetypeValidation;
       if (!archVal.viable) {
-        // Missing required abilities - show critical warning
+        // Missing required abilities - show critical warning with descriptive reason
         const missingAbilities = archVal.missingRequired?.slice(0, 2).map(m => {
-          const unitId = m.unitBaseId.replace(/_/g, ' ');
-          return unitId;
+          // Use the reason field which has descriptive text like "Malicos GAC omicron..."
+          // Truncate to keep it readable
+          const reason = m.reason || m.unitBaseId.replace(/_/g, ' ');
+          // Extract short form: "Malicos GAC omicron" from "Malicos GAC omicron massively boosts..."
+          const shortReason = reason.split(' - ')[0].split(' massively')[0].split(' provides')[0];
+          return shortReason;
         }) || ['abilities'];
-        const missingText = missingAbilities.join(', ');
+        const missingText = missingAbilities.join('; ');
         archetypeWarningHtml = `
           <div class="archetype-warning critical">
             <span style="font-size: 14px;">⚠️</span>
@@ -151,11 +155,16 @@ export function generateDefenseStrategyHtml(
           </div>
         `;
       } else if (archVal.confidence < 0.9 && archVal.missingOptional && archVal.missingOptional.length > 0) {
-        // Missing optional abilities - show info warning
+        // Missing optional abilities - show info warning with specific ability
+        const missingOptionalText = archVal.missingOptional.slice(0, 1).map(m => {
+          const reason = m.reason || m.unitBaseId.replace(/_/g, ' ');
+          const shortReason = reason.split(' - ')[0].split(' massively')[0].split(' provides')[0];
+          return shortReason;
+        }).join('; ');
         archetypeWarningHtml = `
           <div class="archetype-warning info">
             <span style="font-size: 12px;">ℹ️</span>
-            <span>Missing optional zetas</span>
+            <span>Missing: ${missingOptionalText}</span>
           </div>
         `;
       } else if (archVal.warnings && archVal.warnings.length > 0 && archVal.warnings[0] !== 'No archetype defined - zeta/omicron requirements not validated') {
@@ -189,8 +198,10 @@ export function generateDefenseStrategyHtml(
   const squadRows = visibleDefense.map((def, idx) => renderSquadRow(def, idx)).join('');
   const strategyLabel = strategyPreference === 'defensive' ? 'DEFENSIVE' : strategyPreference === 'offensive' ? 'OFFENSIVE' : 'BALANCED';
 
-  // Calculate width based on format (3v3 needs less width than 5v5)
-  const containerWidth = format === '3v3' ? 700 : 950;
+  // Calculate width based on format - doubled for 2-column layout
+  // Single squad width: 5v5 = 950px, 3v3 = 700px → doubled for 2 columns + gap
+  const singleSquadWidth = format === '3v3' ? 680 : 920;
+  const containerWidth = singleSquadWidth * 2 + 40; // 2 columns + 40px gap
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -236,16 +247,20 @@ export function generateDefenseStrategyHtml(
       margin-top: 4px;
       font-weight: normal;
     }
+    .squads-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 12px;
+    }
     .squad-row {
       background: #d4b56a;
-      border-bottom: 2px solid #8b7355;
+      border: 2px solid #8b7355;
+      border-radius: 6px;
       padding: 12px 16px;
     }
     .squad-row:nth-child(even) {
       background: #b8935a;
-    }
-    .squad-row:last-child {
-      border-bottom: none;
     }
     .squad-header {
       display: flex;
@@ -382,7 +397,9 @@ export function generateDefenseStrategyHtml(
       🛡️ YOUR DEFENSE
       <div class="header-subtitle">${strategyLabel} STRATEGY • ${format} • ${visibleDefense.length} Squad${visibleDefense.length !== 1 ? 's' : ''}</div>
     </div>
-    ${squadRows}
+    <div class="squads-grid">
+      ${squadRows}
+    </div>
   </div>
 </body>
 </html>`;

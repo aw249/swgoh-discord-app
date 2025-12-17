@@ -278,26 +278,73 @@ export const gacCommand = {
 
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       
-      // Check if it's a Cloudflare error
+      // Check error types for better messaging
       const isCloudflareError = errorMessage.includes('Cloudflare') || errorMessage.includes('blocking automated');
+      const isNoActiveBracket = errorMessage.includes('No active GAC bracket') || 
+                                 errorMessage.includes('not be in an active GAC');
 
-      const embed = new EmbedBuilder()
-        .setTitle('❌ Error')
-        .setDescription(errorMessage)
-        .setColor(0xff0000);
+      let embed: EmbedBuilder;
 
-      if (isCloudflareError) {
+      if (isNoActiveBracket) {
+        // Provide more helpful message for "no active bracket" errors
+        embed = new EmbedBuilder()
+          .setTitle('⏳ No Active GAC Bracket')
+          .setDescription('Could not find an active GAC bracket. This usually means:')
+          .setColor(0xffa500) // Orange - warning, not error
+          .addFields({
+            name: '🔹 Possible Reasons',
+            value: [
+              '• You are between GAC rounds (waiting for next event)',
+              '• The current round hasn\'t started matchmaking yet',
+              '• swgoh.gg hasn\'t updated bracket data yet',
+            ].join('\n'),
+            inline: false
+          });
+
+        // Try to get GAC status from Comlink for more context
         try {
           const allyCode = await playerService.getAllyCode(interaction.user.id);
           if (allyCode) {
+            const gacStatus = await gacService.getGacStatus(allyCode);
+            if (gacStatus.isEnrolled) {
+              embed.addFields({
+                name: '📊 Your Current Season Status',
+                value: gacService.getGacStatusDescription(gacStatus),
+                inline: false
+              });
+            }
             embed.addFields({
-              name: '💡 Workaround',
-              value: `You can access your GAC bracket directly at: https://swgoh.gg/p/${allyCode}/gac-bracket/`,
+              name: '💡 What to try',
+              value: [
+                '• Wait for the next GAC round to begin',
+                `• Check your bracket manually: [swgoh.gg/p/${allyCode}/gac-bracket](https://swgoh.gg/p/${allyCode}/gac-bracket/)`,
+                '• Use `/gac opponent allycode:123456789` to compare with a specific player'
+              ].join('\n'),
               inline: false
             });
           }
         } catch {
-          // Ignore errors when getting ally code for error message
+          // Ignore errors when getting status for error message
+        }
+      } else {
+        embed = new EmbedBuilder()
+          .setTitle('❌ Error')
+          .setDescription(errorMessage)
+          .setColor(0xff0000);
+
+        if (isCloudflareError) {
+          try {
+            const allyCode = await playerService.getAllyCode(interaction.user.id);
+            if (allyCode) {
+              embed.addFields({
+                name: '💡 Workaround',
+                value: `You can access your GAC bracket directly at: https://swgoh.gg/p/${allyCode}/gac-bracket/`,
+                inline: false
+              });
+            }
+          } catch {
+            // Ignore errors when getting ally code for error message
+          }
         }
       }
 
@@ -383,6 +430,7 @@ export const gacCommand = {
 
     let opponentBracketPlayer: import('../integrations/swgohGgApi').GacBracketPlayer | null = null;
     let resolvedOpponentAllyCode: string | null = null;
+    let detectedOpponentConfidence: 'high' | 'medium' | 'low' = 'low';
 
     if (opponentAllyCode) {
       // Normalize ally code by removing dashes (users may type "123-456-789" but URLs need "123456789")
@@ -399,22 +447,80 @@ export const gacCommand = {
     } else {
       // Get live bracket data which includes real-time opponent detection
       const liveBracket = await gacService.getLiveBracket(yourAllyCode);
+      detectedOpponentConfidence = liveBracket.opponentConfidence;
+      
+      // Round 1 with low confidence: require manual selection
+      // GAC matchmaking for Round 1 is not publicly documented, so we can't reliably predict
+      if (liveBracket.currentRound === 1 && liveBracket.opponentConfidence === 'low') {
+        const embed = new EmbedBuilder()
+          .setTitle('🎯 Round 1 - Please Select Your Opponent')
+          .setDescription(
+            'GAC Round 1 matchups cannot be auto-detected because the game\'s pairing algorithm is not public.\n\n' +
+            '**How to find your opponent:**\n' +
+            '1. Open the game and check your GAC bracket\n' +
+            '2. Use `/gac opponent` and start typing in the `bracket_opponent` field\n' +
+            '3. Select your actual opponent from the autocomplete list\n\n' +
+            '_For Rounds 2-3, I can often auto-detect based on scores._'
+          )
+          .setColor(0xffaa00)
+          .addFields({
+            name: '📋 Your Bracket',
+            value: liveBracket.bracket_players
+              .map(p => `• ${p.player_name}${p.ally_code.toString() === yourAllyCode ? ' (You)' : ''}`)
+              .join('\n') || 'No players found',
+            inline: false
+          });
+
+        await interaction.editReply({ embeds: [embed] });
+        return;
+      }
       
       if (liveBracket.currentOpponent) {
         opponentBracketPlayer = liveBracket.currentOpponent;
-        resolvedOpponentAllyCode = liveBracket.currentOpponent.ally_code.toString();
-        logger.info(
-          `Real-time opponent detected for Round ${liveBracket.currentRound}: ` +
-          `${liveBracket.currentOpponent.player_name} ` +
-          `(Score: ${liveBracket.currentOpponent.bracket_score}, ` +
-          `Real-time: ${liveBracket.isRealTime})`
-        );
+        
+        // Check if we have a valid ally code (not 0)
+        if (liveBracket.currentOpponent.ally_code && liveBracket.currentOpponent.ally_code !== 0) {
+          resolvedOpponentAllyCode = liveBracket.currentOpponent.ally_code.toString();
+        } else {
+          // Ally code is 0 - this happens when bracket data came from Comlink
+          // but we failed to fetch the opponent's ally code
+          logger.warn(
+            `Opponent ${liveBracket.currentOpponent.player_name} has no valid ally code. ` +
+            `Using player_id to fetch data.`
+          );
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const playerId = (liveBracket.currentOpponent as any).player_id;
+          if (playerId) {
+            // Fetch ally code via Comlink using player ID
+            try {
+              const { comlinkClient } = await import('../integrations/comlink/comlinkClient');
+              const playerData = await comlinkClient.getPlayerById(playerId);
+              resolvedOpponentAllyCode = playerData.allyCode;
+              logger.info(`Fetched ally code ${resolvedOpponentAllyCode} for opponent via player ID`);
+            } catch (err) {
+              logger.error(`Failed to fetch ally code for player ${playerId}:`, err);
+            }
+          }
+        }
+        
+        if (resolvedOpponentAllyCode) {
+          logger.info(
+            `Real-time opponent detected for Round ${liveBracket.currentRound}: ` +
+            `${liveBracket.currentOpponent.player_name} ` +
+            `(Score: ${liveBracket.currentOpponent.bracket_score}, ` +
+            `Real-time: ${liveBracket.isRealTime}, ` +
+            `Confidence: ${liveBracket.opponentConfidence})`
+          );
+        }
       } else {
         logger.warn('Could not determine current opponent from live bracket data');
       }
     }
+    
+    // Track confidence for user messaging
+    const matchConfidence = opponentAllyCode ? 'specified' : detectedOpponentConfidence;
 
-    if (!resolvedOpponentAllyCode) {
+    if (!resolvedOpponentAllyCode || resolvedOpponentAllyCode === '0') {
       const embed = new EmbedBuilder()
         .setTitle('❌ No Opponent Found')
         .setDescription('Could not find an opponent to display.')
@@ -474,12 +580,21 @@ export const gacCommand = {
         );
       }
 
+      // Build description with confidence indicator
+      let description = `Ally Code: ${resolvedOpponentAllyCode}`;
+      if (matchConfidence === 'medium') {
+        description += '\n\n🎯 **Predicted** using Top 80 Character GP matching.';
+      } else if (matchConfidence === 'low') {
+        description += '\n\n⚠️ **Note:** Prediction confidence is low. ' +
+          'Use `/gac opponent` with the `bracket_opponent` option to select manually.';
+      }
+
       const embed = new EmbedBuilder()
         .setTitle(`👤 ${opponentName}`)
-        .setDescription(`Ally Code: ${resolvedOpponentAllyCode}`)
+        .setDescription(description)
         .addFields(embedFields)
         .setImage('attachment://comparison.png')
-        .setColor(0x0099ff)
+        .setColor(matchConfidence === 'low' ? 0xffaa00 : 0x0099ff) // Orange for low confidence
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed], files: [attachment] });
@@ -618,6 +733,32 @@ export const gacCommand = {
 
       // Use the bracket's league (all players in a bracket are in the same league)
       opponentLeague = liveBracket.league;
+
+      // Round 1 with low confidence: require manual selection
+      // GAC matchmaking for Round 1 is not publicly documented, so we can't reliably predict
+      if (liveBracket.currentRound === 1 && liveBracket.opponentConfidence === 'low') {
+        const embed = new EmbedBuilder()
+          .setTitle('🎯 Round 1 - Please Select Your Opponent')
+          .setDescription(
+            'GAC Round 1 matchups cannot be auto-detected because the game\'s pairing algorithm is not public.\n\n' +
+            '**How to find your opponent:**\n' +
+            '1. Open the game and check your GAC bracket\n' +
+            '2. Use `/gac strategy` and start typing in the `bracket_opponent` field\n' +
+            '3. Select your actual opponent from the autocomplete list\n\n' +
+            '_For Rounds 2-3, I can often auto-detect based on scores._'
+          )
+          .setColor(0xffaa00)
+          .addFields({
+            name: '📋 Your Bracket',
+            value: liveBracket.bracket_players
+              .map(p => `• ${p.player_name}${p.ally_code.toString() === yourAllyCode ? ' (You)' : ''}`)
+              .join('\n') || 'No players found',
+            inline: false
+          });
+
+        await interaction.editReply({ embeds: [embed] });
+        return;
+      }
 
       if (!liveBracket.currentOpponent) {
         throw new Error('Could not determine your next GAC opponent from live bracket data.');

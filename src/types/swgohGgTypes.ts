@@ -8,6 +8,8 @@ export interface GacBracketPlayer {
   player_name: string;
   player_skill_rating: number | null;
   player_gp: number;
+  /** Top 80 character GP - used for GAC Round 1 matchmaking */
+  top80_character_gp?: number;
   guild_id: string;
   guild_name: string;
   bracket_rank: number;

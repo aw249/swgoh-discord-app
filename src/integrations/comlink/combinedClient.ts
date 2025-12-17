@@ -8,6 +8,7 @@ import { SwgohGgApiClient, SwgohGgFullPlayerResponse, SwgohGgPlayerData, GacDefe
 import { ComlinkClient, ComlinkBracketPlayer } from './comlinkClient';
 import { adaptComlinkPlayerToSwgohGg, adaptComlinkPlayerDataOnly } from './dataAdapter';
 import { logger } from '../../utils/logger';
+import { bracketCache } from '../../storage/bracketCache';
 
 /**
  * Enhanced bracket data with real-time information and current opponent
@@ -19,6 +20,13 @@ export interface LiveBracketData extends GacBracketData {
   currentOpponent: GacBracketPlayer | null;
   /** Whether the data is from Comlink (real-time) or swgoh.gg (cached) */
   isRealTime: boolean;
+  /** 
+   * Confidence level for opponent prediction:
+   * - 'high': Only one candidate with same score (rounds 2-3)
+   * - 'medium': Multiple candidates, matched by skill rating/GP
+   * - 'low': Round 1 where all 8 have score 0, or no good match found
+   */
+  opponentConfidence: 'high' | 'medium' | 'low';
 }
 
 export interface CombinedClientConfig {
@@ -156,9 +164,10 @@ export class CombinedApiClient {
    * Get live GAC bracket data with real-time standings and current opponent.
    * 
    * This hybrid approach:
-   * 1. Gets bracket metadata from swgoh.gg (seasonId, eventId, leagueId, bracketId)
-   * 2. Refreshes with Comlink for real-time standings
-   * 3. Determines current opponent based on round matchups
+   * 1. Tries swgoh.gg for bracket metadata (bracketId)
+   * 2. If swgoh.gg fails and Comlink is available, searches for bracket via Comlink
+   * 3. Refreshes with Comlink for real-time standings
+   * 4. Determines current opponent based on round matchups
    * 
    * @param allyCode - Your ally code
    * @returns Live bracket data with current opponent
@@ -166,11 +175,28 @@ export class CombinedApiClient {
   async getLiveBracketWithOpponent(allyCode: string): Promise<LiveBracketData> {
     const normalizedAllyCode = allyCode.replace(/-/g, '');
 
-    // Step 1: Get bracket metadata from swgoh.gg
-    logger.info(`Fetching bracket metadata from swgoh.gg for ${normalizedAllyCode}...`);
-    const bracketMeta = await this.swgohGgClient.getGacBracket(normalizedAllyCode);
+    let bracketMeta: GacBracketData | null = null;
+    let swgohGgFailed = false;
 
-    // Step 2: Try to refresh with Comlink for real-time data
+    // Step 1: Try to get bracket metadata from swgoh.gg
+    try {
+    logger.info(`Fetching bracket metadata from swgoh.gg for ${normalizedAllyCode}...`);
+      bracketMeta = await this.swgohGgClient.getGacBracket(normalizedAllyCode);
+    } catch (error) {
+      swgohGgFailed = true;
+      logger.warn('swgoh.gg bracket fetch failed, will try Comlink:', error);
+    }
+
+    // Step 2: If swgoh.gg failed, try Comlink bracket discovery
+    if (swgohGgFailed && await this.isComlinkAvailable()) {
+      bracketMeta = await this.discoverBracketViaComlink(normalizedAllyCode);
+    }
+
+    if (!bracketMeta) {
+      throw new Error('No active GAC bracket found - player may not be in an active GAC event');
+    }
+
+    // Step 3: Try to refresh with Comlink for real-time data
     let players = bracketMeta.bracket_players;
     let isRealTime = false;
 
@@ -193,9 +219,21 @@ export class CombinedApiClient {
       }
     }
 
-    // Step 3: Determine current round and opponent
+    // Step 4: Calculate Top 80 Character GP for Round 1 matchmaking (if not already present)
     const currentRound = this.calculateCurrentRound(bracketMeta.start_time);
-    const currentOpponent = this.findCurrentOpponent(players, normalizedAllyCode, currentRound);
+    if (currentRound === 1 && await this.isComlinkAvailable()) {
+      // Check if any player is missing Top 80 GP
+      const missingTop80 = players.some(p => !p.top80_character_gp || p.top80_character_gp === 0);
+      if (missingTop80) {
+        logger.info('Calculating Top 80 Character GP for Round 1 matchmaking...');
+        const enrichedPlayers = await this.enrichPlayersWithTop80GP(players);
+        players = enrichedPlayers;
+      }
+    }
+    
+    // Step 5: Determine current opponent
+    const { opponent: currentOpponent, confidence: opponentConfidence } = 
+      this.findCurrentOpponent(players, normalizedAllyCode, currentRound);
 
     return {
       ...bracketMeta,
@@ -203,7 +241,236 @@ export class CombinedApiClient {
       currentRound,
       currentOpponent,
       isRealTime,
+      opponentConfidence,
     };
+  }
+  
+  /**
+   * Enrich players with Top 80 Character GP.
+   * This fetches each player's roster to calculate their Top 80 GP.
+   */
+  private async enrichPlayersWithTop80GP(
+    players: GacBracketPlayer[]
+  ): Promise<GacBracketPlayer[]> {
+    const enrichedPlayers: GacBracketPlayer[] = [];
+    
+    // Process players in parallel
+    const enrichPromises = players.map(async (player) => {
+      // Skip if already has Top 80 GP
+      if (player.top80_character_gp && player.top80_character_gp > 0) {
+        return player;
+      }
+      
+      // Need an ally code to fetch roster
+      if (!player.ally_code || player.ally_code === 0) {
+        return player;
+      }
+      
+      try {
+        // Fetch full player data with roster
+        const fullPlayerData = await this.getFullPlayer(player.ally_code.toString());
+        
+        // Calculate Top 80 Character GP
+        const characters = fullPlayerData.units
+          .filter(u => u.data.combat_type === 1)
+          .map(u => u.data.power || 0)
+          .sort((a, b) => b - a);
+        const top80GP = characters.slice(0, 80).reduce((sum, gp) => sum + gp, 0);
+        
+        return {
+          ...player,
+          top80_character_gp: top80GP,
+        };
+      } catch (error) {
+        logger.debug(`Could not calculate Top 80 GP for ${player.player_name}: ${error}`);
+        return player;
+      }
+    });
+    
+    const results = await Promise.all(enrichPromises);
+    enrichedPlayers.push(...results);
+    
+    const top80Count = enrichedPlayers.filter(p => p.top80_character_gp && p.top80_character_gp > 0).length;
+    logger.info(`Calculated Top 80 GP for ${top80Count}/${enrichedPlayers.length} players`);
+    
+    return enrichedPlayers;
+  }
+
+  /**
+   * Discover a player's GAC bracket using Comlink when swgoh.gg is unavailable.
+   * This searches through Comlink brackets to find the player.
+   * Uses cached bracket IDs as hints to speed up repeated lookups.
+   */
+  private async discoverBracketViaComlink(allyCode: string): Promise<GacBracketData | null> {
+    try {
+      // Get player data to find their ID, name, and league
+      const playerData = await this.comlinkClient.getPlayer(allyCode);
+      
+      // Get current GAC instance
+      const currentInstance = await this.comlinkClient.getCurrentGacInstance();
+      if (!currentInstance) {
+        logger.warn('No active GAC instance found in Comlink');
+        return null;
+      }
+
+      // Get player's league from their season status
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const seasonStatuses = (playerData as any).seasonStatus || [];
+      const latestSeason = seasonStatuses.reduce((latest: any, current: any) => {
+        const latestEnd = parseInt(latest?.endTime || '0', 10);
+        const currentEnd = parseInt(current?.endTime || '0', 10);
+        return currentEnd > latestEnd ? current : latest;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      }, null) as any;
+
+      if (!latestSeason?.league) {
+        logger.warn('Could not determine player league from Comlink');
+        return null;
+      }
+
+      // Check for cached bracket ID as a hint (persisted across bot restarts)
+      const hintBracketId = await bracketCache.getBracketId(allyCode, latestSeason.league);
+      
+      if (hintBracketId !== undefined) {
+        logger.info(`Searching for player bracket via Comlink (${latestSeason.league}) with cached hint bracket ${hintBracketId}...`);
+      } else {
+        logger.info(`Searching for player bracket via Comlink (${latestSeason.league}) - no cached hint, full scan...`);
+      }
+      
+      // Search for the player's bracket with optional hint
+      const bracketResult = await this.comlinkClient.findPlayerBracket(
+        playerData.playerId,
+        playerData.name,
+        currentInstance.eventInstanceId,
+        latestSeason.league,
+        {
+          maxBrackets: 10000, // Search up to 10000 brackets (covers 80000 players)
+          hintBracketId,
+          hintRange: 200, // Search 200 brackets around the hint first
+        }
+      );
+
+      if (!bracketResult) {
+        logger.warn('Could not find player bracket in Comlink search');
+        return null;
+      }
+
+      // Cache the bracket ID for faster lookups next time (persisted to disk)
+      await bracketCache.setBracketId(
+        allyCode, 
+        latestSeason.league, 
+        bracketResult.bracketId,
+        currentInstance.eventInstanceId
+      );
+      logger.info(`Found player in Comlink bracket ${bracketResult.bracketId} (cached for future lookups)`);
+
+      // Extract season number from event ID
+      const seasonMatch = currentInstance.eventId.match(/SEASON_(\d+)/);
+      const seasonNumber = seasonMatch ? parseInt(seasonMatch[1], 10) : 0;
+
+      // Convert Comlink bracket data to GacBracketData format
+      // Note: Comlink doesn't provide ally codes, so we use player IDs
+      const bracketPlayers: GacBracketPlayer[] = await this.enrichBracketPlayersWithAllyCodes(
+        bracketResult.players
+      );
+
+      return {
+        season_id: currentInstance.eventId,
+        season_number: seasonNumber,
+        event_id: currentInstance.instanceId,
+        league: latestSeason.league,
+        bracket_id: bracketResult.bracketId,
+        start_time: new Date(currentInstance.startTime).toISOString(),
+        bracket_players: bracketPlayers,
+      };
+    } catch (error) {
+      logger.warn('Failed to discover bracket via Comlink:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Enrich Comlink bracket players with ally codes and Top 80 Character GP.
+   * This is necessary because Comlink bracket data only contains player IDs.
+   * Top 80 Character GP is used for Round 1 matchmaking predictions.
+   */
+  private async enrichBracketPlayersWithAllyCodes(
+    comlinkPlayers: import('./comlinkClient').ComlinkBracketPlayer[]
+  ): Promise<GacBracketPlayer[]> {
+    const enrichedPlayers: GacBracketPlayer[] = [];
+
+    logger.info(`Fetching ally codes and Top 80 GP for ${comlinkPlayers.length} bracket players...`);
+
+    // Fetch player data in parallel to get ally codes and calculate Top 80 GP
+    const playerPromises = comlinkPlayers.map(async (cp) => {
+      try {
+        // Fetch full player data using player ID to get the ally code
+        const playerData = await this.comlinkClient.getPlayerById(cp.id);
+        const allyCode = playerData.allyCode;
+        
+        // Get skill rating from player data if available
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const skillRating = (playerData as any).playerRating?.playerSkillRating?.skillRating || null;
+        
+        // Calculate Top 80 Character GP by fetching full player with adapted data
+        // This uses the dataAdapter which calculates power per unit
+        let top80GP = 0;
+        try {
+          const fullPlayerData = await this.getFullPlayer(allyCode);
+          // Filter to characters only (combat_type 1), sort by power descending, sum top 80
+          const characters = fullPlayerData.units
+            .filter(u => u.data.combat_type === 1)
+            .map(u => u.data.power || 0)
+            .sort((a, b) => b - a);
+          top80GP = characters.slice(0, 80).reduce((sum, gp) => sum + gp, 0);
+        } catch (err) {
+          logger.debug(`Could not calculate Top 80 GP for ${cp.name}: ${err}`);
+        }
+        
+        return {
+          ally_code: parseInt(allyCode, 10) || 0,
+          player_id: cp.id,
+          player_name: cp.name,
+          player_level: cp.level || playerData.level || 85,
+          player_skill_rating: skillRating,
+          player_gp: cp.power,
+          top80_character_gp: top80GP > 0 ? top80GP : undefined,
+          guild_id: cp.guild?.id || playerData.guildId || '',
+          guild_name: cp.guild?.name || playerData.guildName || '',
+          bracket_rank: cp.pvpStatus?.rank || 0,
+          bracket_score: cp.pvpStatus?.score || 0,
+        };
+      } catch (error) {
+        logger.warn(`Failed to fetch data for player ${cp.name} (${cp.id}):`, error);
+        // Return with ally_code 0 and no Top 80 GP as fallback
+        return {
+          ally_code: 0,
+          player_id: cp.id,
+          player_name: cp.name,
+          player_level: cp.level || 85,
+          player_skill_rating: null,
+          player_gp: cp.power,
+          top80_character_gp: undefined,
+          guild_id: cp.guild?.id || '',
+          guild_name: cp.guild?.name || '',
+          bracket_rank: cp.pvpStatus?.rank || 0,
+          bracket_score: cp.pvpStatus?.score || 0,
+        };
+      }
+    });
+
+    const results = await Promise.all(playerPromises);
+    for (const result of results) {
+      if (result) {
+        enrichedPlayers.push(result);
+      }
+    }
+
+    const successCount = enrichedPlayers.filter(p => p.ally_code !== 0).length;
+    const top80Count = enrichedPlayers.filter(p => p.top80_character_gp && p.top80_character_gp > 0).length;
+    logger.info(`Got ally codes for ${successCount}/${enrichedPlayers.length} bracket players, Top 80 GP for ${top80Count}`);
+
+    return enrichedPlayers.sort((a, b) => a.bracket_rank - b.bracket_rank);
   }
 
   /**
@@ -273,56 +540,114 @@ export class CombinedApiClient {
     players: GacBracketPlayer[],
     yourAllyCode: string,
     currentRound: number
-  ): GacBracketPlayer | null {
-    const you = players.find(p => p.ally_code.toString() === yourAllyCode);
+  ): { opponent: GacBracketPlayer | null; confidence: 'high' | 'medium' | 'low' } {
+    // Find the requesting player - try ally code first
+    const you = players.find(p => 
+      p.ally_code !== 0 && p.ally_code.toString() === yourAllyCode
+    );
+    
     if (!you) {
-      logger.warn(`Player ${yourAllyCode} not found in bracket`);
-      return null;
+      logger.warn(`Player ${yourAllyCode} not found in bracket by ally code`);
+      // Log available players for debugging
+      logger.debug(`Available players: ${players.map(p => `${p.player_name}(${p.ally_code})`).join(', ')}`);
+      return { opponent: null, confidence: 'low' };
     }
 
-    // Get all other players
-    const opponents = players.filter(p => p.ally_code.toString() !== yourAllyCode);
-
-    if (currentRound === 1) {
-      // Round 1: Match by seed position (1v8, 2v7, 3v6, 4v5)
-      // Since everyone has score 0, we use rank to determine seed
-      const yourSeed = you.bracket_rank;
-      const targetSeed = 9 - yourSeed; // 1↔8, 2↔7, 3↔6, 4↔5
-
-      const opponent = opponents.find(p => p.bracket_rank === targetSeed);
-      if (opponent) {
-        logger.info(`Round 1 matchup: Seed ${yourSeed} vs Seed ${targetSeed} (${opponent.player_name})`);
-        return opponent;
+    // Get all other players (exclude by player_id if available, otherwise by ally_code)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const youId = (you as any).player_id;
+    const opponents = players.filter(p => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pId = (p as any).player_id;
+      if (youId && pId) {
+        return pId !== youId;
       }
-    }
+      return p.ally_code !== you.ally_code;
+    });
 
-    // For rounds 2-3, match by same score (Swiss-style)
-    // When multiple players have same score, find your likely opponent
+    // GAC uses Swiss-style matchmaking based on score (and skill rating for tiebreakers)
+    // For all rounds, we find opponents with the same score, then use skill rating proximity
     const sameScoreOpponents = opponents.filter(p => p.bracket_score === you.bracket_score);
 
     if (sameScoreOpponents.length === 1) {
-      // Only one possible opponent with same score
+      // Only one possible opponent with same score - this is definitely our match
       logger.info(`Round ${currentRound}: Matched with ${sameScoreOpponents[0].player_name} (same score: ${you.bracket_score})`);
-      return sameScoreOpponents[0];
+      return { opponent: sameScoreOpponents[0], confidence: 'high' };
     }
 
     if (sameScoreOpponents.length > 1) {
-      // Multiple possible opponents - match by closest GP
+      // Multiple candidates with same score
+      // For Round 1: Use Top 80 Character GP proximity (discovered matchmaking criteria)
+      // For Rounds 2-3: Use skill rating/GP proximity
+      
+      if (currentRound === 1) {
+        // Round 1: Sort by closest Top 80 Character GP
+        const yourTop80 = you.top80_character_gp || 0;
+        const hasTop80Data = yourTop80 > 0 && sameScoreOpponents.some(p => p.top80_character_gp && p.top80_character_gp > 0);
+        
+        if (hasTop80Data) {
+          sameScoreOpponents.sort((a, b) => {
+            const aTop80 = a.top80_character_gp || 0;
+            const bTop80 = b.top80_character_gp || 0;
+            const diffA = Math.abs(aTop80 - yourTop80);
+            const diffB = Math.abs(bTop80 - yourTop80);
+            return diffA - diffB;
+          });
+          
+          const closestTop80 = sameScoreOpponents[0];
+          const top80Diff = Math.abs((closestTop80.top80_character_gp || 0) - yourTop80);
+          logger.info(
+            `Round 1: Matched with ${closestTop80.player_name} by Top 80 Character GP proximity. ` +
+            `Your Top80: ${(yourTop80 / 1e6).toFixed(2)}M, Theirs: ${((closestTop80.top80_character_gp || 0) / 1e6).toFixed(2)}M, ` +
+            `Diff: ${(top80Diff / 1e6).toFixed(3)}M`
+          );
+          // Use 'medium' confidence - we have strong data but can't be 100% certain
+          return { opponent: closestTop80, confidence: 'medium' };
+        } else {
+          // Fallback to GP proximity if we don't have Top 80 data
       sameScoreOpponents.sort((a, b) => {
         const diffA = Math.abs(a.player_gp - you.player_gp);
         const diffB = Math.abs(b.player_gp - you.player_gp);
         return diffA - diffB;
       });
+          logger.info(
+            `Round 1: ${sameScoreOpponents.length} candidates with score 0. ` +
+            `Best guess by total GP: ${sameScoreOpponents[0].player_name} (Top 80 GP data unavailable).`
+          );
+          return { opponent: sameScoreOpponents[0], confidence: 'low' };
+        }
+      } else {
+        // Rounds 2-3: Sort by skill rating proximity, then GP
+        sameScoreOpponents.sort((a, b) => {
+          // Try skill rating first
+          const yourSkill = you.player_skill_rating || 0;
+          const aSkill = a.player_skill_rating || 0;
+          const bSkill = b.player_skill_rating || 0;
+          
+          if (yourSkill > 0 && aSkill > 0 && bSkill > 0) {
+            const diffA = Math.abs(aSkill - yourSkill);
+            const diffB = Math.abs(bSkill - yourSkill);
+            return diffA - diffB;
+          }
+          
+          // Fall back to GP proximity
+          const diffA = Math.abs(a.player_gp - you.player_gp);
+          const diffB = Math.abs(b.player_gp - you.player_gp);
+          return diffA - diffB;
+        });
+        
       logger.info(
         `Round ${currentRound}: Best match from ${sameScoreOpponents.length} candidates: ` +
-        `${sameScoreOpponents[0].player_name} (closest GP, score: ${you.bracket_score})`
+          `${sameScoreOpponents[0].player_name} (closest skill rating/GP, score: ${you.bracket_score})`
       );
-      return sameScoreOpponents[0];
+        return { opponent: sameScoreOpponents[0], confidence: 'medium' };
+      }
     }
 
-    // No same-score opponents (shouldn't happen in normal play)
+    // No same-score opponents - shouldn't happen in normal play
+    // This could occur if scores haven't updated yet or there's a bye
     logger.warn(`No opponent found with score ${you.bracket_score} in round ${currentRound}`);
-    return opponents[0] ?? null;
+    return { opponent: opponents[0] ?? null, confidence: 'low' };
   }
 
   /**

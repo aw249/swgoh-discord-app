@@ -392,11 +392,12 @@ export class GacStrategyService {
     }
     const browser = await this.getBrowser();
 
-    // Generate defense image
+    // Generate defense image (2-column layout requires wider viewport)
     const defensePage = await browser.newPage();
     let defenseImage: Buffer;
     try {
-      const defenseWidth = format === '3v3' ? 750 : 1000;
+      // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 680*2+40=1400)
+      const defenseWidth = format === '3v3' ? 1450 : 1950;
       await defensePage.setViewport({ width: defenseWidth, height: 2400, deviceScaleFactor: 2 });
       const defenseHtml = generateDefenseStrategyHtml(
         opponentLabel,
