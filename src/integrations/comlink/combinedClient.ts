@@ -617,30 +617,51 @@ export class CombinedApiClient {
           return { opponent: sameScoreOpponents[0], confidence: 'low' };
         }
       } else {
-        // Rounds 2-3: Sort by skill rating proximity, then GP
-        sameScoreOpponents.sort((a, b) => {
-          // Try skill rating first
-          const yourSkill = you.player_skill_rating || 0;
-          const aSkill = a.player_skill_rating || 0;
-          const bSkill = b.player_skill_rating || 0;
-          
-          if (yourSkill > 0 && aSkill > 0 && bSkill > 0) {
-            const diffA = Math.abs(aSkill - yourSkill);
-            const diffB = Math.abs(bSkill - yourSkill);
-            return diffA - diffB;
-          }
-          
-          // Fall back to GP proximity
-          const diffA = Math.abs(a.player_gp - you.player_gp);
-          const diffB = Math.abs(b.player_gp - you.player_gp);
-          return diffA - diffB;
-        });
+        // Rounds 2-3: Use consecutive bracket rank pairing
+        // Based on observed data: Rank 1 vs 2, Rank 3 vs 4 (not Swiss-style)
         
-      logger.info(
-        `Round ${currentRound}: Best match from ${sameScoreOpponents.length} candidates: ` +
-          `${sameScoreOpponents[0].player_name} (closest skill rating/GP, score: ${you.bracket_score})`
-      );
-        return { opponent: sameScoreOpponents[0], confidence: 'medium' };
+        // Include yourself in the score group
+        const allSameScore = [you, ...sameScoreOpponents];
+        
+        // Sort by bracket_rank (ascending) - this determines the pairing
+        const sortedByRank = [...allSameScore].sort((a, b) => a.bracket_rank - b.bracket_rank);
+        
+        // Log for debugging
+        logger.info(`[MATCHMAKING] Round ${currentRound}: ${allSameScore.length} players with score ${you.bracket_score}`);
+        for (let i = 0; i < sortedByRank.length; i++) {
+          const p = sortedByRank[i];
+          const isYou = p.ally_code.toString() === yourAllyCode;
+          logger.info(
+            `[MATCHMAKING] Rank ${p.bracket_rank}: ${isYou ? '>>> ' : ''}${p.player_name} ` +
+            `(GP: ${(p.player_gp / 1e6).toFixed(2)}M)`
+          );
+        }
+        
+        // Find your position in the sorted list
+        const yourIndex = sortedByRank.findIndex(p => 
+          p.ally_code.toString() === yourAllyCode
+        );
+        
+        // Consecutive pairing: 0 vs 1, 2 vs 3, etc.
+        // If your index is even (0, 2, 4...), opponent is index + 1
+        // If your index is odd (1, 3, 5...), opponent is index - 1
+        const opponentIndex = yourIndex % 2 === 0 ? yourIndex + 1 : yourIndex - 1;
+        
+        // Safety check
+        if (opponentIndex < 0 || opponentIndex >= sortedByRank.length) {
+          logger.warn(`[MATCHMAKING] Invalid opponent index ${opponentIndex} for your index ${yourIndex}`);
+          return { opponent: sortedByRank[0], confidence: 'low' };
+        }
+        
+        const opponent = sortedByRank[opponentIndex];
+        
+        logger.info(
+          `[MATCHMAKING] Consecutive rank pairing: ` +
+          `You (Rank ${you.bracket_rank}, #${yourIndex + 1}) vs ` +
+          `${opponent.player_name} (Rank ${opponent.bracket_rank}, #${opponentIndex + 1})`
+        );
+        
+        return { opponent, confidence: 'medium' };
       }
     }
 
