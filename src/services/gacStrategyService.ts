@@ -34,6 +34,7 @@ interface DefenseClient {
 
 interface PlayerClient {
   getFullPlayer(allyCode: string): Promise<SwgohGgFullPlayerResponse>;
+  getFullPlayerWithStats?(allyCode: string): Promise<SwgohGgFullPlayerResponse>;
 }
 
 export class GacStrategyService {
@@ -379,11 +380,17 @@ export class GacStrategyService {
     opponentAllyCode?: string
   ): Promise<{ defenseImage: Buffer; offenseImage: Buffer }> {
     // Fetch opponent roster if ally code provided
+    // Must use getFullPlayerWithStats to get calculated stats (Speed, Health, Protection)
+    // Comlink doesn't provide these stats, only swgoh.gg does
     let opponentRoster: SwgohGgFullPlayerResponse | undefined;
     if (opponentAllyCode && this.playerClient) {
       try {
         logger.info(`Fetching opponent roster for ally code ${opponentAllyCode} to show stats in offense image`);
-        opponentRoster = await this.playerClient.getFullPlayer(opponentAllyCode);
+        // Use getFullPlayerWithStats if available, otherwise fall back to getFullPlayer
+        const getPlayerWithStats = this.playerClient.getFullPlayerWithStats 
+          ? this.playerClient.getFullPlayerWithStats.bind(this.playerClient)
+          : this.playerClient.getFullPlayer.bind(this.playerClient);
+        opponentRoster = await getPlayerWithStats(opponentAllyCode);
         logger.info(`Fetched opponent roster: ${opponentRoster.units?.length || 0} units`);
       } catch (error) {
         logger.warn(`Could not fetch opponent roster for ${opponentAllyCode}: ${error}`);

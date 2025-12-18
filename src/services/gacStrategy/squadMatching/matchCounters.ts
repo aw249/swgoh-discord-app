@@ -62,11 +62,18 @@ function getGameMode(format: string): GameModeValue {
 /**
  * Validate a counter squad against archetype requirements.
  * Returns validation info including viability, confidence, and missing abilities.
+ * 
+ * @param leaderBaseId - The leader's base ID
+ * @param rosterAdapter - The player's roster adapter
+ * @param mode - The game mode
+ * @param actualSquadMembers - Optional array of base IDs for the actual squad members.
+ *                              If provided, only checks abilities for these units.
  */
 function validateCounterArchetype(
   leaderBaseId: string,
   rosterAdapter: RosterAdapter,
-  mode: GameModeValue
+  mode: GameModeValue,
+  actualSquadMembers?: string[]
 ): ArchetypeValidationInfo {
   try {
     ensureValidatorInitialised();
@@ -74,25 +81,63 @@ function validateCounterArchetype(
     // Use validateCounterByLeader which accepts the leader ID and mode
     const result = validator.validateCounterByLeader(rosterAdapter, leaderBaseId, mode as any);
     
-    // Map the result to our info type
-    const missingRequired = result.missingRequired?.map(r => ({
+    // If we have actual squad members, filter to only check abilities for those units
+    // This prevents warnings about characters not in the actual squad
+    const squadMemberSet = actualSquadMembers ? new Set(actualSquadMembers) : null;
+    
+    // Map and filter the result to our info type
+    let missingRequired = result.missingRequired?.map(r => ({
       abilityId: r.abilityId,
       unitBaseId: r.unitBaseId,
       reason: r.reason,
     }));
     
-    const missingOptional = result.missingOptional?.map(r => ({
+    let missingOptional = result.missingOptional?.map(r => ({
       abilityId: r.abilityId,
       unitBaseId: r.unitBaseId,
       reason: r.reason,
     }));
+    
+    // Filter to only include units that are actually in the squad
+    if (squadMemberSet) {
+      missingRequired = missingRequired?.filter(r => squadMemberSet.has(r.unitBaseId));
+      missingOptional = missingOptional?.filter(r => squadMemberSet.has(r.unitBaseId));
+    }
+    
+    // Determine viability based on filtered missing required
+    const viable = !missingRequired || missingRequired.length === 0;
+    
+    // Filter warnings to only include those relevant to the actual squad
+    // Warnings about specific characters (like "Malak zetas") should be skipped
+    // if that character isn't in the squad
+    let warnings = result.warnings;
+    if (squadMemberSet && warnings) {
+      // Check if warnings mention specific characters not in the squad
+      // Common patterns: "Malak zetas", "Chewie's Loyal Friend", etc.
+      const characterPatterns = [
+        { pattern: /malak/i, unit: 'DARTHMALAK' },
+        { pattern: /chewie.*loyal friend/i, unit: 'CHEWBACCALEGENDARY' },
+        { pattern: /fives.*zeta/i, unit: 'CT5555' },
+        { pattern: /cat.*zeta/i, unit: 'COMMANDERAHSOKA' },
+        { pattern: /gmy|grand master yoda/i, unit: 'GRANDMASTERYODA' },
+      ];
+      
+      warnings = warnings.filter(warning => {
+        for (const { pattern, unit } of characterPatterns) {
+          if (pattern.test(warning) && !squadMemberSet.has(unit)) {
+            return false; // Skip warning about character not in squad
+          }
+        }
+        return true;
+      });
+    }
     
     return {
-      viable: result.viable,
+      viable,
       confidence: result.confidence / 100, // Convert from 0-100 to 0-1
-      missingRequired,
-      missingOptional,
-      warnings: result.warnings,
+      missingRequired: missingRequired && missingRequired.length > 0 ? missingRequired : undefined,
+      missingOptional: missingOptional && missingOptional.length > 0 ? missingOptional : undefined,
+      warnings: warnings && warnings.length > 0 ? warnings : undefined,
       archetypeId: result.archetypeId,
     };
   } catch (error) {
@@ -481,10 +526,13 @@ export async function matchCountersAgainstRoster(
           }
           
           // Archetype validation: check if user has required zetas/omicrons for this counter
+          // Pass actual squad members to only validate abilities for characters in this squad
+          const actualSquadMembers = [counter.leader.baseId, ...counter.members.map(m => m.baseId)];
           const archetypeValidation = validateCounterArchetype(
             counter.leader.baseId,
             rosterAdapter,
-            gameMode
+            gameMode,
+            actualSquadMembers
           );
           
           // Apply archetype penalties/bonuses
@@ -579,10 +627,13 @@ export async function matchCountersAgainstRoster(
           const bestCaseRelicDelta = calculateBestCaseRelicDelta(offenseRelics, defenseRelics);
           
           // Validate archetype requirements (zetas, omicrons)
+          // Pass actual squad members to only validate abilities for characters in this squad
+          const counterSquadMembers = [counter.leader.baseId, ...counter.members.map(m => m.baseId)];
           const archetypeValidation = validateCounterArchetype(
             counter.leader.baseId,
             rosterAdapter,
-            gameMode
+            gameMode,
+            counterSquadMembers
           );
           
           // Log warnings if counter has missing abilities
