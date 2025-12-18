@@ -10,7 +10,8 @@ import { generateDefenseSquadsFromRoster } from './defenseGeneration';
 import { ArchetypeConfig, LeaderArchetypeMapping } from '../../types/archetypeTypes';
 import { 
   getArchetypeValidator, 
-  createRosterAdapter, 
+  createRosterAdapter,
+  filterWarningsForSquad,
   RosterAdapter 
 } from '../archetypeValidation/archetypeValidator';
 import archetypesConfig from '../../config/archetypes/archetypes.json';
@@ -95,24 +96,14 @@ function validateDefenseArchetype(
     // Determine viability based on filtered missing required
     const viable = !missingRequired || missingRequired.length === 0;
     
-    // Filter warnings to only include those relevant to the actual squad
-    let warnings = result.warnings;
-    if (squadMemberSet && warnings) {
-      const characterPatterns = [
-        { pattern: /malak/i, unit: 'DARTHMALAK' },
-        { pattern: /chewie.*loyal friend/i, unit: 'CHEWBACCALEGENDARY' },
-        { pattern: /fives.*zeta/i, unit: 'CT5555' },
-        { pattern: /cat.*zeta/i, unit: 'COMMANDERAHSOKA' },
-      ];
-      
-      warnings = warnings.filter(warning => {
-        for (const { pattern, unit } of characterPatterns) {
-          if (pattern.test(warning) && !squadMemberSet.has(unit)) {
-            return false;
-          }
-        }
-        return true;
-      });
+    // Filter warnings using the archetype's raw warnings (with relatedUnits info)
+    // This uses the structured warnings from archetypes.json which specify which units they apply to
+    let warnings: string[] | undefined;
+    if (result.archetypeId) {
+      const archetype = validator.getArchetype(result.archetypeId);
+      if (archetype?.warnings) {
+        warnings = filterWarningsForSquad(archetype.warnings, actualSquadMembers);
+      }
     }
     
     return {

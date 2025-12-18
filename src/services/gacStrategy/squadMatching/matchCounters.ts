@@ -19,6 +19,7 @@ import { ArchetypeConfig, LeaderArchetypeMapping } from '../../../types/archetyp
 import { 
   getArchetypeValidator, 
   createRosterAdapter, 
+  filterWarningsForSquad,
   RosterAdapter 
 } from '../../archetypeValidation/archetypeValidator';
 import archetypesConfig from '../../../config/archetypes/archetypes.json';
@@ -107,29 +108,14 @@ function validateCounterArchetype(
     // Determine viability based on filtered missing required
     const viable = !missingRequired || missingRequired.length === 0;
     
-    // Filter warnings to only include those relevant to the actual squad
-    // Warnings about specific characters (like "Malak zetas") should be skipped
-    // if that character isn't in the squad
-    let warnings = result.warnings;
-    if (squadMemberSet && warnings) {
-      // Check if warnings mention specific characters not in the squad
-      // Common patterns: "Malak zetas", "Chewie's Loyal Friend", etc.
-      const characterPatterns = [
-        { pattern: /malak/i, unit: 'DARTHMALAK' },
-        { pattern: /chewie.*loyal friend/i, unit: 'CHEWBACCALEGENDARY' },
-        { pattern: /fives.*zeta/i, unit: 'CT5555' },
-        { pattern: /cat.*zeta/i, unit: 'COMMANDERAHSOKA' },
-        { pattern: /gmy|grand master yoda/i, unit: 'GRANDMASTERYODA' },
-      ];
-      
-      warnings = warnings.filter(warning => {
-        for (const { pattern, unit } of characterPatterns) {
-          if (pattern.test(warning) && !squadMemberSet.has(unit)) {
-            return false; // Skip warning about character not in squad
-          }
-        }
-        return true;
-      });
+    // Filter warnings using the archetype's raw warnings (with relatedUnits info)
+    // This uses the structured warnings from archetypes.json which specify which units they apply to
+    let warnings: string[] | undefined;
+    if (result.archetypeId) {
+      const archetype = validator.getArchetype(result.archetypeId);
+      if (archetype?.warnings) {
+        warnings = filterWarningsForSquad(archetype.warnings, actualSquadMembers);
+      }
     }
     
     return {

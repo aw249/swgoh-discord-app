@@ -23,6 +23,7 @@ import {
   AbilityRequirement,
   OptionalAbilityRequirement,
   LeaderArchetypeMapping,
+  ArchetypeWarningItem,
 } from '../../types/archetypeTypes';
 import { SwgohGgFullPlayerResponse, SwgohGgUnit } from '../../types/swgohGgTypes';
 import { logger } from '../../utils/logger';
@@ -88,6 +89,49 @@ export function createRosterAdapter(roster: SwgohGgFullPlayerResponse): RosterAd
       return Math.max(0, unit.data.relic_tier - 2);
     },
   };
+}
+
+/**
+ * Filter archetype warnings based on actual squad members.
+ * 
+ * @param warnings - The archetype's warnings (can be strings or ArchetypeWarning objects)
+ * @param actualSquadMembers - Array of unit base IDs in the actual squad (optional)
+ * @returns Array of warning message strings filtered to only include relevant warnings
+ */
+export function filterWarningsForSquad(
+  warnings: ArchetypeWarningItem[] | undefined,
+  actualSquadMembers?: string[]
+): string[] {
+  if (!warnings || warnings.length === 0) {
+    return [];
+  }
+  
+  const squadMemberSet = actualSquadMembers ? new Set(actualSquadMembers) : null;
+  const filteredWarnings: string[] = [];
+  
+  for (const warning of warnings) {
+    if (typeof warning === 'string') {
+      // Simple string warning - always include
+      filteredWarnings.push(warning);
+    } else {
+      // Structured warning with optional relatedUnits
+      if (!warning.relatedUnits || warning.relatedUnits.length === 0) {
+        // No related units specified - always include
+        filteredWarnings.push(warning.message);
+      } else if (squadMemberSet) {
+        // Check if any of the related units are in the squad
+        const hasRelatedUnit = warning.relatedUnits.some(unit => squadMemberSet.has(unit));
+        if (hasRelatedUnit) {
+          filteredWarnings.push(warning.message);
+        }
+      } else {
+        // No squad members filter provided - include all
+        filteredWarnings.push(warning.message);
+      }
+    }
+  }
+  
+  return filteredWarnings;
 }
 
 /**
@@ -359,13 +403,16 @@ export class ArchetypeValidator {
       summary = `Fully configured - all required and optional abilities present`;
     }
     
+    // Convert warnings to string array (filter will happen at call site with actual squad info)
+    const warningStrings = filterWarningsForSquad(archetype.warnings);
+    
     return {
       archetypeId,
       viable,
       confidence,
       missingRequired: missingRequired.length > 0 ? missingRequired : undefined,
       missingOptional: missingOptional.length > 0 ? missingOptional : undefined,
-      warnings: archetype.warnings,
+      warnings: warningStrings.length > 0 ? warningStrings : undefined,
       notes: applicableNotes.length > 0 ? applicableNotes : undefined,
       summary,
     };

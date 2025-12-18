@@ -94,6 +94,25 @@ export interface SquadCompositionRequirement {
 }
 
 /**
+ * A warning associated with an archetype.
+ * Can be a simple string (for backwards compatibility) or an object with relatedUnits.
+ */
+export interface ArchetypeWarning {
+  /** The warning message to display */
+  message: string;
+  
+  /**
+   * Units this warning is about.
+   * If specified, warning is only shown if at least one of these units is in the squad.
+   * If not specified, warning is always shown.
+   */
+  relatedUnits?: string[];
+}
+
+/** Warning can be either a string or a structured ArchetypeWarning */
+export type ArchetypeWarningItem = string | ArchetypeWarning;
+
+/**
  * An archetype definition - the core config unit.
  * Archetypes describe a squad's keystone mechanics.
  */
@@ -133,9 +152,9 @@ export interface ArchetypeDefinition {
   
   /**
    * Warnings to display in UI.
-   * These are always shown, regardless of viability.
+   * Can be strings (always shown) or objects with relatedUnits (conditionally shown).
    */
-  warnings?: string[];
+  warnings?: ArchetypeWarningItem[];
   
   /**
    * Notes for specific scenarios.

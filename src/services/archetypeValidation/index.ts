@@ -7,6 +7,7 @@
 export {
   ArchetypeValidator,
   createRosterAdapter,
+  filterWarningsForSquad,
   getArchetypeValidator,
   resetArchetypeValidator,
   type RosterAdapter,

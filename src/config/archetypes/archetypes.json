@@ -86,8 +86,14 @@
         }
       ],
       "warnings": [
-        "Missing Dark Trooper zeta commonly breaks the 3v3 kill loop",
-        "Requires high relic Dark Trooper to one-shot enemies"
+        {
+          "message": "Missing Dark Trooper zeta commonly breaks the 3v3 kill loop",
+          "relatedUnits": ["DARKTROOPER"]
+        },
+        {
+          "message": "Requires high relic Dark Trooper to one-shot enemies",
+          "relatedUnits": ["DARKTROOPER"]
+        }
       ],
       "tags": [
         "empire",
@@ -158,7 +164,10 @@
         }
       ],
       "warnings": [
-        "Chewie's Loyal Friend zeta is critical for the team's survivability"
+        {
+          "message": "Chewie's Loyal Friend zeta is critical for the team's survivability",
+          "relatedUnits": ["CHEWBACCALEGENDARY"]
+        }
       ],
       "tags": [
         "rebels",
@@ -360,7 +369,10 @@
         }
       ],
       "warnings": [
-        "Fives zeta is critical - without it the team loses most of its power"
+        {
+          "message": "Fives zeta is critical - without it the team loses most of its power",
+          "relatedUnits": ["CT5555"]
+        }
       ],
       "tags": [
         "galactic-republic",
@@ -429,7 +441,10 @@
         }
       ],
       "warnings": [
-        "Both Malak zetas are critical - without them the team is significantly weaker"
+        {
+          "message": "Both Malak zetas are critical - without them the team is significantly weaker",
+          "relatedUnits": ["DARTHMALAK"]
+        }
       ],
       "tags": [
         "sith-empire",
@@ -491,7 +506,10 @@
         }
       ],
       "warnings": [
-        "Jolee with his zeta is critical - without revives this team falls apart quickly"
+        {
+          "message": "Jolee with his zeta is critical - without revives this team falls apart quickly",
+          "relatedUnits": ["YOURJOLEEBINDO"]
+        }
       ],
       "tags": [
         "jedi",
@@ -1444,8 +1462,14 @@
         }
       ],
       "warnings": [
-        "JMK+CAT is one of the strongest squads in the game",
-        "Without CAT's zeta the team loses its primary damage dealer"
+        {
+          "message": "JMK+CAT is one of the strongest squads in the game",
+          "relatedUnits": ["COMMANDERAHSOKA"]
+        },
+        {
+          "message": "Without CAT's zeta the team loses its primary damage dealer",
+          "relatedUnits": ["COMMANDERAHSOKA"]
+        }
       ],
       "tags": [
         "galactic-legend",
@@ -1532,7 +1556,10 @@
         }
       ],
       "warnings": [
-        "LV+Maul is the premier LV offensive squad"
+        {
+          "message": "LV+Maul is the premier LV offensive squad",
+          "relatedUnits": ["MAULS7"]
+        }
       ],
       "tags": [
         "galactic-legend",
@@ -2242,7 +2269,10 @@
         }
       ],
       "warnings": [
-        "This squad requires BOTH Cere and Malicos to function properly"
+        {
+          "message": "This squad requires BOTH Cere and Malicos to function properly",
+          "relatedUnits": ["CEREJUNDA", "TARONMALICOS"]
+        }
       ],
       "tags": [
         "jedi",
@@ -2273,7 +2303,10 @@
         }
       ],
       "warnings": [
-        "Without Malicos omicron, this squad cannot reliably counter GLs"
+        {
+          "message": "Without Malicos omicron, this squad cannot reliably counter GLs",
+          "relatedUnits": ["TARONMALICOS"]
+        }
       ],
       "tags": [
         "jedi",
