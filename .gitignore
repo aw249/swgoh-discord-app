@@ -1,0 +1,31 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+coverage/
+*.log
+.DS_Store
+*.swp
+*.swo
+*~
+data/
+
+# Production/Deployment
+*.pid
+*.seed
+*.pid.lock
+logs/
+
+# Diagnostic output files
+gac-strategy-diagnostic-*.txt
+gac-strategy-diagnostic.log
+
+# Comlink binary and assets
+bin/
+
+# System files
+.bash_history
+.npm/
+.local/
+.cache/

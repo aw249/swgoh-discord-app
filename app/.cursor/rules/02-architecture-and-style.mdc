@@ -1,0 +1,48 @@
+---
+alwaysApply: true
+---
+# Project Architecture
+
+- Always use a **modular, layered architecture**:
+  - `src/bot/` – Discord bot initialisation, login, event wiring, command registration
+  - `src/commands/` – Command handlers (one file per command or logical group)
+  - `src/services/` – Core domain logic (SWGOH analysis, roster logic, recommendations)
+  - `src/integrations/` – External APIs (SWGOH API, swgoh.gg, hotutils-like APIs, etc.)
+  - `src/storage/` – Persistence, caching, user and guild config
+  - `src/utils/` – Shared utilities (logging, formatting, time, maths)
+  - `src/config/` – Constants and configuration helpers
+- Discord-specific details (embeds, interaction objects) must live in `bot/` or `commands/`.
+- Core logic (calculations, decisions) must live in `services/` or `utils/` as **pure, testable functions**.
+- New features should be implemented end-to-end:
+  - Slash command → handler → service(s) → integration/storage → Discord response.
+
+# Coding Style
+
+- Use **TypeScript strict mode** (`"strict": true` in `tsconfig.json`).
+- Always provide **explicit return types** for exported functions.
+- Prefer **interfaces/types** for complex structures (e.g. `SwgohUnit`, `SwgohPlayer`, `SwgohGuild`).
+- Use `async/await` instead of `.then()` chains.
+- Use 2-space indentation and single quotes.
+- Avoid magic numbers – define named constants or config entries instead.
+- Add short, clear comments for:
+  - Non-trivial business logic
+  - Command purpose and expected usage
+  - Integration behaviour and assumptions
+
+# Integrations & Data Handling
+
+- All external API calls must go through modules under `src/integrations/`.
+- Never call external APIs directly from command files.
+- Integration modules should:
+  - Handle timeouts, basic retries, and error translation
+  - Normalise responses into internal types (e.g. `SwgohUnit`, `SwgohPlayer`)
+- Cache expensive or rate-limited calls with a sensible TTL.
+- Log integration errors with enough detail for debugging, but never log secrets.
+
+# Testing & Reliability
+
+- Pure logic in `services` and `utils` should have **unit tests** (e.g. with Jest).
+- Prefer small, composable functions that are easy to test.
+- When adding non-trivial logic (e.g. squad selection, farm scoring):
+  - Extract it into a pure function
+  - Add tests covering at least happy path + one failure/edge case

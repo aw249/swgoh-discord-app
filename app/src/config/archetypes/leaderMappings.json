@@ -1,0 +1,1085 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-12-14",
+  "description": "Maps squad leaders to their archetype(s) by game mode",
+  "mappings": [
+    {
+      "leaderBaseId": "VEERS",
+      "archetypes": {
+        "GAC_3v3": "IT_VEERS_TRAIN_3V3",
+        "GAC_5v5": "IT_VEERS_TRAIN_BASE",
+        "TW": "IT_VEERS_TRAIN_BASE"
+      },
+      "defaultArchetype": "IT_VEERS_TRAIN_BASE"
+    },
+    {
+      "leaderBaseId": "COMMANDERLUKESKYWALKER",
+      "archetypes": {
+        "GAC_3v3": "CLS_REBELS_BASE",
+        "GAC_5v5": "CLS_REBELS_BASE",
+        "TW": "CLS_REBELS_BASE"
+      },
+      "defaultArchetype": "CLS_REBELS_BASE"
+    },
+    {
+      "leaderBaseId": "DASHRENDAR",
+      "archetypes": {
+        "GAC_3v3": "DASH_SCOUNDRELS_GAC",
+        "GAC_5v5": "DASH_SCOUNDRELS_GAC",
+        "TW": "DASH_SCOUNDRELS_BASE"
+      },
+      "defaultArchetype": "DASH_SCOUNDRELS_BASE"
+    },
+    {
+      "leaderBaseId": "PADMEAMIDALA",
+      "archetypes": {
+        "GAC_3v3": "PADME_PROTECTION_UP",
+        "GAC_5v5": "PADME_PROTECTION_UP",
+        "TW": "PADME_PROTECTION_UP"
+      },
+      "defaultArchetype": "PADME_PROTECTION_UP"
+    },
+    {
+      "leaderBaseId": "GENERALSKYWALKER",
+      "archetypes": {
+        "GAC_3v3": "GAS_501ST",
+        "GAC_5v5": "GAS_501ST",
+        "TW": "GAS_501ST"
+      },
+      "defaultArchetype": "GAS_501ST"
+    },
+    {
+      "leaderBaseId": "DARTHREVAN",
+      "archetypes": {
+        "GAC_3v3": "DR_SITH_EMPIRE",
+        "GAC_5v5": "DR_SITH_EMPIRE",
+        "TW": "DR_SITH_EMPIRE"
+      },
+      "defaultArchetype": "DR_SITH_EMPIRE"
+    },
+    {
+      "leaderBaseId": "JEDIKNIGHTREVAN",
+      "archetypes": {
+        "GAC_3v3": "JKR_JEDI",
+        "GAC_5v5": "JKR_JEDI",
+        "TW": "JKR_JEDI"
+      },
+      "defaultArchetype": "JKR_JEDI"
+    },
+    {
+      "leaderBaseId": "MOTHERTALZIN",
+      "archetypes": {
+        "GAC_3v3": "NIGHTSISTERS_TALZIN_GAC",
+        "GAC_5v5": "NIGHTSISTERS_TALZIN_GAC",
+        "TW": "NIGHTSISTERS_TALZIN"
+      },
+      "defaultArchetype": "NIGHTSISTERS_TALZIN"
+    },
+    {
+      "leaderBaseId": "GEONOSIANBROODALPHA",
+      "archetypes": {
+        "GAC_3v3": "GEOS_BROOD_ALPHA",
+        "GAC_5v5": "GEOS_BROOD_ALPHA",
+        "TW": "GEOS_BROOD_ALPHA"
+      },
+      "defaultArchetype": "GEOS_BROOD_ALPHA"
+    },
+    {
+      "leaderBaseId": "BOSSK",
+      "archetypes": {
+        "GAC_3v3": "BOUNTY_HUNTERS_BOSSK",
+        "GAC_5v5": "BOUNTY_HUNTERS_BOSSK",
+        "TW": "BOUNTY_HUNTERS_BOSSK"
+      },
+      "defaultArchetype": "BOUNTY_HUNTERS_BOSSK"
+    },
+    {
+      "leaderBaseId": "WAMPA",
+      "archetypes": {
+        "GAC_3v3": "WAMPA_SOLO_GAC",
+        "GAC_5v5": "WAMPA_SOLO_GAC"
+      },
+      "defaultArchetype": "WAMPA_SOLO_GAC"
+    },
+    {
+      "leaderBaseId": "PHASMA",
+      "archetypes": {
+        "GAC_3v3": "PHASMA_FO_GAC",
+        "GAC_5v5": "PHASMA_FO_GAC"
+      },
+      "defaultArchetype": "PHASMA_FO_GAC"
+    },
+    {
+      "leaderBaseId": "DARTHTRAYA",
+      "archetypes": {
+        "GAC_3v3": "SITH_TRIO",
+        "GAC_5v5": "SITH_TRIO",
+        "TW": "SITH_TRIO"
+      },
+      "defaultArchetype": "SITH_TRIO"
+    },
+    {
+      "leaderBaseId": "MOFFGIDEONS1",
+      "archetypes": {
+        "GAC_3v3": "IMPERIAL_REMNANTS_MOFF",
+        "GAC_5v5": "IMPERIAL_REMNANTS_MOFF",
+        "TW": "IMPERIAL_REMNANTS_MOFF"
+      },
+      "defaultArchetype": "IMPERIAL_REMNANTS_MOFF"
+    },
+    {
+      "leaderBaseId": "SHAAKTI",
+      "archetypes": {
+        "GAC_3v3": "SHAAK_CLONES",
+        "GAC_5v5": "SHAAK_CLONES",
+        "TW": "SHAAK_CLONES"
+      },
+      "defaultArchetype": "SHAAK_CLONES"
+    },
+    {
+      "leaderBaseId": "HERASYNDULLAS3",
+      "archetypes": {
+        "GAC_3v3": "PHOENIX",
+        "GAC_5v5": "PHOENIX",
+        "TW": "PHOENIX"
+      },
+      "defaultArchetype": "PHOENIX"
+    },
+    {
+      "leaderBaseId": "GRIEVOUS",
+      "archetypes": {
+        "GAC_3v3": "SEPARATIST_DROIDS",
+        "GAC_5v5": "SEPARATIST_DROIDS",
+        "TW": "SEPARATIST_DROIDS"
+      },
+      "defaultArchetype": "SEPARATIST_DROIDS"
+    },
+    {
+      "leaderBaseId": "KYLORENUNMASKED",
+      "archetypes": {
+        "GAC_3v3": "FIRST_ORDER_KRU",
+        "GAC_5v5": "FIRST_ORDER_KRU",
+        "TW": "FIRST_ORDER_KRU"
+      },
+      "defaultArchetype": "FIRST_ORDER_KRU"
+    },
+    {
+      "leaderBaseId": "MONMOTHMA",
+      "archetypes": {
+        "GAC_3v3": "MOTHMA_REBELS_BASE",
+        "GAC_5v5": "MOTHMA_REBELS_BASE",
+        "TW": "MOTHMA_REBELS_TW"
+      },
+      "defaultArchetype": "MOTHMA_REBELS_BASE"
+    },
+    {
+      "leaderBaseId": "BADBATCHHUNTER",
+      "archetypes": {
+        "GAC_3v3": "BAD_BATCH_HUNTER",
+        "GAC_5v5": "BAD_BATCH_HUNTER",
+        "TW": "BAD_BATCH_HUNTER"
+      },
+      "defaultArchetype": "BAD_BATCH_HUNTER"
+    },
+    {
+      "leaderBaseId": "GLREY",
+      "archetypes": {
+        "GAC_3v3": "GL_REY_STANDARD",
+        "GAC_5v5": "GL_REY_STANDARD",
+        "TW": "GL_REY_STANDARD"
+      },
+      "defaultArchetype": "GL_REY_STANDARD"
+    },
+    {
+      "leaderBaseId": "SUPREMELEADERKYLOREN",
+      "archetypes": {
+        "GAC_3v3": "GL_SLKR_STANDARD",
+        "GAC_5v5": "GL_SLKR_STANDARD",
+        "TW": "GL_SLKR_STANDARD"
+      },
+      "defaultArchetype": "GL_SLKR_STANDARD"
+    },
+    {
+      "leaderBaseId": "GRANDMASTERLUKE",
+      "archetypes": {
+        "GAC_3v3": "GL_JML_STANDARD",
+        "GAC_5v5": "GL_JML_STANDARD",
+        "TW": "GL_JML_STANDARD"
+      },
+      "defaultArchetype": "GL_JML_STANDARD"
+    },
+    {
+      "leaderBaseId": "SITHPALPATINE",
+      "archetypes": {
+        "GAC_3v3": "GL_SEE_STANDARD",
+        "GAC_5v5": "GL_SEE_STANDARD",
+        "TW": "GL_SEE_STANDARD"
+      },
+      "defaultArchetype": "GL_SEE_STANDARD"
+    },
+    {
+      "leaderBaseId": "JEDIMASTERKENOBI",
+      "archetypes": {
+        "GAC_3v3": "GL_JMK_WITH_CAT",
+        "GAC_5v5": "GL_JMK_WITH_CAT",
+        "TW": "GL_JMK_WITH_CAT"
+      },
+      "defaultArchetype": "GL_JMK_BASE"
+    },
+    {
+      "leaderBaseId": "LORDVADER",
+      "archetypes": {
+        "GAC_3v3": "GL_LV_WITH_MAUL",
+        "GAC_5v5": "GL_LV_WITH_MAUL",
+        "TW": "GL_LV_WITH_MAUL"
+      },
+      "defaultArchetype": "GL_LV_BASE"
+    },
+    {
+      "leaderBaseId": "JABBATHEHUTT",
+      "archetypes": {
+        "GAC_3v3": "GL_JABBA_STANDARD",
+        "GAC_5v5": "GL_JABBA_STANDARD",
+        "TW": "GL_JABBA_STANDARD"
+      },
+      "defaultArchetype": "GL_JABBA_STANDARD"
+    },
+    {
+      "leaderBaseId": "GLLEIA",
+      "archetypes": {
+        "GAC_3v3": "GL_LEIA_STANDARD",
+        "GAC_5v5": "GL_LEIA_STANDARD",
+        "TW": "GL_LEIA_STANDARD"
+      },
+      "defaultArchetype": "GL_LEIA_STANDARD"
+    },
+    {
+      "leaderBaseId": "GLAHSOKATANO",
+      "archetypes": {
+        "GAC_3v3": "GL_AHSOKA_STANDARD",
+        "GAC_5v5": "GL_AHSOKA_STANDARD",
+        "TW": "GL_AHSOKA_STANDARD"
+      },
+      "defaultArchetype": "GL_AHSOKA_STANDARD"
+    },
+    {
+      "leaderBaseId": "DOCTORAPHRA",
+      "archetypes": {
+        "GAC_3v3": "APHRA_DROIDS",
+        "GAC_5v5": "APHRA_DROIDS",
+        "TW": "APHRA_DROIDS"
+      },
+      "defaultArchetype": "APHRA_DROIDS"
+    },
+    {
+      "leaderBaseId": "GRANDINQUISITOR",
+      "archetypes": {
+        "GAC_3v3": "GRAND_INQUISITOR_BASE",
+        "GAC_5v5": "GRAND_INQUISITOR_BASE",
+        "TW": "GRAND_INQUISITOR_BASE"
+      },
+      "defaultArchetype": "GRAND_INQUISITOR_BASE"
+    },
+    {
+      "leaderBaseId": "MAULS7",
+      "archetypes": {
+        "GAC_3v3": "MAUL_MANDALORIANS",
+        "GAC_5v5": "MAUL_MANDALORIANS",
+        "TW": "MAUL_MANDALORIANS"
+      },
+      "defaultArchetype": "MAUL_MANDALORIANS"
+    },
+    {
+      "leaderBaseId": "MAUL",
+      "archetypes": {
+        "GAC_3v3": "DARTH_MAUL_SITH",
+        "GAC_5v5": "DARTH_MAUL_SITH",
+        "TW": "DARTH_MAUL_SITH"
+      },
+      "defaultArchetype": "DARTH_MAUL_SITH"
+    },
+    {
+      "leaderBaseId": "FENNECSHAND",
+      "archetypes": {
+        "GAC_3v3": "FENNEC_SCOUNDRELS",
+        "GAC_5v5": "FENNEC_SCOUNDRELS",
+        "TW": "FENNEC_SCOUNDRELS"
+      },
+      "defaultArchetype": "FENNEC_SCOUNDRELS"
+    },
+    {
+      "leaderBaseId": "BOKATAN",
+      "archetypes": {
+        "GAC_3v3": "BOKATAN_MANDALORIANS",
+        "GAC_5v5": "BOKATAN_MANDALORIANS",
+        "TW": "BOKATAN_MANDALORIANS"
+      },
+      "defaultArchetype": "BOKATAN_MANDALORIANS"
+    },
+    {
+      "leaderBaseId": "MANDALORBOKATAN",
+      "archetypes": {
+        "GAC_3v3": "MANDALOR_BOKATAN",
+        "GAC_5v5": "MANDALOR_BOKATAN",
+        "TW": "MANDALOR_BOKATAN"
+      },
+      "defaultArchetype": "MANDALOR_BOKATAN"
+    },
+    {
+      "leaderBaseId": "SAWGERRERA",
+      "archetypes": {
+        "GAC_3v3": "SAW_GERRERA_REBELS_GAC",
+        "GAC_5v5": "SAW_GERRERA_REBELS_GAC",
+        "TW": "SAW_GERRERA_REBELS_BASE"
+      },
+      "defaultArchetype": "SAW_GERRERA_REBELS_BASE"
+    },
+    {
+      "leaderBaseId": "NUTEGUNRAY",
+      "archetypes": {
+        "GAC_3v3": "NUTE_SEPARATISTS",
+        "GAC_5v5": "NUTE_SEPARATISTS",
+        "TW": "NUTE_SEPARATISTS"
+      },
+      "defaultArchetype": "NUTE_SEPARATISTS"
+    },
+    {
+      "leaderBaseId": "IDENVERSIOEMPIRE",
+      "archetypes": {
+        "GAC_3v3": "IDEN_EMPIRE",
+        "GAC_5v5": "IDEN_EMPIRE",
+        "TW": "IDEN_EMPIRE"
+      },
+      "defaultArchetype": "IDEN_EMPIRE"
+    },
+    {
+      "leaderBaseId": "MACEWINDU",
+      "archetypes": {
+        "GAC_3v3": "MACE_WINDU_JEDI",
+        "GAC_5v5": "MACE_WINDU_JEDI",
+        "TW": "MACE_WINDU_JEDI"
+      },
+      "defaultArchetype": "MACE_WINDU_JEDI"
+    },
+    {
+      "leaderBaseId": "BOBAFETTSCION",
+      "archetypes": {
+        "GAC_3v3": "BOBA_FETT_SCION",
+        "GAC_5v5": "BOBA_FETT_SCION",
+        "TW": "BOBA_FETT_SCION"
+      },
+      "defaultArchetype": "BOBA_FETT_SCION"
+    },
+    {
+      "leaderBaseId": "BOBAFETT",
+      "archetypes": {
+        "GAC_3v3": "BOBA_FETT_CLASSIC",
+        "GAC_5v5": "BOBA_FETT_CLASSIC",
+        "TW": "BOBA_FETT_CLASSIC"
+      },
+      "defaultArchetype": "BOBA_FETT_CLASSIC"
+    },
+    {
+      "leaderBaseId": "EMPERORPALPATINE",
+      "archetypes": {
+        "GAC_3v3": "EMPEROR_PALPATINE_EMPIRE",
+        "GAC_5v5": "EMPEROR_PALPATINE_EMPIRE",
+        "TW": "EMPEROR_PALPATINE_EMPIRE"
+      },
+      "defaultArchetype": "EMPEROR_PALPATINE_EMPIRE"
+    },
+    {
+      "leaderBaseId": "GRANDADMIRALTHRAWN",
+      "archetypes": {
+        "GAC_3v3": "THRAWN_EMPIRE",
+        "GAC_5v5": "THRAWN_EMPIRE",
+        "TW": "THRAWN_EMPIRE"
+      },
+      "defaultArchetype": "THRAWN_EMPIRE"
+    },
+    {
+      "leaderBaseId": "GRANDMASTERYODA",
+      "archetypes": {
+        "GAC_3v3": "GMY_JEDI",
+        "GAC_5v5": "GMY_JEDI",
+        "TW": "GMY_JEDI"
+      },
+      "defaultArchetype": "GMY_JEDI"
+    },
+    {
+      "leaderBaseId": "BASTILASHAN",
+      "archetypes": {
+        "GAC_3v3": "BASTILA_JEDI",
+        "GAC_5v5": "BASTILA_JEDI",
+        "TW": "BASTILA_JEDI"
+      },
+      "defaultArchetype": "BASTILA_JEDI"
+    },
+    {
+      "leaderBaseId": "CEREJUNDA",
+      "archetypes": {
+        "GAC_3v3": "CERE_MALICOS_GAC",
+        "GAC_5v5": "CERE_MALICOS_GAC",
+        "TW": "CERE_MALICOS_BASE"
+      },
+      "defaultArchetype": "CERE_MALICOS_BASE"
+    },
+    {
+      "leaderBaseId": "QUIGONJINN",
+      "archetypes": {
+        "GAC_3v3": "QUIGON_JEDI",
+        "GAC_5v5": "QUIGON_JEDI",
+        "TW": "QUIGON_JEDI"
+      },
+      "defaultArchetype": "QUIGON_JEDI"
+    },
+    {
+      "leaderBaseId": "ASAJVENTRESS",
+      "archetypes": {
+        "GAC_3v3": "ASAJJ_NIGHTSISTERS",
+        "GAC_5v5": "ASAJJ_NIGHTSISTERS",
+        "TW": "ASAJJ_NIGHTSISTERS"
+      },
+      "defaultArchetype": "ASAJJ_NIGHTSISTERS"
+    },
+    {
+      "leaderBaseId": "ASAJJDARKDISCIPLE",
+      "archetypes": {
+        "GAC_3v3": "ASAJJ_DARK_DISCIPLE",
+        "GAC_5v5": "ASAJJ_DARK_DISCIPLE",
+        "TW": "ASAJJ_DARK_DISCIPLE"
+      },
+      "defaultArchetype": "ASAJJ_DARK_DISCIPLE"
+    },
+    {
+      "leaderBaseId": "TUSKENCHIEFTAIN",
+      "archetypes": {
+        "GAC_3v3": "TUSKEN_CHIEFTAIN",
+        "GAC_5v5": "TUSKEN_CHIEFTAIN",
+        "TW": "TUSKEN_CHIEFTAIN"
+      },
+      "defaultArchetype": "TUSKEN_CHIEFTAIN"
+    },
+    {
+      "leaderBaseId": "CHIEFCHIRPA",
+      "archetypes": {
+        "GAC_3v3": "CHIRPA_EWOKS_GAC",
+        "GAC_5v5": "CHIRPA_EWOKS_GAC",
+        "TW": "CHIRPA_EWOKS_BASE"
+      },
+      "defaultArchetype": "CHIRPA_EWOKS_BASE"
+    },
+    {
+      "leaderBaseId": "ADMIRALACKBAR",
+      "archetypes": {
+        "GAC_3v3": "ADMIRAL_ACKBAR_REBELS",
+        "GAC_5v5": "ADMIRAL_ACKBAR_REBELS",
+        "TW": "ADMIRAL_ACKBAR_REBELS"
+      },
+      "defaultArchetype": "ADMIRAL_ACKBAR_REBELS"
+    },
+    {
+      "leaderBaseId": "GRANDMOFFTARKIN",
+      "archetypes": {
+        "GAC_3v3": "TARKIN_EMPIRE_GAC",
+        "GAC_5v5": "TARKIN_EMPIRE_GAC",
+        "TW": "TARKIN_EMPIRE_BASE"
+      },
+      "defaultArchetype": "TARKIN_EMPIRE_BASE"
+    },
+    {
+      "leaderBaseId": "DIRECTORKRENNIC",
+      "archetypes": {
+        "GAC_3v3": "KRENNIC_EMPIRE",
+        "GAC_5v5": "KRENNIC_EMPIRE",
+        "TW": "KRENNIC_EMPIRE"
+      },
+      "defaultArchetype": "KRENNIC_EMPIRE"
+    },
+    {
+      "leaderBaseId": "CAPTAINENOCH",
+      "archetypes": {
+        "GAC_3v3": "CAPTAIN_ENOCH",
+        "GAC_5v5": "CAPTAIN_ENOCH",
+        "TW": "CAPTAIN_ENOCH"
+      },
+      "defaultArchetype": "CAPTAIN_ENOCH"
+    },
+    {
+      "leaderBaseId": "DAKA",
+      "archetypes": {
+        "GAC_3v3": "DAKA_NIGHTSISTERS",
+        "GAC_5v5": "DAKA_NIGHTSISTERS",
+        "TW": "DAKA_NIGHTSISTERS"
+      },
+      "defaultArchetype": "DAKA_NIGHTSISTERS"
+    },
+    {
+      "leaderBaseId": "AURRA_SING",
+      "archetypes": {
+        "GAC_3v3": "AURRA_SING_BH",
+        "GAC_5v5": "AURRA_SING_BH",
+        "TW": "AURRA_SING_BH"
+      },
+      "defaultArchetype": "AURRA_SING_BH"
+    },
+    {
+      "leaderBaseId": "TRENCH",
+      "archetypes": {
+        "GAC_3v3": "TRENCH_SEPARATISTS",
+        "GAC_5v5": "TRENCH_SEPARATISTS",
+        "TW": "TRENCH_SEPARATISTS"
+      },
+      "defaultArchetype": "TRENCH_SEPARATISTS"
+    },
+    {
+      "leaderBaseId": "LUMINARAUNDULI",
+      "archetypes": {
+        "GAC_3v3": "LUMINARA_JEDI",
+        "GAC_5v5": "LUMINARA_JEDI",
+        "TW": "LUMINARA_JEDI"
+      },
+      "defaultArchetype": "LUMINARA_JEDI"
+    },
+    {
+      "leaderBaseId": "DARTHNIHILUS",
+      "archetypes": {
+        "GAC_3v3": "NIHILUS_SITH",
+        "GAC_5v5": "NIHILUS_SITH",
+        "TW": "NIHILUS_SITH"
+      },
+      "defaultArchetype": "NIHILUS_SITH"
+    },
+    {
+      "leaderBaseId": "QIRA",
+      "archetypes": {
+        "GAC_3v3": "QIRA_SCOUNDRELS",
+        "GAC_5v5": "QIRA_SCOUNDRELS",
+        "TW": "QIRA_SCOUNDRELS"
+      },
+      "defaultArchetype": "QIRA_SCOUNDRELS"
+    },
+    {
+      "leaderBaseId": "CARTHONASI",
+      "archetypes": {
+        "GAC_3v3": "CARTH_OLD_REPUBLIC",
+        "GAC_5v5": "CARTH_OLD_REPUBLIC",
+        "TW": "CARTH_OLD_REPUBLIC"
+      },
+      "defaultArchetype": "CARTH_OLD_REPUBLIC"
+    },
+    {
+      "leaderBaseId": "HONDO",
+      "archetypes": {
+        "GAC_3v3": "HONDO_SCOUNDRELS",
+        "GAC_5v5": "HONDO_SCOUNDRELS",
+        "TW": "HONDO_SCOUNDRELS"
+      },
+      "defaultArchetype": "HONDO_SCOUNDRELS"
+    },
+    {
+      "leaderBaseId": "EPIXFINN",
+      "archetypes": {
+        "GAC_3v3": "RH_FINN_RESISTANCE",
+        "GAC_5v5": "RH_FINN_RESISTANCE",
+        "TW": "RH_FINN_RESISTANCE"
+      },
+      "defaultArchetype": "RH_FINN_RESISTANCE"
+    },
+    {
+      "leaderBaseId": "CAPTAINSILVO",
+      "archetypes": {
+        "GAC_3v3": "CAPTAIN_SILVO",
+        "GAC_5v5": "CAPTAIN_SILVO",
+        "TW": "CAPTAIN_SILVO"
+      },
+      "defaultArchetype": "CAPTAIN_SILVO"
+    },
+    {
+      "leaderBaseId": "DARTHMALGUS",
+      "archetypes": {
+        "GAC_3v3": "DARTHMALGUS",
+        "GAC_5v5": "DARTHMALGUS",
+        "TW": "DARTHMALGUS"
+      },
+      "defaultArchetype": "DARTHMALGUS"
+    },
+    {
+      "leaderBaseId": "JEDIKNIGHTLUKE",
+      "archetypes": {
+        "GAC_3v3": "JEDIKNIGHTLUKE",
+        "GAC_5v5": "JEDIKNIGHTLUKE",
+        "TW": "JEDIKNIGHTLUKE"
+      },
+      "defaultArchetype": "JEDIKNIGHTLUKE"
+    },
+    {
+      "leaderBaseId": "GENERALKENOBI",
+      "archetypes": {
+        "GAC_3v3": "GENERALKENOBI",
+        "GAC_5v5": "GENERALKENOBI",
+        "TW": "GENERALKENOBI"
+      },
+      "defaultArchetype": "GENERALKENOBI"
+    },
+    {
+      "leaderBaseId": "GREATMOTHERS",
+      "archetypes": {
+        "GAC_3v3": "GREATMOTHERS",
+        "GAC_5v5": "GREATMOTHERS",
+        "TW": "GREATMOTHERS"
+      },
+      "defaultArchetype": "GREATMOTHERS"
+    },
+    {
+      "leaderBaseId": "ARMORER",
+      "archetypes": {
+        "GAC_3v3": "ARMORER",
+        "GAC_5v5": "ARMORER",
+        "TW": "ARMORER"
+      },
+      "defaultArchetype": "ARMORER"
+    },
+    {
+      "leaderBaseId": "CT7567",
+      "archetypes": {
+        "GAC_3v3": "REX_CLONES",
+        "GAC_5v5": "REX_CLONES",
+        "TW": "REX_CLONES"
+      },
+      "defaultArchetype": "REX_CLONES"
+    },
+    {
+      "leaderBaseId": "MOFFGIDEONS3",
+      "archetypes": {
+        "GAC_3v3": "MOFFGIDEON_S3",
+        "GAC_5v5": "MOFFGIDEON_S3",
+        "TW": "MOFFGIDEON_S3"
+      },
+      "defaultArchetype": "MOFFGIDEON_S3"
+    },
+    {
+      "leaderBaseId": "KELLERANBEQ",
+      "archetypes": {
+        "GAC_3v3": "KELLERANBEQ",
+        "GAC_5v5": "KELLERANBEQ",
+        "TW": "KELLERANBEQ"
+      },
+      "defaultArchetype": "KELLERANBEQ"
+    },
+    {
+      "leaderBaseId": "HK47",
+      "archetypes": {
+        "GAC_3v3": "HK47_DROIDS",
+        "GAC_5v5": "HK47_DROIDS",
+        "TW": "HK47_DROIDS"
+      },
+      "defaultArchetype": "HK47_DROIDS"
+    },
+    {
+      "leaderBaseId": "THEMANDALORIAN",
+      "archetypes": {
+        "GAC_3v3": "THEMANDALORIAN_BH",
+        "GAC_5v5": "THEMANDALORIAN_BH",
+        "TW": "THEMANDALORIAN_BH"
+      },
+      "defaultArchetype": "THEMANDALORIAN_BH"
+    },
+    {
+      "leaderBaseId": "GENERALHUX",
+      "archetypes": {
+        "GAC_3v3": "GENERALHUX_FO",
+        "GAC_5v5": "GENERALHUX_FO",
+        "TW": "GENERALHUX_FO"
+      },
+      "defaultArchetype": "GENERALHUX_FO"
+    },
+    {
+      "leaderBaseId": "SECONDSISTER",
+      "archetypes": {
+        "GAC_3v3": "SECONDSISTER_INQUISITORS",
+        "GAC_5v5": "SECONDSISTER_INQUISITORS",
+        "TW": "SECONDSISTER_INQUISITORS"
+      },
+      "defaultArchetype": "SECONDSISTER_INQUISITORS"
+    },
+    {
+      "leaderBaseId": "OLDBENKENOBI",
+      "archetypes": {
+        "GAC_3v3": "OLDBENKENOBI_REBELS",
+        "GAC_5v5": "OLDBENKENOBI_REBELS",
+        "TW": "OLDBENKENOBI_REBELS"
+      },
+      "defaultArchetype": "OLDBENKENOBI_REBELS"
+    },
+    {
+      "leaderBaseId": "QUEENAMIDALA",
+      "archetypes": {
+        "GAC_3v3": "QUEENAMIDALA",
+        "GAC_5v5": "QUEENAMIDALA",
+        "TW": "QUEENAMIDALA"
+      },
+      "defaultArchetype": "QUEENAMIDALA"
+    },
+    {
+      "leaderBaseId": "OMEGAS3",
+      "archetypes": {
+        "GAC_3v3": "OMEGAS3",
+        "GAC_5v5": "OMEGAS3",
+        "TW": "OMEGAS3"
+      },
+      "defaultArchetype": "OMEGAS3"
+    },
+    {
+      "leaderBaseId": "BAYLANSKOLL",
+      "archetypes": {
+        "GAC_3v3": "BAYLANSKOLL",
+        "GAC_5v5": "BAYLANSKOLL",
+        "TW": "BAYLANSKOLL"
+      },
+      "defaultArchetype": "BAYLANSKOLL"
+    },
+    {
+      "leaderBaseId": "INQUISITORBARRISS",
+      "archetypes": {
+        "GAC_3v3": "INQUISITORBARRISS",
+        "GAC_5v5": "INQUISITORBARRISS",
+        "TW": "INQUISITORBARRISS"
+      },
+      "defaultArchetype": "INQUISITORBARRISS"
+    },
+    {
+      "leaderBaseId": "EMBO",
+      "archetypes": {
+        "GAC_3v3": "EMBO",
+        "GAC_5v5": "EMBO",
+        "TW": "EMBO"
+      },
+      "defaultArchetype": "EMBO"
+    },
+    {
+      "leaderBaseId": "AHSOKATANO",
+      "archetypes": {
+        "GAC_3v3": "AHSOKATANO",
+        "GAC_5v5": "AHSOKATANO",
+        "TW": "AHSOKATANO"
+      },
+      "defaultArchetype": "AHSOKATANO"
+    },
+    {
+      "leaderBaseId": "ANAKINKNIGHT",
+      "archetypes": {
+        "GAC_3v3": "ANAKINKNIGHT",
+        "GAC_5v5": "ANAKINKNIGHT",
+        "TW": "ANAKINKNIGHT"
+      },
+      "defaultArchetype": "ANAKINKNIGHT"
+    },
+    {
+      "leaderBaseId": "GREEFKARGA",
+      "archetypes": {
+        "GAC_3v3": "GREEFKARGA",
+        "GAC_5v5": "GREEFKARGA",
+        "TW": "GREEFKARGA"
+      },
+      "defaultArchetype": "GREEFKARGA"
+    },
+    {
+      "leaderBaseId": "CC2224",
+      "archetypes": {
+        "GAC_3v3": "CC2224",
+        "GAC_5v5": "CC2224",
+        "TW": "CC2224"
+      },
+      "defaultArchetype": "CC2224"
+    },
+    {
+      "leaderBaseId": "BOUSHH",
+      "archetypes": {
+        "GAC_3v3": "BOUSHH",
+        "GAC_5v5": "BOUSHH",
+        "TW": "BOUSHH"
+      },
+      "defaultArchetype": "BOUSHH"
+    },
+    {
+      "leaderBaseId": "STRANGER",
+      "archetypes": {
+        "GAC_3v3": "STRANGER",
+        "GAC_5v5": "STRANGER",
+        "TW": "STRANGER"
+      },
+      "defaultArchetype": "STRANGER"
+    },
+    {
+      "leaderBaseId": "DENGAR",
+      "archetypes": {
+        "GAC_3v3": "DENGAR",
+        "GAC_5v5": "DENGAR",
+        "TW": "DENGAR"
+      },
+      "defaultArchetype": "DENGAR"
+    },
+    {
+      "leaderBaseId": "CADBANE",
+      "archetypes": {
+        "GAC_3v3": "CADBANE",
+        "GAC_5v5": "CADBANE",
+        "TW": "CADBANE"
+      },
+      "defaultArchetype": "CADBANE"
+    },
+    {
+      "leaderBaseId": "VADER",
+      "archetypes": {
+        "GAC_3v3": "VADER",
+        "GAC_5v5": "VADER",
+        "TW": "VADER"
+      },
+      "defaultArchetype": "VADER"
+    },
+    {
+      "leaderBaseId": "DARTHBANE",
+      "archetypes": {
+        "GAC_3v3": "DARTHBANE",
+        "GAC_5v5": "DARTHBANE",
+        "TW": "DARTHBANE"
+      },
+      "defaultArchetype": "DARTHBANE"
+    },
+    {
+      "leaderBaseId": "COUNTDOOKU",
+      "archetypes": {
+        "GAC_3v3": "COUNTDOOKU",
+        "GAC_5v5": "COUNTDOOKU",
+        "TW": "COUNTDOOKU"
+      },
+      "defaultArchetype": "COUNTDOOKU"
+    },
+    {
+      "leaderBaseId": "FOTF_VADER",
+      "archetypes": {
+        "GAC_3v3": "FOTF_VADER",
+        "GAC_5v5": "FOTF_VADER",
+        "TW": "FOTF_VADER"
+      },
+      "defaultArchetype": "FOTF_VADER"
+    },
+    {
+      "leaderBaseId": "STORMTROOPERHAN",
+      "archetypes": {
+        "GAC_3v3": "STORMTROOPERHAN",
+        "GAC_5v5": "STORMTROOPERHAN",
+        "TW": "STORMTROOPERHAN"
+      },
+      "defaultArchetype": "STORMTROOPERHAN"
+    },
+    {
+      "leaderBaseId": "GLHONDO",
+      "archetypes": {
+        "GAC_3v3": "GLHONDO",
+        "GAC_5v5": "GLHONDO",
+        "TW": "GLHONDO"
+      },
+      "defaultArchetype": "GLHONDO"
+    },
+    {
+      "leaderBaseId": "JANGOFETT",
+      "archetypes": {
+        "GAC_3v3": "JANGOFETT",
+        "GAC_5v5": "JANGOFETT",
+        "TW": "JANGOFETT"
+      },
+      "defaultArchetype": "JANGOFETT"
+    },
+    {
+      "leaderBaseId": "THIRDSISTER",
+      "archetypes": {
+        "GAC_3v3": "THIRDSISTER",
+        "GAC_5v5": "THIRDSISTER",
+        "TW": "THIRDSISTER"
+      },
+      "defaultArchetype": "THIRDSISTER"
+    },
+    {
+      "leaderBaseId": "BOSSNASS",
+      "archetypes": {
+        "GAC_3v3": "BOSSNASS",
+        "GAC_5v5": "BOSSNASS",
+        "TW": "BOSSNASS"
+      },
+      "defaultArchetype": "BOSSNASS"
+    },
+    {
+      "leaderBaseId": "JEDIMASTERMACEWINDU",
+      "archetypes": {
+        "GAC_3v3": "JEDIMASTERMACEWINDU",
+        "GAC_5v5": "JEDIMASTERMACEWINDU",
+        "TW": "JEDIMASTERMACEWINDU"
+      },
+      "defaultArchetype": "JEDIMASTERMACEWINDU"
+    },
+    {
+      "leaderBaseId": "ADMIRALRADDUS",
+      "archetypes": {
+        "GAC_3v3": "ADMIRALRADDUS",
+        "GAC_5v5": "ADMIRALRADDUS",
+        "TW": "ADMIRALRADDUS"
+      },
+      "defaultArchetype": "ADMIRALRADDUS"
+    },
+    {
+      "leaderBaseId": "REYJEDITRAINING",
+      "archetypes": {
+        "GAC_3v3": "REYJEDITRAINING",
+        "GAC_5v5": "REYJEDITRAINING",
+        "TW": "REYJEDITRAINING"
+      },
+      "defaultArchetype": "REYJEDITRAINING"
+    },
+    {
+      "leaderBaseId": "JEDIKNIGHTCAL",
+      "archetypes": {
+        "GAC_3v3": "JEDIKNIGHTCAL",
+        "GAC_5v5": "JEDIKNIGHTCAL",
+        "TW": "JEDIKNIGHTCAL"
+      },
+      "defaultArchetype": "JEDIKNIGHTCAL"
+    },
+    {
+      "leaderBaseId": "THEMANDALORIANBESKARARMOR",
+      "archetypes": {
+        "GAC_3v3": "THEMANDALORIANBESKARARMOR",
+        "GAC_5v5": "THEMANDALORIANBESKARARMOR",
+        "TW": "THEMANDALORIANBESKARARMOR"
+      },
+      "defaultArchetype": "THEMANDALORIANBESKARARMOR"
+    },
+    {
+      "leaderBaseId": "BARRISSOFFEE",
+      "archetypes": {
+        "GAC_3v3": "BARRISSOFFEE",
+        "GAC_5v5": "BARRISSOFFEE",
+        "TW": "BARRISSOFFEE"
+      },
+      "defaultArchetype": "BARRISSOFFEE"
+    },
+    {
+      "leaderBaseId": "50RT",
+      "archetypes": {
+        "GAC_3v3": "50RT",
+        "GAC_5v5": "50RT",
+        "TW": "50RT"
+      },
+      "defaultArchetype": "50RT"
+    },
+    {
+      "leaderBaseId": "4LOM",
+      "archetypes": {
+        "GAC_3v3": "4LOM",
+        "GAC_5v5": "4LOM",
+        "TW": "4LOM"
+      },
+      "defaultArchetype": "4LOM"
+    },
+    {
+      "leaderBaseId": "MAZKANATA",
+      "archetypes": {
+        "GAC_3v3": "MAZKANATA",
+        "GAC_5v5": "MAZKANATA",
+        "TW": "MAZKANATA"
+      },
+      "defaultArchetype": "MAZKANATA"
+    },
+    {
+      "leaderBaseId": "ITHANO",
+      "archetypes": {
+        "GAC_3v3": "ITHANO",
+        "GAC_5v5": "ITHANO",
+        "TW": "ITHANO"
+      },
+      "defaultArchetype": "ITHANO"
+    },
+    {
+      "leaderBaseId": "DARTHSIDIOUS",
+      "archetypes": {
+        "GAC_3v3": "DARTHSIDIOUS",
+        "GAC_5v5": "DARTHSIDIOUS",
+        "TW": "DARTHSIDIOUS"
+      },
+      "defaultArchetype": "DARTHSIDIOUS"
+    },
+    {
+      "leaderBaseId": "GENERALSYNDULLA",
+      "archetypes": {
+        "GAC_3v3": "GENERALSYNDULLA",
+        "GAC_5v5": "GENERALSYNDULLA",
+        "TW": "GENERALSYNDULLA"
+      },
+      "defaultArchetype": "GENERALSYNDULLA"
+    },
+    {
+      "leaderBaseId": "FINN",
+      "archetypes": {
+        "GAC_3v3": "FINN",
+        "GAC_5v5": "FINN",
+        "TW": "FINN"
+      },
+      "defaultArchetype": "FINN"
+    },
+    {
+      "leaderBaseId": "TARFFUL",
+      "archetypes": {
+        "GAC_3v3": "TARFFUL",
+        "GAC_5v5": "TARFFUL",
+        "TW": "TARFFUL"
+      },
+      "defaultArchetype": "TARFFUL"
+    },
+    {
+      "leaderBaseId": "HOTHLEIA",
+      "archetypes": {
+        "GAC_3v3": "HOTHLEIA",
+        "GAC_5v5": "HOTHLEIA",
+        "TW": "HOTHLEIA"
+      },
+      "defaultArchetype": "HOTHLEIA"
+    },
+    {
+      "leaderBaseId": "SANASTARROS",
+      "archetypes": {
+        "GAC_3v3": "SANASTARROS",
+        "GAC_5v5": "SANASTARROS",
+        "TW": "SANASTARROS"
+      },
+      "defaultArchetype": "SANASTARROS"
+    },
+    {
+      "leaderBaseId": "CHIEFNEBIT",
+      "archetypes": {
+        "GAC_3v3": "CHIEFNEBIT",
+        "GAC_5v5": "CHIEFNEBIT",
+        "TW": "CHIEFNEBIT"
+      },
+      "defaultArchetype": "CHIEFNEBIT"
+    },
+    {
+      "leaderBaseId": "SAVAGEOPRESS",
+      "archetypes": {
+        "GAC_3v3": "SAVAGEOPRESS",
+        "GAC_5v5": "SAVAGEOPRESS",
+        "TW": "SAVAGEOPRESS"
+      },
+      "defaultArchetype": "SAVAGEOPRESS"
+    },
+    {
+      "leaderBaseId": "URORRURRR",
+      "archetypes": {
+        "GAC_3v3": "URORRURRR",
+        "GAC_5v5": "URORRURRR",
+        "TW": "URORRURRR"
+      },
+      "defaultArchetype": "URORRURRR"
+    }
+  ]
+}
