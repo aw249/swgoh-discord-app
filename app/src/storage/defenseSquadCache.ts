@@ -1,13 +1,14 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { logger } from '../utils/logger';
+import { getProjectPath } from '../utils/pathUtils';
 import { GacTopDefenseSquad } from '../integrations/swgohGgApi';
 
 class DefenseSquadCache {
   private readonly baseDir: string;
 
   constructor(baseDir?: string) {
-    this.baseDir = baseDir || join(process.cwd(), 'data', 'defense-squads');
+    this.baseDir = baseDir || getProjectPath('data/defense-squads');
   }
 
   private getCachePath(

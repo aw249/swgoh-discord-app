@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { logger } from '../utils/logger';
+import { getProjectPath } from '../utils/pathUtils';
 import { GacCounterSquad } from '../integrations/swgohGgApi';
 
 interface TeammateCount {
@@ -15,7 +16,7 @@ class CounterCache {
   private glTeammatesCache: Map<string, string[]> = new Map();
 
   constructor(baseDir?: string) {
-    this.baseDir = baseDir || join(process.cwd(), 'data', 'counters');
+    this.baseDir = baseDir || getProjectPath('data/counters');
   }
 
   private getCachePath(seasonId: string, defensiveLeaderBaseId: string): string {

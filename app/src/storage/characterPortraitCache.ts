@@ -9,8 +9,9 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { logger } from '../utils/logger';
+import { getProjectPath } from '../utils/pathUtils';
 
-const CACHE_FILE = join(process.cwd(), 'data', 'character-portraits.json');
+const CACHE_FILE = getProjectPath('data/character-portraits.json');
 
 // In-memory cache
 let portraitCache: Record<string, string> = {};
@@ -57,7 +58,7 @@ async function loadCache(): Promise<void> {
 async function saveCache(): Promise<void> {
   try {
     // Ensure data directory exists
-    const dataDir = join(process.cwd(), 'data');
+    const dataDir = getProjectPath('data');
     await fs.mkdir(dataDir, { recursive: true });
 
     // Sort keys for consistent output

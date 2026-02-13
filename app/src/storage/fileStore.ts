@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { logger } from '../utils/logger';
+import { getProjectPath } from '../utils/pathUtils';
 import { PlayerStore } from './inMemoryStore';
 
 interface PlayerData {
@@ -14,7 +15,7 @@ class FilePlayerStore implements PlayerStore {
 
   constructor(filePath?: string) {
     // Default to data/players.json in the project root
-    this.filePath = filePath || join(process.cwd(), 'data', 'players.json');
+    this.filePath = filePath || getProjectPath('data/players.json');
   }
 
   private async ensureInitialized(): Promise<void> {

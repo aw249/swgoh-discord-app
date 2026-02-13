@@ -13,6 +13,7 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { logger } from '../utils/logger';
+import { getProjectPath } from '../utils/pathUtils';
 
 interface BracketCacheEntry {
   bracketId: number;
@@ -31,7 +32,7 @@ class BracketCacheStore {
   private saveTimeout: NodeJS.Timeout | null = null;
 
   constructor(filePath?: string) {
-    this.filePath = filePath || join(process.cwd(), 'data', 'bracket-cache.json');
+    this.filePath = filePath || getProjectPath('data/bracket-cache.json');
   }
 
   private async ensureInitialized(): Promise<void> {
