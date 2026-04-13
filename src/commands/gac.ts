@@ -14,6 +14,7 @@ import { GacStrategyService } from '../services/gacStrategyService';
 import { logger } from '../utils/logger';
 import { RequestQueue } from '../utils/requestQueue';
 import { getMaxSquadsForLeague } from '../config/gacConstants';
+import { normaliseAllyCode } from '../utils/allyCodeUtils';
 
 /**
  * API client interface that works with both SwgohGgApiClient and CombinedApiClient
@@ -183,9 +184,10 @@ export const gacCommand = {
             await this.handleBracketCommand(interaction, yourAllyCode, gacService);
           } else if (subcommand === 'opponent') {
             const directAllyCode = interaction.options.getString('allycode');
+            const normalizedDirectAllyCode = directAllyCode ? normaliseAllyCode(directAllyCode) : null;
             const bracketOpponentAllyCode = interaction.options.getString('bracket_opponent');
             // Explicit ally code always wins; otherwise fall back to selected bracket opponent
-            const opponentAllyCode = directAllyCode ?? bracketOpponentAllyCode;
+            const opponentAllyCode = normalizedDirectAllyCode ?? bracketOpponentAllyCode;
             await this.handleOpponentCommand(
               interaction,
               yourAllyCode,
@@ -195,9 +197,10 @@ export const gacCommand = {
             );
           } else if (subcommand === 'strategy') {
             const directAllyCode = interaction.options.getString('allycode');
+            const normalizedDirectAllyCode = directAllyCode ? normaliseAllyCode(directAllyCode) : null;
             const bracketOpponentAllyCode = interaction.options.getString('bracket_opponent');
             // Explicit ally code always wins; otherwise fall back to selected bracket opponent
-            const opponentAllyCode = directAllyCode ?? bracketOpponentAllyCode;
+            const opponentAllyCode = normalizedDirectAllyCode ?? bracketOpponentAllyCode;
             const format = interaction.options.getString('format');
             if (!format) {
               throw new Error('Format is required. Please select either 5v5 or 3v3.');

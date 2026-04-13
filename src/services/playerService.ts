@@ -1,4 +1,5 @@
 import { PlayerStore } from '../storage/inMemoryStore';
+import { normaliseAllyCode } from '../utils/allyCodeUtils';
 
 export interface PlayerRegistration {
   discordUserId: string;
@@ -9,11 +10,7 @@ export class PlayerService {
   constructor(private readonly store: PlayerStore) {}
 
   async registerPlayer(discordUserId: string, allyCode: string): Promise<void> {
-    // Validate ally code format (should be numeric, typically 9 digits)
-    const numericAllyCode = allyCode.replace(/-/g, '');
-    if (!/^\d{9}$/.test(numericAllyCode)) {
-      throw new Error('Invalid ally code format. Expected 9 digits (e.g., 123456789 or 123-456-789).');
-    }
+    const numericAllyCode = normaliseAllyCode(allyCode);
 
     await this.store.registerPlayer(discordUserId, numericAllyCode);
   }
