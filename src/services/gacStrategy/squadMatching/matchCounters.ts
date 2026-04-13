@@ -349,10 +349,13 @@ export async function matchCountersAgainstRoster(
           const adjustedWinRate = transformWinRateForRelicDelta(counter.winPercentage, keyMatchups);
           
           // Get defense stats for the counter squad (if it's also used on defense)
-          const counterDefenseStats = await (async () => { /* TODO: Extract getDefenseStatsForSquad */ return { holdPercentage: null, seenCount: null }; })() // getDefenseStatsForSquad(counter.leader.baseId, seasonId);
+          // Defence stats for counter squads not yet implemented — always returns null.
+          // See IMPROVEMENTS.md section 10.4 for design notes on getDefenseStatsForSquad.
+          const counterDefenseStats = { holdPercentage: null, seenCount: null };
           
           // Get defense stats for the defensive squad we're countering
-          const opponentDefenseStats = await (async () => { /* TODO: Extract getDefenseStatsForSquad */ return { holdPercentage: null, seenCount: null }; })() // getDefenseStatsForSquad(defensiveSquad.leader.baseId, seasonId);
+          // Defence stats for opponent squads not yet implemented — always returns null.
+          const opponentDefenseStats = { holdPercentage: null, seenCount: null };
           
           // Calculate viability score based on win % and seen count
           // This prioritizes counters that are both proven (high seen count) and effective (high win %)
