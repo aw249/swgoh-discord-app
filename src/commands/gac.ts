@@ -15,6 +15,7 @@ import { logger } from '../utils/logger';
 import { RequestQueue } from '../utils/requestQueue';
 import { getMaxSquadsForLeague } from '../config/gacConstants';
 import { normaliseAllyCode } from '../utils/allyCodeUtils';
+import { CloudflareBlockError, NoActiveBracketError } from '../errors/swgohErrors';
 
 /**
  * API client interface that works with both SwgohGgApiClient and CombinedApiClient
@@ -282,9 +283,8 @@ export const gacCommand = {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       
       // Check error types for better messaging
-      const isCloudflareError = errorMessage.includes('Cloudflare') || errorMessage.includes('blocking automated');
-      const isNoActiveBracket = errorMessage.includes('No active GAC bracket') || 
-                                 errorMessage.includes('not be in an active GAC');
+      const isCloudflareError = error instanceof CloudflareBlockError || errorMessage.includes('Cloudflare');
+      const isNoActiveBracket = error instanceof NoActiveBracketError || errorMessage.includes('No active GAC bracket');
 
       let embed: EmbedBuilder;
 

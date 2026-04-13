@@ -4,6 +4,7 @@
 import { GacBracketData } from '../../types/swgohGgTypes';
 import { BrowserManager } from './browser';
 import { API_ENDPOINTS } from '../../config/apiEndpoints';
+import { CloudflareBlockError, NoActiveBracketError, PlayerNotFoundError } from '../../errors/swgohErrors';
 
 export class GacBracketClient {
   private readonly baseUrl = API_ENDPOINTS.SWGOH_GG_API;
@@ -25,16 +26,20 @@ export class GacBracketClient {
       // Don't log here - let callers decide how to handle/log based on context
       // (e.g. warmup errors should be silent, user commands should show friendly errors)
       
+      if (error instanceof PlayerNotFoundError || error instanceof NoActiveBracketError || error instanceof CloudflareBlockError) {
+        throw error;
+      }
+
       if (error.message?.includes('404') || error.message?.includes('not found')) {
-        throw new Error('GAC bracket not found - player may not be in an active GAC event');
+        throw new PlayerNotFoundError('GAC bracket not found - player may not be in an active GAC event');
       }
-      
+
       if (error.message?.includes('Cloudflare')) {
-        throw new Error('Cloudflare challenge could not be resolved - please try again later');
+        throw new CloudflareBlockError();
       }
-      
+
       if (error.message?.includes('No active GAC bracket')) {
-        throw error; // Re-throw as-is, it's already a friendly message
+        throw new NoActiveBracketError(error.message);
       }
       
       throw new Error(`Failed to fetch GAC bracket: ${error.message || 'Unknown error'}`);
