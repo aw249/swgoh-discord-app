@@ -15,10 +15,11 @@ import { handleBracketCommand } from './gac/bracketHandler';
 import { handleOpponentCommand } from './gac/opponentHandler';
 import { handleStrategyCommand } from './gac/strategyHandler';
 
-// Global queue for GAC commands so that only one heavy GAC request
-// is processed at a time. This helps avoid multiple concurrent
-// Puppeteer/browser operations and makes behaviour predictable.
-const gacCommandQueue = new RequestQueue({ maxConcurrency: 1 });
+// Separate queues for API-only commands (bracket, opponent) and
+// strategy commands (which use Puppeteer). This allows lightweight
+// bracket lookups to proceed while a strategy render is in progress.
+const apiOnlyQueue = new RequestQueue({ maxConcurrency: 2 });
+const strategyQueue = new RequestQueue({ maxConcurrency: 1 });
 
 export const gacCommand = {
   data: new SlashCommandBuilder()
@@ -114,8 +115,11 @@ export const gacCommand = {
       // Defer the interaction immediately so Discord knows we are working on it.
       await interaction.deferReply();
 
+      // Pick the right queue: strategy uses Puppeteer (heavy), bracket/opponent are API-only (light).
+      const queue = subcommand === 'strategy' ? strategyQueue : apiOnlyQueue;
+
       // Determine current queue position before enqueuing this request.
-      const position = gacCommandQueue.getSize() + 1;
+      const position = queue.getSize() + 1;
 
       // Initial status message that we will update as the job progresses.
       statusMessage = await interaction.followUp({
@@ -138,7 +142,7 @@ export const gacCommand = {
       // Enqueue the heavy work so that only one GAC request is processed
       // at a time. We also update the status message when this job starts
       // running and when it completes.
-      const { promise } = gacCommandQueue.addWithPosition(
+      const { promise } = queue.addWithPosition(
         async () => {
           if (subcommand === 'bracket') {
             await handleBracketCommand(interaction, yourAllyCode, gacService);
