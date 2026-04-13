@@ -42,20 +42,43 @@ fi
 echo -e "${GREEN}✅ .env file found${NC}"
 
 # Check for Comlink binary
-if [ ! -f "./bin/swgoh-comlink-4.0.0" ]; then
-    echo -e "${RED}❌ Error: Comlink binary not found!${NC}"
-    echo "   Download the ARM64 Linux version from:"
-    echo "   https://github.com/swgoh-utils/swgoh-comlink/releases"
-    echo "   Save as: ./bin/swgoh-comlink-4.0.0"
-    exit 1
+COMLINK_BIN="./bin/swgoh-comlink"
+if [ -L "$COMLINK_BIN" ]; then
+    # Symlink exists, verify target
+    if [ ! -f "$COMLINK_BIN" ]; then
+        echo -e "${RED}❌ Error: Comlink symlink exists but target is missing!${NC}"
+        echo "   Create symlink: ln -sf swgoh-comlink-4.0.0 ./bin/swgoh-comlink"
+        exit 1
+    fi
+elif [ ! -f "$COMLINK_BIN" ]; then
+    # Try finding any comlink binary
+    COMLINK_FOUND=$(ls ./bin/swgoh-comlink-* 2>/dev/null | head -1)
+    if [ -n "$COMLINK_FOUND" ]; then
+        echo -e "${YELLOW}⚠️  Creating symlink: swgoh-comlink -> $(basename $COMLINK_FOUND)${NC}"
+        ln -sf "$(basename $COMLINK_FOUND)" "$COMLINK_BIN"
+    else
+        echo -e "${RED}❌ Error: Comlink binary not found!${NC}"
+        echo "   Download the ARM64 Linux version from:"
+        echo "   https://github.com/swgoh-utils/swgoh-comlink/releases"
+        echo "   Save as: ./bin/swgoh-comlink-X.Y.Z"
+        echo "   Then: ln -sf swgoh-comlink-X.Y.Z ./bin/swgoh-comlink"
+        exit 1
+    fi
 fi
 
 # Check Comlink binary is executable
-if [ ! -x "./bin/swgoh-comlink-4.0.0" ]; then
+if [ ! -x "$COMLINK_BIN" ]; then
     echo -e "${YELLOW}⚠️  Making Comlink binary executable...${NC}"
-    chmod +x ./bin/swgoh-comlink-4.0.0
+    chmod +x "$COMLINK_BIN"
 fi
 echo -e "${GREEN}✅ Comlink binary found${NC}"
+
+echo -e "${BLUE}🔍 Verifying Comlink binary...${NC}"
+if $COMLINK_BIN --version > /dev/null 2>&1; then
+    echo -e "${GREEN}✅ Comlink binary verified${NC}"
+else
+    echo -e "${YELLOW}⚠️  Could not verify Comlink binary (--version check failed)${NC}"
+fi
 
 # Check for PM2
 if ! command -v pm2 &> /dev/null; then
@@ -106,6 +129,11 @@ echo ""
 echo -e "${BLUE}♻️  Stopping existing services...${NC}"
 pm2 stop ecosystem.config.cjs 2>/dev/null || true
 pm2 delete ecosystem.config.cjs 2>/dev/null || true
+
+# Kill orphaned chromium processes that may have been left from crashes
+echo -e "${YELLOW}🧹 Cleaning up orphaned Chromium processes...${NC}"
+pkill -f chromium-browser 2>/dev/null || true
+pkill -f chrome 2>/dev/null || true
 
 # Start services
 echo -e "${BLUE}🚀 Starting services...${NC}"

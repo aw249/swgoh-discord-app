@@ -10,7 +10,7 @@ module.exports = {
   apps: [
     {
       name: 'swgoh-comlink',
-      script: './bin/swgoh-comlink-4.0.0',
+      script: './bin/swgoh-comlink',
       args: '--port 3200 --name swgoh-discord-app',
       interpreter: 'none', // Comlink is a Go binary, not Node
       cwd: __dirname,
@@ -46,7 +46,10 @@ module.exports = {
       max_restarts: 10,
       restart_delay: 5000,
       // Memory management (important for Raspberry Pi)
-      max_memory_restart: '500M',
+      // node_args causes Node to OOM at 512 MB before PM2 hits its 750 MB limit,
+      // giving a cleaner shutdown rather than an abrupt PM2 kill.
+      node_args: '--max-old-space-size=512',
+      max_memory_restart: '750M',
       // Logging
       error_file: './logs/bot-error.log',
       out_file: './logs/bot-out.log',

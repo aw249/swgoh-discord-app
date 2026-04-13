@@ -62,7 +62,7 @@ interface CachedBracketData {
 export class GacService {
   // Cache bracket data for 5 minutes to support fast autocomplete responses
   private readonly bracketCache: Map<string, CachedBracketData> = new Map();
-  private readonly cacheTTL = 5 * 60 * 1000; // 5 minutes in milliseconds
+  private readonly cacheTTL = parseInt(process.env.BRACKET_CACHE_TTL_MS || '300000', 10); // 5 minutes default
 
   constructor(private readonly apiClient: CombinedApiClient) {}
 
