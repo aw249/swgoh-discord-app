@@ -193,309 +193,84 @@ export async function handleStrategyCommand(
     logger.warn('Could not get bracket data for defense squads, using default:', error);
   }
 
-  let matchedCounters: Awaited<ReturnType<typeof gacStrategyService.matchCountersAgainstRoster>>;
-  let defenseCandidates: Awaited<ReturnType<typeof gacStrategyService.evaluateRosterForDefense>>;
-  let defenseSuggestions: Awaited<ReturnType<typeof gacStrategyService.suggestDefenseSquads>>;
-  let balancedOffense: Awaited<ReturnType<typeof gacStrategyService.balanceOffenseAndDefense>>['balancedOffense'];
-  let balancedDefense: Awaited<ReturnType<typeof gacStrategyService.balanceOffenseAndDefense>>['balancedDefense'];
-
-  if (strategyPreference === 'defensive') {
-    // DEFENSIVE STRATEGY: Defense first (best hold %), then offense from remaining roster
-
-    if (updateStatus) {
-      await updateStatus('🛡 Evaluating roster for defense...');
-    }
-
-    // Step 1: Evaluate roster for top defense candidates
-    defenseCandidates = await gacStrategyService.evaluateRosterForDefense(
-      userRoster,
-      seasonId,
-      format,
-      strategyPreference
-    );
-
-    logger.info(
-      `Evaluated ${defenseCandidates.length} defense candidate(s) from roster (top candidates)`
-    );
-
-    if (updateStatus) {
-      await updateStatus('🛡 Selecting defense squads...');
-    }
-
-    // Step 2: Get defense suggestions (no offense squads to avoid yet)
-    const defenseSuggestionsRequested = Math.max(Math.ceil(maxDefenseSquads * 2.5), 20);
-    logger.info(
-      `Requesting ${defenseSuggestionsRequested} defense suggestions to ensure we can fill ${maxDefenseSquads} defense slots after filtering`
-    );
-
-    defenseSuggestions = await gacStrategyService.suggestDefenseSquads(
-      userRoster,
-      defenseSuggestionsRequested,
-      seasonId,
-      format,
-      [], // No offense squads to avoid yet
-      defenseCandidates,
-      strategyPreference
-    );
-
-    logger.info(
-      `Received ${defenseSuggestions.length} defense suggestion(s) after filtering (target: ${maxDefenseSquads} squads for ${league || 'Unknown'} league)`
-    );
-
-    // Step 3: Estimate which characters will be used in defense
-    // For defensive strategy, balance logic will prioritize defense first
-    // We'll estimate by taking top defense suggestions sorted by hold % (as balance logic does)
-    // Sort by hold percentage descending (as balance logic does for defensive strategy)
-    const sortedDefenseByHold = [...defenseSuggestions].sort((a, b) => {
-      const aHold = a.holdPercentage ?? 0;
-      const bHold = b.holdPercentage ?? 0;
-      // Primary sort: by hold percentage (highest first)
-      if (Math.abs(aHold - bHold) > 2) {
-        return bHold - aHold;
-      }
-      // If hold % is close, sort by score
-      return b.score - a.score;
-    });
-
-    // Estimate defense usage: take top candidates up to maxDefenseSquads
-    // But be conservative - only estimate if we have enough suggestions
-    const estimatedDefenseCount = Math.min(
-      maxDefenseSquads,
-      Math.floor(defenseSuggestions.length * 0.8) // Use 80% of available suggestions as estimate
-    );
-
-    const defenseUsedCharacters = new Set<string>();
-    const defenseUsedLeaders = new Set<string>();
-    // Estimate based on top candidates
-    for (const def of sortedDefenseByHold.slice(0, estimatedDefenseCount)) {
-      defenseUsedLeaders.add(def.squad.leader.baseId);
-      defenseUsedCharacters.add(def.squad.leader.baseId);
-      for (const member of def.squad.members) {
-        defenseUsedCharacters.add(member.baseId);
-      }
-    }
-
-    logger.info(
-      `Estimated ${estimatedDefenseCount} defense squad(s) will be used (${defenseUsedCharacters.size} characters), ` +
-      `filtering roster for offense matching`
-    );
-
-    // Step 4: Filter roster to exclude estimated defense characters, then match counters
-    const remainingRoster: typeof userRoster = {
-      ...userRoster,
-      units: userRoster.units.filter(u => {
-        if (!u.data || !u.data.base_id) return false;
-        return !defenseUsedCharacters.has(u.data.base_id);
-      })
-    };
-
-    logger.info(
-      `Filtered roster for offense matching: ${remainingRoster.units.length} characters remaining ` +
-      `(${defenseUsedCharacters.size} characters estimated for defense)`
-    );
-
-    if (updateStatus) {
-      await updateStatus('📊 Matching offense counters from remaining roster...');
-    }
-
-    // Step 5: Match offense counters using only remaining roster
-    matchedCounters = await gacStrategyService.matchCountersAgainstRoster(
-      squads,
-      remainingRoster,
-      seasonId,
-      format,
-      strategyPreference
-    );
-
-    if (updateStatus) {
-      await updateStatus('⚖️ Balancing offense and defense...');
-    }
-
-    // Step 6: Balance - balance logic will prioritize defense first for defensive strategy
-    const balanceResult = await gacStrategyService.balanceOffenseAndDefense(
-      matchedCounters,
-      defenseSuggestions,
-      maxDefenseSquads,
-      seasonId,
-      strategyPreference,
-      userRoster,
-      format
-    );
-    balancedOffense = balanceResult.balancedOffense;
-    balancedDefense = balanceResult.balancedDefense;
-
-  } else if (strategyPreference === 'offensive') {
-    // OFFENSIVE STRATEGY: Offense first (prioritize GLs), then defense from remaining roster
-
-    if (updateStatus) {
-      await updateStatus('📊 Matching offense counters (prioritizing GLs)...');
-    }
-
-    // Step 1: Match offense counters (GLs prioritized in sorting logic)
-    matchedCounters = await gacStrategyService.matchCountersAgainstRoster(
-      squads,
-      userRoster,
-      seasonId,
-      format,
-      strategyPreference
-    );
-
-    // Step 2: Get characters used in offense
-    const offenseUsedCharacters = new Set<string>();
-    const offenseUsedLeaders = new Set<string>();
-    for (const counter of matchedCounters) {
-      if (counter.offense.leader.baseId) {
-        offenseUsedLeaders.add(counter.offense.leader.baseId);
-        offenseUsedCharacters.add(counter.offense.leader.baseId);
-        for (const member of counter.offense.members) {
-          offenseUsedCharacters.add(member.baseId);
-        }
-      }
-    }
-
-    logger.info(
-      `Offense matching complete: ${matchedCounters.length} counter(s) matched, ` +
-      `${offenseUsedCharacters.size} unique character(s) used`
-    );
-
-    if (updateStatus) {
-      await updateStatus('🛡 Evaluating roster for defense...');
-    }
-
-    // Step 3: Evaluate roster for top defense candidates
-    defenseCandidates = await gacStrategyService.evaluateRosterForDefense(
-      userRoster,
-      seasonId,
-      format,
-      strategyPreference
-    );
-
-    logger.info(
-      `Evaluated ${defenseCandidates.length} defense candidate(s) from roster (top candidates)`
-    );
-
-    if (updateStatus) {
-      await updateStatus('🛡 Selecting defense squads from remaining roster...');
-    }
-
-    // Step 4: Get defense suggestions (avoiding offense characters)
-    const offenseSquads = matchedCounters
-      .filter(m => m.offense.leader.baseId)
-      .map(m => m.offense);
-
-    const defenseSuggestionsRequested = Math.max(Math.ceil(maxDefenseSquads * 2.5), 20);
-    logger.info(
-      `Requesting ${defenseSuggestionsRequested} defense suggestions to ensure we can fill ${maxDefenseSquads} defense slots after filtering`
-    );
-
-    defenseSuggestions = await gacStrategyService.suggestDefenseSquads(
-      userRoster,
-      defenseSuggestionsRequested,
-      seasonId,
-      format,
-      offenseSquads, // Avoid offense characters
-      defenseCandidates,
-      strategyPreference
-    );
-
-    logger.info(
-      `Received ${defenseSuggestions.length} defense suggestion(s) after filtering (target: ${maxDefenseSquads} squads for ${league || 'Unknown'} league)`
-    );
-
-    if (updateStatus) {
-      await updateStatus('⚖️ Balancing offense and defense...');
-    }
-
-    // Step 5: Balance offense and defense
-    const balanceResult = await gacStrategyService.balanceOffenseAndDefense(
-      matchedCounters,
-      defenseSuggestions,
-      maxDefenseSquads,
-      seasonId,
-      strategyPreference,
-      userRoster,
-      format
-    );
-    balancedOffense = balanceResult.balancedOffense;
-    balancedDefense = balanceResult.balancedDefense;
-
-  } else {
-    // BALANCED STRATEGY: Current order (offense first, then defense)
-
-    if (updateStatus) {
-      await updateStatus('📊 Matching offense counters...');
-    }
-
-    // Step 1: Get offense counters against opponent's defense
-    matchedCounters = await gacStrategyService.matchCountersAgainstRoster(
-      squads,
-      userRoster,
-      seasonId,
-      format,
-      strategyPreference
-    );
-
-    if (updateStatus) {
-      await updateStatus('🛡 Evaluating roster for defense...');
-    }
-
-    // Step 2: Evaluate roster for top defense candidates
-    defenseCandidates = await gacStrategyService.evaluateRosterForDefense(
-      userRoster,
-      seasonId,
-      format,
-      strategyPreference
-    );
-
-    logger.info(
-      `Evaluated ${defenseCandidates.length} defense candidate(s) from roster (top candidates)`
-    );
-
-    if (updateStatus) {
-      await updateStatus('🛡 Selecting defense squads...');
-    }
-
-    // Step 3: Get defense suggestions (avoiding offense characters)
-    const offenseSquads = matchedCounters
-      .filter(m => m.offense.leader.baseId)
-      .map(m => m.offense);
-
-    const defenseSuggestionsRequested = Math.max(Math.ceil(maxDefenseSquads * 2.5), 20);
-    logger.info(
-      `Requesting ${defenseSuggestionsRequested} defense suggestions to ensure we can fill ${maxDefenseSquads} defense slots after filtering`
-    );
-
-    defenseSuggestions = await gacStrategyService.suggestDefenseSquads(
-      userRoster,
-      defenseSuggestionsRequested,
-      seasonId,
-      format,
-      offenseSquads,
-      defenseCandidates,
-      strategyPreference
-    );
-
-    logger.info(
-      `Received ${defenseSuggestions.length} defense suggestion(s) after filtering (target: ${maxDefenseSquads} squads for ${league || 'Unknown'} league)`
-    );
-
-    if (updateStatus) {
-      await updateStatus('⚖️ Balancing offense and defense...');
-    }
-
-    // Step 4: Balance offense and defense
-    const balanceResult = await gacStrategyService.balanceOffenseAndDefense(
-      matchedCounters,
-      defenseSuggestions,
-      maxDefenseSquads,
-      seasonId,
-      strategyPreference,
-      userRoster,
-      format
-    );
-    balancedOffense = balanceResult.balancedOffense;
-    balancedDefense = balanceResult.balancedDefense;
+  // Step 1: Evaluate roster for defense candidates
+  if (updateStatus) {
+    await updateStatus('🛡 Evaluating roster for defense...');
   }
+
+  const defenseCandidates = await gacStrategyService.evaluateRosterForDefense(
+    userRoster,
+    seasonId,
+    format,
+    strategyPreference
+  );
+
+  logger.info(
+    `Evaluated ${defenseCandidates.length} defense candidate(s) from roster`
+  );
+
+  // Step 2: Match offense counters against full roster
+  // The strategyPreference parameter adjusts GL prioritization internally
+  if (updateStatus) {
+    await updateStatus('📊 Matching offense counters...');
+  }
+
+  const matchedCounters = await gacStrategyService.matchCountersAgainstRoster(
+    squads,
+    userRoster,
+    seasonId,
+    format,
+    strategyPreference
+  );
+
+  logger.info(
+    `Offense matching complete: ${matchedCounters.length} counter(s) matched`
+  );
+
+  // Step 3: Suggest defense squads (avoiding offense characters where possible)
+  if (updateStatus) {
+    await updateStatus('🛡 Selecting defense squads...');
+  }
+
+  const offenseSquads = matchedCounters
+    .filter(m => m.offense.leader.baseId)
+    .map(m => m.offense);
+
+  const defenseSuggestionsRequested = Math.max(Math.ceil(maxDefenseSquads * 2.5), 20);
+  logger.info(
+    `Requesting ${defenseSuggestionsRequested} defense suggestions (target: ${maxDefenseSquads} squads for ${league || 'Unknown'} league)`
+  );
+
+  const defenseSuggestions = await gacStrategyService.suggestDefenseSquads(
+    userRoster,
+    defenseSuggestionsRequested,
+    seasonId,
+    format,
+    offenseSquads,
+    defenseCandidates,
+    strategyPreference
+  );
+
+  logger.info(
+    `Received ${defenseSuggestions.length} defense suggestion(s) after filtering`
+  );
+
+  // Step 4: Balance offense and defense
+  // The strategyPreference controls whether defense or offense takes priority in conflict resolution
+  if (updateStatus) {
+    await updateStatus('⚖️ Balancing offense and defense...');
+  }
+
+  const balanceResult = await gacStrategyService.balanceOffenseAndDefense(
+    matchedCounters,
+    defenseSuggestions,
+    maxDefenseSquads,
+    seasonId,
+    strategyPreference,
+    userRoster,
+    format
+  );
+  const { balancedOffense, balancedDefense } = balanceResult;
 
   if (updateStatus) {
     await updateStatus('🎨 Generating strategy images...');
