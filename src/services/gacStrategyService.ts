@@ -37,17 +37,29 @@ interface PlayerClient {
   getFullPlayerWithStats?(allyCode: string): Promise<SwgohGgFullPlayerResponse>;
 }
 
+export interface GacStrategyServiceOptions {
+  historyClient: GacHistoryClient;
+  counterClient?: CounterClient;
+  defenseClient?: DefenseClient;
+  playerClient?: PlayerClient;
+}
+
 export class GacStrategyService {
   private browser: Browser | null = null;
   private topDefenseSquadsCache: Map<string, GacTopDefenseSquad[]> = new Map();
   private defenseSquadStatsCache: Map<string, { holdPercentage: number | null; seenCount: number | null }> = new Map();
 
-  constructor(
-    private readonly apiClient: GacHistoryClient,
-    private readonly counterClient?: CounterClient,
-    private readonly defenseClient?: DefenseClient,
-    private readonly playerClient?: PlayerClient
-  ) {}
+  private readonly apiClient: GacHistoryClient;
+  private readonly counterClient?: CounterClient;
+  private readonly defenseClient?: DefenseClient;
+  private readonly playerClient?: PlayerClient;
+
+  constructor(options: GacStrategyServiceOptions) {
+    this.apiClient = options.historyClient;
+    this.counterClient = options.counterClient;
+    this.defenseClient = options.defenseClient;
+    this.playerClient = options.playerClient;
+  }
 
   /**
    * Get the maximum number of defensive squads for a given league and format.

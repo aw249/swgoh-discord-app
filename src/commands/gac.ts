@@ -207,7 +207,12 @@ export const gacCommand = {
               throw new Error('Format is required. Please select either 5v5 or 3v3.');
             }
             const strategyPreference = (interaction.options.getString('strategy') || 'balanced') as 'defensive' | 'balanced' | 'offensive';
-            const strategyService = new GacStrategyService(swgohGgApiClient, swgohGgApiClient, swgohGgApiClient, swgohGgApiClient);
+            const strategyService = new GacStrategyService({
+              historyClient: swgohGgApiClient,
+              counterClient: swgohGgApiClient,
+              defenseClient: swgohGgApiClient,
+              playerClient: swgohGgApiClient,
+            });
             // For strategy command, also update the main reply with status
             const updateMainReply = async (content: string): Promise<void> => {
               try {
