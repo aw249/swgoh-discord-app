@@ -14,6 +14,7 @@ import {
 } from './utils';
 import { gameDataService } from '../gameDataService';
 import { getDisplayRelicLevel, getUnitLevelDisplay } from '../../utils/unitLevelUtils';
+import { SPEED_ICON, HEALTH_ICON, PROTECTION_ICON, TENACITY_ICON, POTENCY_ICON } from '../../config/imageConstants';
 
 export   function generateHTML(
     p1: SwgohGgFullPlayerResponse,
@@ -441,14 +442,6 @@ export   function generateGalacticLegends(
       }
     }
 
-    // WebP icons (matching strategy files format)
-    const speedIconBase64 = 'data:image/webp;base64,UklGRh4CAABXRUJQVlA4TBICAAAvH8AHEJVAbCRJkbT+Ox0PvbP3YEA9Qx1ESAIAsIykrm3b9v5s27Zt27Zt27Zt28b51pmAvKIQYCJCg50EY77S1Bhz7EIRuiW4BBhxE6dU49W2O/+AfbOIVuARYcFPsjpDFmx66irnlREsVFT40WKlwJqf+UnuoUS4R2XkESTUJ/4JauhLUPG5bmtPOlmU2h85whTsTrVRSKDhpMJGgFwNuo04AUYfRhW59uxAB8FEKVBRCVQcVNnwl6/H7Gfrtx1fbevTf5cysSVEvQIOUWcXDDRVrTAoVBV7bVvf3jxopKa3/c8iOvt1hiC5+vVo1znGFcg4uFFMoqqjj0FyDoJDiYv92+CFDnPD/gGese1Ax0ntIluzaadefXRWvkEBh0ec8OzCJcFeiHK9Zm0492vyh8gGnRQ2CjzaJrX/p0lQuR38J7BBJwQLDSEa7KqAUV0OwiXKkp9sNQZsuPMfGL3gO0SSMR+Fuiw68OB70r1Bx/+RJTARUfE4XZViOYLBg5+ScSQifQP1y7+29cgT7pocoPVbLhNHrXfWNC32sQkKSxeV/re9tVUNcYOQ8HLVtl7V4F0IRGbOb0DbT3QblASLQp9AW7eCYO4lZ0b6HAFlskEzKQNe29YS5YUkCAWIzSK9M9BWzFoClTC1Pw48RMhSol6jcmtAawXuGhjoqAnSZMqBtzDp6nQbsWI19lzR3qBXEQ==';
-    const healthIconBase64 = 'data:image/webp;base64,UklGRswAAABXRUJQVlA4TMAAAAAvH8AHEIXjRpIUqfx3Opau4egdATXbtmXZg7tFG8CzL8BBsi8yxHuQiFQGcKju0ojMQHJ3T/x6T0Doi1rBs9Q/QEhHR0dHucEHAGDwzcRr7i/9Ffj9gpOZmcILaEsxe4IuWajYUzIBBYLQhn+QCNV74G1YHCq/h1pV0y+Au3OrLAkA8nA3Co2KAgDGscDpA4CFFpjsAbDQFJmsrKwxABYao4E7FlqyCr2T3JKJYKhLhMPhcAIvPMSIQ5tsivShrwo=';
-    const protectionIconBase64 = 'data:image/webp;base64,UklGRsYAAABXRUJQVlA4TLoAAAAvH8AHEFU4bhvJkTb/pHm2u8++a3Yi3AYAQDbRpguSKaNHfGFfkDMwp1y78gGvbj/gAbYxAfmxBI2T+Aqkkq//mYWaQkjczofZiAmI0Nq/uIWrRTXzb4ZaI+mdg/qkiqn/aCq6M6koz6QimhFXuDOpYGd2BWQ3YQ+qRH1ipyyYWDWoc29Da1HsKaaJ9upkdSLtyBxAG2FVy+6F7FlZlEzSfJ6tnVm6yyMXeqYxJncrBzAPYuobZB/Afwk=';
-    // Tenacity icon from swgoh.gg
-    const tenacityIconBase64 = 'data:image/webp;base64,UklGRsABAABXRUJQVlA4TLQBAAAvH8AHEJVIbCPJkaT132me7Jn7fwPqVd9i4kSEJAAAy0iybdu2bdu2nrZt27Zt79m2fWM7EzC/UBHOtPN7Gy+BfEDPm+Z5XIPqi0yo7gs/y15wKFjkh5BMUqzO8QjI4viE9u7fmM0y62MksI9IP7izA8BTOAhl45hdP0XNjOIKxxVEXIS6ordGHqH8kEdmKDqzPl6iAk4/wQGXa9JCruCNEJ/hFUyM2Zb9NVO58SwoxDI6VkLxYhyWwCXMPgGmR1MVGlUPSwgBIG9nmRUAl/ShKV6uBHp/SOoGIWYBSMaa2q6UDd55XQv4O5Y1LwJFEm0o7ThudL/v3MnPzOCiwWzJQGD++R9Cvgr7dDt4b53qkkjf3hpm74C/cOAg/pdRrPp60ZtZpx3CN+je35Apphv43mCZOTCygtjP08yla2//U3VknALfe+/vjHHs2iDgCTpEtvt1XSWUdoh/QXKA+dB8dEHAWWUwI8tnmHzHdqM7TggMCdZvNZJN2jHuA2o0b3RnegmA+NdzmKTMmRg8b7/8H43cKePpa3c46ud4/BrSH7LneAm8Dk/kHBuQvrwM5SmOc35W';
-    // Potency icon from swgoh.gg
-    const potencyIconBase64 = 'data:image/webp;base64,UklGRi4BAABXRUJQVlA4TCEBAAAvH8AHEDVAbiPJkdT+O80TPV3TJ/6ZEW5ra28TVbbJoc5hiQyttQd5AeQJoMOroJLcuiT3SpXDBHyK3LZt5FOS7jqfyCAuHe4iV6KhuaNt/zBKVvg3uJXSOziYGB4S86ReoOEJdTb7xswZGo0RFaK+JttCzCIx8QVCZaoKwF1+kQRlyCySyLmBQOqMDfgpnM9RX8COKEv89ad76lWifMIaHOd3KlifcADTDRZfKOJ3wxTwh1Ng0+YXe2hrO5yG7kP5QvhNFklOpznAvIRBu0PmGdglOZ1mHCI6DrlfaPgXvQnd4V+Cgc/dv0bKA9zkTn0j51bPyXo61NNX2XxF6ozvoOkJdTSFtnE8+HIo8i59nUTJeu+LKP3XvszeN3egJTMQAA==';
 
     // GL name lookup - use GameDataService for dynamic names, with fallback
     const getGLName = (baseId: string): string => {
@@ -503,27 +496,27 @@ export   function generateGalacticLegends(
                         </div>
                         <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${speedIconBase64}" alt="speed" style="opacity: 0.4;">
+                            <img class="legend-stat-icon" src="${SPEED_ICON}" alt="speed" style="opacity: 0.4;">
                             <span>Speed</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${healthIconBase64}" alt="health" style="opacity: 0.4;">
+                            <img class="legend-stat-icon" src="${HEALTH_ICON}" alt="health" style="opacity: 0.4;">
                             <span>Health</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${protectionIconBase64}" alt="protection" style="opacity: 0.4;">
+                            <img class="legend-stat-icon" src="${PROTECTION_ICON}" alt="protection" style="opacity: 0.4;">
                             <span>Protection</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${potencyIconBase64}" alt="potency" style="opacity: 0.4;">
+                            <img class="legend-stat-icon" src="${POTENCY_ICON}" alt="potency" style="opacity: 0.4;">
                             <span>Potency</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${tenacityIconBase64}" alt="tenacity" style="opacity: 0.4;">
+                            <img class="legend-stat-icon" src="${TENACITY_ICON}" alt="tenacity" style="opacity: 0.4;">
                             <span>Tenacity</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell" style="color: #888;">—</div>
@@ -592,27 +585,27 @@ export   function generateGalacticLegends(
                         </div>
                         <div class="legend-table-cell stat-value-cell ${relicColor}">${levelDisplayLabel}</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${speedIconBase64}" alt="speed">
+                            <img class="legend-stat-icon" src="${SPEED_ICON}" alt="speed">
                             <span>Speed</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell ${speedColor}">${stats.speed.total} (+${stats.speed.bonus})</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${healthIconBase64}" alt="health">
+                            <img class="legend-stat-icon" src="${HEALTH_ICON}" alt="health">
                             <span>Health</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell ${healthColor}">${stats.health.toFixed(2)}K</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${protectionIconBase64}" alt="protection">
+                            <img class="legend-stat-icon" src="${PROTECTION_ICON}" alt="protection">
                             <span>Protection</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell ${protectionColor}">${stats.protection.toFixed(2)}K</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${potencyIconBase64}" alt="potency">
+                            <img class="legend-stat-icon" src="${POTENCY_ICON}" alt="potency">
                             <span>Potency</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell ${potencyColor}">${stats.potency}</div>
                         <div class="legend-table-cell stat-label-cell">
-                            <img class="legend-stat-icon" src="${tenacityIconBase64}" alt="tenacity">
+                            <img class="legend-stat-icon" src="${TENACITY_ICON}" alt="tenacity">
                             <span>Tenacity</span>
                         </div>
                         <div class="legend-table-cell stat-value-cell ${tenacityColor}">${stats.tenacity}</div>

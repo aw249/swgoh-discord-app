@@ -5,7 +5,7 @@
 import { MatchedCounterSquad, UniqueDefensiveSquad, UniqueDefensiveSquadUnit, DefenseSuggestion } from '../../../types/gacStrategyTypes';
 import { RelicDeltaModifiers } from '../../../utils/relicDeltaService';
 import { SwgohGgFullPlayerResponse } from '../../../integrations/swgohGgApi';
-import { getTop80CharactersRoster, getGalacticLegendsFromRoster, createCharacterMaps } from '../utils/rosterUtils';
+import { getTop80CharactersRoster, getGalacticLegendsFromRoster, createCharacterMaps, buildCharacterStatsMap } from '../utils/rosterUtils';
 import { isGalacticLegend } from '../../../config/gacConstants';
 import { getCharacterPortraitUrl } from '../../../config/characterPortraits';
 import { logger } from '../../../utils/logger';
@@ -36,22 +36,17 @@ export function generateBalancedStrategyHtml(
 
     // Create character name mapping from full user roster
     const characterNameMap = new Map<string, string>();
-    const characterStatsMap = new Map<string, { speed: number; health: number; protection: number }>();
-    if (userRoster && userRoster.units) {
-      // Use full roster for all characters
+    if (userRoster?.units) {
       for (const unit of userRoster.units) {
-        if (unit.data && unit.data.base_id && unit.data.combat_type === 1) {
-          if (unit.data.name) {
-            characterNameMap.set(unit.data.base_id, unit.data.name);
-          }
-          // Extract stats
-          const stats = unit.data.stats || {};
-          const speed = Math.round(stats['5'] || 0);
-          const health = (stats['1'] || 0) / 1000; // Convert to K
-          const protection = (stats['28'] || 0) / 1000; // Convert to K
-          characterStatsMap.set(unit.data.base_id, { speed, health, protection });
+        if (unit.data?.base_id && unit.data.combat_type === 1 && unit.data.name) {
+          characterNameMap.set(unit.data.base_id, unit.data.name);
         }
       }
+    }
+    const fullStatsMap = buildCharacterStatsMap(userRoster!);
+    const characterStatsMap = new Map<string, { speed: number; health: number; protection: number }>();
+    for (const [key, val] of fullStatsMap) {
+      characterStatsMap.set(key, { speed: val.speed, health: val.health, protection: val.protection });
     }
 
     // Collect all user GLs from full roster
