@@ -1,6 +1,6 @@
-import puppeteer, { Browser } from 'puppeteer';
 import { GacDefensiveSquad, GacDefensiveSquadUnit, GacCounterSquad, GacTopDefenseSquad, SwgohGgFullPlayerResponse } from '../integrations/swgohGgApi';
 import { logger } from '../utils/logger';
+import { BrowserService } from './browserService';
 import { UniqueDefensiveSquad, UniqueDefensiveSquadUnit, MatchedCounterSquad } from '../types/gacStrategyTypes';
 import { isGalacticLegend, MAX_DEFENSIVE_SQUADS_BY_LEAGUE, normaliseLeague } from '../config/gacConstants';
 import { getCharacterPortraitUrl } from '../config/characterPortraits';
@@ -45,7 +45,7 @@ export interface GacStrategyServiceOptions {
 }
 
 export class GacStrategyService {
-  private browser: Browser | null = null;
+  private browserService = new BrowserService();
   private topDefenseSquadsCache: Map<string, GacTopDefenseSquad[]> = new Map();
   private defenseSquadStatsCache: Map<string, { holdPercentage: number | null; seenCount: number | null }> = new Map();
 
@@ -76,25 +76,8 @@ export class GacStrategyService {
     return leagueConfig[format as '5v5' | '3v3'] || leagueConfig['5v5'];
   }
 
-  private async getBrowser(): Promise<Browser> {
-    if (!this.browser) {
-      this.browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-      });
-    }
-    return this.browser;
-  }
-
   async closeBrowser(): Promise<void> {
-    if (this.browser) {
-      try {
-        await this.browser.close();
-      } catch (error) {
-        logger.warn('Error closing browser:', error);
-      }
-      this.browser = null;
-    }
+    await this.browserService.close();
   }
 
   /**
@@ -287,18 +270,8 @@ export class GacStrategyService {
     squads: UniqueDefensiveSquad[],
     format: string = '5v5'
   ): Promise<Buffer> {
-    const browser = await this.getBrowser();
-    const page = await browser.newPage();
-
-    try {
-      await page.setViewport({ width: 800, height: 1600, deviceScaleFactor: 2 });
-      const html = generateDefenseOnlyHtml(opponentLabel, squads, format);
-      await page.setContent(html, { waitUntil: 'networkidle0' });
-      const screenshot = await page.screenshot({ type: 'png', fullPage: true });
-      return screenshot as Buffer;
-    } finally {
-      await page.close();
-    }
+    const html = generateDefenseOnlyHtml(opponentLabel, squads, format);
+    return this.browserService.renderHtml(html, { width: 800, height: 1600 });
   }
 
   /**
@@ -309,18 +282,8 @@ export class GacStrategyService {
     matchedCounters: MatchedCounterSquad[],
     format: string = '5v5'
   ): Promise<Buffer> {
-    const browser = await this.getBrowser();
-    const page = await browser.newPage();
-
-    try {
-      await page.setViewport({ width: 1400, height: 2000, deviceScaleFactor: 2 });
-      const html = generateMatchedCountersHtml(opponentLabel, matchedCounters, format);
-      await page.setContent(html, { waitUntil: 'networkidle0' });
-      const screenshot = await page.screenshot({ type: 'png', fullPage: true });
-      return screenshot as Buffer;
-    } finally {
-      await page.close();
-    }
+    const html = generateMatchedCountersHtml(opponentLabel, matchedCounters, format);
+    return this.browserService.renderHtml(html, { width: 1400, height: 2000 });
   }
 
   /**
@@ -343,31 +306,21 @@ export class GacStrategyService {
     userRoster?: SwgohGgFullPlayerResponse,
     strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced'
   ): Promise<Buffer> {
-    const browser = await this.getBrowser();
-    const page = await browser.newPage();
-
-    try {
-      // Calculate viewport width based on format
-      // 3v3: defense (750) + strategy (1687) + gap (40) = ~2500px needed
-      // 5v5: defense (840) + strategy (1890) + gap (40) = ~2800px needed
-      const viewportWidth = format === '3v3' ? 2600 : 2900;
-      await page.setViewport({ width: viewportWidth, height: 2400, deviceScaleFactor: 2 });
-      const html = generateBalancedStrategyHtml(
-        opponentLabel,
-        balancedOffense,
-        balancedDefense,
-        opponentDefense,
-        format,
-        maxSquads,
-        userRoster,
-        strategyPreference
-      );
-      await page.setContent(html, { waitUntil: 'networkidle0' });
-      const screenshot = await page.screenshot({ type: 'png', fullPage: true });
-      return screenshot as Buffer;
-    } finally {
-      await page.close();
-    }
+    // Calculate viewport width based on format
+    // 3v3: defense (750) + strategy (1687) + gap (40) = ~2500px needed
+    // 5v5: defense (840) + strategy (1890) + gap (40) = ~2800px needed
+    const viewportWidth = format === '3v3' ? 2600 : 2900;
+    const html = generateBalancedStrategyHtml(
+      opponentLabel,
+      balancedOffense,
+      balancedDefense,
+      opponentDefense,
+      format,
+      maxSquads,
+      userRoster,
+      strategyPreference
+    );
+    return this.browserService.renderHtml(html, { width: viewportWidth, height: 2400 });
   }
 
   /**
@@ -409,28 +362,18 @@ export class GacStrategyService {
         // Continue without opponent roster - stats will show as '-'
       }
     }
-    const browser = await this.getBrowser();
-
     // Generate defense image (2-column layout requires wider viewport)
-    const defensePage = await browser.newPage();
-    let defenseImage: Buffer;
-    try {
-      // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 680*2+40=1400)
-      const defenseWidth = format === '3v3' ? 1450 : 1950;
-      await defensePage.setViewport({ width: defenseWidth, height: 2400, deviceScaleFactor: 2 });
-      const defenseHtml = generateDefenseStrategyHtml(
-        opponentLabel,
-        balancedDefense,
-        format,
-        maxSquads,
-        userRoster,
-        strategyPreference
-      );
-      await defensePage.setContent(defenseHtml, { waitUntil: 'networkidle0' });
-      defenseImage = await defensePage.screenshot({ type: 'png', fullPage: true }) as Buffer;
-    } finally {
-      await defensePage.close();
-    }
+    // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 680*2+40=1400)
+    const defenseWidth = format === '3v3' ? 1450 : 1950;
+    const defenseHtml = generateDefenseStrategyHtml(
+      opponentLabel,
+      balancedDefense,
+      format,
+      maxSquads,
+      userRoster,
+      strategyPreference
+    );
+    const defenseImage = await this.browserService.renderHtml(defenseHtml, { width: defenseWidth, height: 2400 });
 
     // Calculate unused GLs for the offense image
     const unusedGLs: string[] = [];
@@ -471,25 +414,17 @@ export class GacStrategyService {
     }
 
     // Generate offense image
-    const offensePage = await browser.newPage();
-    let offenseImage: Buffer;
-    try {
-      const offenseWidth = format === '3v3' ? 1250 : 1650;
-      await offensePage.setViewport({ width: offenseWidth, height: 2400, deviceScaleFactor: 2 });
-      const offenseHtml = generateOffenseStrategyHtml(
-        opponentLabel,
-        balancedOffense,
-        format,
-        maxSquads,
-        userRoster,
-        opponentRoster,
-        unusedGLs
-      );
-      await offensePage.setContent(offenseHtml, { waitUntil: 'networkidle0' });
-      offenseImage = await offensePage.screenshot({ type: 'png', fullPage: true }) as Buffer;
-    } finally {
-      await offensePage.close();
-    }
+    const offenseWidth = format === '3v3' ? 1250 : 1650;
+    const offenseHtml = generateOffenseStrategyHtml(
+      opponentLabel,
+      balancedOffense,
+      format,
+      maxSquads,
+      userRoster,
+      opponentRoster,
+      unusedGLs
+    );
+    const offenseImage = await this.browserService.renderHtml(offenseHtml, { width: offenseWidth, height: 2400 });
 
     return { defenseImage, offenseImage };
   }
