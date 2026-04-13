@@ -3,7 +3,7 @@ import { GacService } from '../../services/gacService';
 import { GacStrategyService } from '../../services/gacStrategyService';
 import { GacApiClient } from './commandUtils';
 import { logger } from '../../utils/logger';
-import { getMaxSquadsForLeague } from '../../config/gacConstants';
+import { getMaxSquadsForLeague, FALLBACK_SEASON_IDS } from '../../config/gacConstants';
 
 export async function handleStrategyCommand(
   interaction: ChatInputCommandInteraction,
@@ -175,10 +175,15 @@ export async function handleStrategyCommand(
     logger.warn('Could not get bracket season ID, will use format to determine season');
   }
 
-  // If no seasonId from bracket and 3v3 is requested, default to a known 3v3 season
-  if (!seasonId && format === '3v3') {
-    seasonId = 'CHAMPIONSHIPS_GRAND_ARENA_GA2_EVENT_SEASON_71';
-    logger.info('No seasonId from bracket, defaulting to Season 71 for 3v3 format');
+  // If no seasonId resolved from bracket, use the configurable fallback
+  if (!seasonId) {
+    seasonId = FALLBACK_SEASON_IDS[format];
+    if (seasonId) {
+      logger.warn(
+        `Using fallback season ID for ${format} format: ${seasonId}. ` +
+        `Update FALLBACK_SEASON_IDS in gacConstants.ts when new seasons are released.`
+      );
+    }
   }
 
   // Get league and max defense squads for balancing

@@ -23,6 +23,15 @@ export const GL_NAMES: Record<string, string> = {
   'GLAHSOKATANO': 'Ahsoka Tano', 'GLHONDO': 'Hondo Ohnaka'
 };
 
+/**
+ * Fallback season IDs used when the bracket API is unavailable.
+ * Update these each time a new GAC season is released.
+ */
+export const FALLBACK_SEASON_IDS: Record<string, string> = {
+  '3v3': 'CHAMPIONSHIPS_GRAND_ARENA_GA2_EVENT_SEASON_71',
+  '5v5': 'CHAMPIONSHIPS_GRAND_ARENA_GA2_EVENT_SEASON_72',
+} as const;
+
 export const MAX_DEFENSIVE_SQUADS_BY_LEAGUE: Record<string, { '5v5': number; '3v3': number }> = {
   'Kyber': { '5v5': 11, '3v3': 15 },
   'Aurodium': { '5v5': 9, '3v3': 13 },
