@@ -4,6 +4,8 @@
 
 export interface GacBracketPlayer {
   ally_code: number;
+  /** Comlink player ID — present when bracket data originates from Comlink, absent for swgoh.gg-only data */
+  player_id?: string;
   player_level: number;
   player_name: string;
   player_skill_rating: number | null;

@@ -66,13 +66,16 @@ export async function handleGacError(
   gacService: GacService,
   statusMessage: import('discord.js').Message | null
 ): Promise<void> {
-  logger.error('Error in GAC command:', error);
+  // Generate a short error reference ID for correlating user reports with server logs
+  const errorRef = `ERR-${Date.now().toString(36).slice(-4)}${Math.random().toString(36).slice(2, 4)}`;
+
+  logger.error(`[${errorRef}] Error in GAC command:`, error);
 
   // Update the status message on error to indicate an error occurred
   if (statusMessage) {
     try {
       await interaction.webhook.editMessage(statusMessage.id, {
-        content: 'An error occurred while processing your request.'
+        content: `An error occurred while processing your request. (ref: ${errorRef})`
       });
     } catch (editError) {
       // Non-critical - log but don't throw
@@ -132,7 +135,7 @@ export async function handleGacError(
   } else {
     embed = new EmbedBuilder()
       .setTitle('❌ Error')
-      .setDescription(errorMessage)
+      .setDescription(`${errorMessage}\n\n_If this persists, report reference: \`${errorRef}\`_`)
       .setColor(0xff0000);
 
     if (isCloudflareError) {

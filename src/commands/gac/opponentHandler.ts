@@ -74,8 +74,7 @@ export async function handleOpponentCommand(
           `Opponent ${liveBracket.currentOpponent.player_name} has no valid ally code. ` +
           `Using player_id to fetch data.`
         );
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const playerId = (liveBracket.currentOpponent as any).player_id;
+        const playerId = liveBracket.currentOpponent.player_id;
         if (playerId) {
           // Fetch ally code via Comlink using player ID
           try {

@@ -21,6 +21,11 @@ export class PlayerComparisonService {
           '--disable-setuid-sandbox'
         ]
       });
+      // Clean up reference if browser process crashes
+      this.browser.on('disconnected', () => {
+        logger.warn('PlayerComparisonService: Browser process disconnected unexpectedly');
+        this.browser = null;
+      });
     }
     return this.browser;
   }

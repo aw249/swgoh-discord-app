@@ -314,15 +314,19 @@ export class CombinedApiClient {
         return null;
       }
 
-      // Get player's league from their season status
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const seasonStatuses = (playerData as any).seasonStatus || [];
-      const latestSeason = seasonStatuses.reduce((latest: any, current: any) => {
-        const latestEnd = parseInt(latest?.endTime || '0', 10);
-        const currentEnd = parseInt(current?.endTime || '0', 10);
+      // Get player's league from their season status.
+      // ComlinkPlayerData.seasonStatus is typed as unknown[] — we access known shape fields
+      // with a minimal inline interface to avoid unchecked any usage.
+      interface ComlinkSeasonStatus {
+        endTime?: string;
+        league?: string;
+      }
+      const seasonStatuses = (playerData.seasonStatus ?? []) as ComlinkSeasonStatus[];
+      const latestSeason = seasonStatuses.reduce<ComlinkSeasonStatus | null>((latest, current) => {
+        const latestEnd = parseInt(latest?.endTime ?? '0', 10);
+        const currentEnd = parseInt(current?.endTime ?? '0', 10);
         return currentEnd > latestEnd ? current : latest;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      }, null) as any;
+      }, null);
 
       if (!latestSeason?.league) {
         logger.warn('Could not determine player league from Comlink');
@@ -409,9 +413,13 @@ export class CombinedApiClient {
         const playerData = await this.comlinkClient.getPlayerById(cp.id);
         const allyCode = playerData.allyCode;
         
-        // Get skill rating from player data if available
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const skillRating = (playerData as any).playerRating?.playerSkillRating?.skillRating || null;
+        // Get skill rating from player data if available.
+        // playerRating is not part of ComlinkPlayerData's typed fields — access via unknown cast
+        // with a minimal inline type rather than unchecked any.
+        interface PlayerRatingShape {
+          playerRating?: { playerSkillRating?: { skillRating?: number } };
+        }
+        const skillRating = (playerData as unknown as PlayerRatingShape).playerRating?.playerSkillRating?.skillRating ?? null;
         
         // Calculate Top 80 Character GP by fetching full player with adapted data
         // This uses the dataAdapter which calculates power per unit
@@ -555,11 +563,9 @@ export class CombinedApiClient {
     }
 
     // Get all other players (exclude by player_id if available, otherwise by ally_code)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const youId = (you as any).player_id;
+    const youId = you.player_id;
     const opponents = players.filter(p => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pId = (p as any).player_id;
+      const pId = p.player_id;
       if (youId && pId) {
         return pId !== youId;
       }

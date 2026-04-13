@@ -25,6 +25,15 @@ export class BrowserService {
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
+      // Clean up reference if browser process crashes
+      this.browser.on('disconnected', () => {
+        logger.warn('Browser process disconnected unexpectedly');
+        this.browser = null;
+        if (this.idleTimer) {
+          clearTimeout(this.idleTimer);
+          this.idleTimer = null;
+        }
+      });
     }
     this.resetIdleTimer();
     return this.browser;
