@@ -3,9 +3,10 @@
  */
 import { GacBracketData } from '../../types/swgohGgTypes';
 import { BrowserManager } from './browser';
+import { API_ENDPOINTS } from '../../config/apiEndpoints';
 
 export class GacBracketClient {
-  private readonly baseUrl = 'https://swgoh.gg/api';
+  private readonly baseUrl = API_ENDPOINTS.SWGOH_GG_API;
 
   constructor(private readonly browserManager: BrowserManager) {}
 

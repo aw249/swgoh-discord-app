@@ -6,6 +6,7 @@ import { GacCounterSquad, GacDefensiveSquadUnit } from '../../types/swgohGgTypes
 import { BrowserManager } from './browser';
 import { batchUpdatePortraitUrls } from '../../storage/characterPortraitCache';
 import { counterCache } from '../../storage/counterCache';
+import { API_ENDPOINTS } from '../../config/apiEndpoints';
 
 export class CountersClient {
   constructor(private readonly browserManager: BrowserManager) {}
@@ -36,7 +37,7 @@ export class CountersClient {
           // cutoff=0: Show all counters (no minimum threshold)
           // sort=count: Sort by seen count (most common counters first)
           // page=1: First page of results
-          const baseUrl = 'https://swgoh.gg';
+          const baseUrl = API_ENDPOINTS.SWGOH_GG_BASE;
           const countersPath = `/gac/counters/${defensiveLeaderBaseId}/`;
           const params: string[] = ['cutoff=0', 'sort=count', 'page=1'];
           

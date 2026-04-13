@@ -6,6 +6,7 @@ import { logger } from '../../utils/logger';
 import { GacDefensiveSquad, GacDefensiveSquadUnit } from '../../types/swgohGgTypes';
 import { BrowserManager } from './browser';
 import { batchUpdatePortraitUrls } from '../../storage/characterPortraitCache';
+import { API_ENDPOINTS } from '../../config/apiEndpoints';
 
 export class GacHistoryClient {
   constructor(private readonly browserManager: BrowserManager) {}
@@ -125,7 +126,7 @@ export class GacHistoryClient {
       const page = await this.browserManager.createPage();
 
       try {
-        const historyUrl = `https://swgoh.gg/p/${allyCode}/gac-history/`;
+        const historyUrl = `${API_ENDPOINTS.SWGOH_GG_BASE}/p/${allyCode}/gac-history/`;
 
         await page.goto(historyUrl, {
           waitUntil: 'networkidle2',

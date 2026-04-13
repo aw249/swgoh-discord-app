@@ -6,6 +6,7 @@ import { GacTopDefenseSquad, GacDefensiveSquadUnit } from '../../types/swgohGgTy
 import { BrowserManager } from './browser';
 import { batchUpdatePortraitUrls } from '../../storage/characterPortraitCache';
 import { defenseSquadCache } from '../../storage/defenseSquadCache';
+import { API_ENDPOINTS } from '../../config/apiEndpoints';
 
 export class DefenseSquadsClient {
   constructor(private readonly browserManager: BrowserManager) {}
@@ -69,7 +70,7 @@ export class DefenseSquadsClient {
         // Build the URL
         // cutoff=0: Show all squads (no minimum threshold) - gives best data coverage
         // sort=count/percent/banners: Sort order
-        const baseUrl = 'https://swgoh.gg';
+        const baseUrl = API_ENDPOINTS.SWGOH_GG_BASE;
         let url = `${baseUrl}/gac/squads/`;
         const params: string[] = ['cutoff=0']; // Always use cutoff=0 to get all squads
         

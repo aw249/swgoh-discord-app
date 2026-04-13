@@ -9,6 +9,7 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { logger } from '../utils/logger';
+import { API_ENDPOINTS } from '../config/apiEndpoints';
 
 const CACHE_FILE = join(process.cwd(), 'data', 'character-portraits.json');
 
@@ -77,7 +78,7 @@ export async function getCharacterPortraitUrl(baseId: string): Promise<string> {
   }
 
   // Fallback to the standard pattern (works for some characters)
-  return `https://game-assets.swgoh.gg/textures/tex.charui_${baseId.toLowerCase()}.png`;
+  return `${API_ENDPOINTS.GAME_ASSETS_BASE}/textures/tex.charui_${baseId.toLowerCase()}.png`;
 }
 
 /**
@@ -88,7 +89,7 @@ export function getCharacterPortraitUrlSync(baseId: string): string {
   if (portraitCache[baseId]) {
     return portraitCache[baseId];
   }
-  return `https://game-assets.swgoh.gg/textures/tex.charui_${baseId.toLowerCase()}.png`;
+  return `${API_ENDPOINTS.GAME_ASSETS_BASE}/textures/tex.charui_${baseId.toLowerCase()}.png`;
 }
 
 /**

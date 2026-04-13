@@ -9,6 +9,7 @@ import { ComlinkClient, ComlinkBracketPlayer } from './comlinkClient';
 import { adaptComlinkPlayerToSwgohGg, adaptComlinkPlayerDataOnly } from './dataAdapter';
 import { logger } from '../../utils/logger';
 import { bracketCache } from '../../storage/bracketCache';
+import { API_ENDPOINTS } from '../../config/apiEndpoints';
 
 /**
  * Enhanced bracket data with real-time information and current opponent
@@ -53,7 +54,7 @@ export class CombinedApiClient {
   ) {
     this.swgohGgClient = swgohGgClient;
     this.comlinkClient = new ComlinkClient({
-      url: config.comlinkUrl ?? process.env.COMLINK_URL ?? 'http://localhost:3200',
+      url: config.comlinkUrl ?? API_ENDPOINTS.COMLINK_DEFAULT,
     });
     this.preferComlink = config.preferComlink ?? true;
     this.fallbackToSwgohGg = config.fallbackToSwgohGg ?? true;

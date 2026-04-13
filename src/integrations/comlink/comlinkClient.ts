@@ -5,6 +5,7 @@
  * @see https://github.com/swgoh-utils/swgoh-comlink
  */
 import { logger } from '../../utils/logger';
+import { API_ENDPOINTS } from '../../config/apiEndpoints';
 
 export interface ComlinkConfig {
   url: string;
@@ -226,7 +227,7 @@ export class ComlinkClient {
   private readonly secretKey: string;
 
   constructor(config?: Partial<ComlinkConfig>) {
-    this.url = config?.url ?? process.env.COMLINK_URL ?? 'http://localhost:3200';
+    this.url = config?.url ?? API_ENDPOINTS.COMLINK_DEFAULT;
     this.accessKey = config?.accessKey ?? process.env.COMLINK_ACCESS_KEY ?? '';
     this.secretKey = config?.secretKey ?? process.env.COMLINK_SECRET_KEY ?? '';
   }
