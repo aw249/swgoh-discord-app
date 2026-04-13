@@ -226,9 +226,10 @@ export function generateOffenseStrategyHtml(
         // Missing required abilities - show critical warning
         // Extract ability IDs and format them nicely
         const missingAbilities = archVal.missingRequired?.slice(0, 2).map(m => {
-          // Simplify ability ID for display (e.g. uniqueskill_CT555501 -> CT5555 zeta)
-          const unitId = m.unitBaseId.replace(/_/g, ' ');
-          return unitId;
+          // Use shortDescription if provided, otherwise fall back to unitBaseId
+          const reason = m.reason || m.unitBaseId.replace(/_/g, ' ');
+          const shortReason = m.shortDescription || reason.split(' - ')[0].split(' massively')[0].split(' provides')[0];
+          return shortReason;
         }) || ['abilities'];
         const missingText = missingAbilities.join(', ');
         archetypeWarningHtml = `

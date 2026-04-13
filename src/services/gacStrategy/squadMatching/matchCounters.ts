@@ -328,7 +328,7 @@ export async function matchCountersAgainstRoster(
         // Store ALL available counters (sorted by score) as alternatives
         // This ensures we have maximum options when primary counters conflict with defense
         // Some opponent defenses (like QUEENAMIDALA) have very limited non-GL options, so we need all of them
-        const topCounters: Array<{ counter: GacCounterSquad; score: number }> = [];
+        const topCounters: Array<{ counter: GacCounterSquad; score: number; viable?: boolean }> = [];
         const MAX_ALTERNATIVES = allAvailableCounters.length; // Store ALL available counters as alternatives
 
         // Evaluate ALL counters together (GL and non-GL)
@@ -548,11 +548,24 @@ export async function matchCountersAgainstRoster(
           // Don't skip them here - let the balancing phase decide based on conflicts
 
           // Store this counter with its score
-          topCounters.push({ counter, score: totalScore });
+          topCounters.push({ counter, score: totalScore, viable: archetypeValidation.viable });
         }
 
         // Sort by score descending and take top MAX_ALTERNATIVES
         topCounters.sort((a, b) => b.score - a.score);
+
+        // Prefer viable counters: if best counter is non-viable but a viable alternative exists, use the viable one
+        const viableCounters = topCounters.filter(c => c.viable !== false);
+        if (viableCounters.length > 0 && topCounters[0]?.viable === false) {
+          // Re-sort so viable counters come first, maintaining score order within each group
+          topCounters.sort((a, b) => {
+            const aViable = a.viable !== false ? 1 : 0;
+            const bViable = b.viable !== false ? 1 : 0;
+            if (aViable !== bViable) return bViable - aViable;
+            return b.score - a.score;
+          });
+        }
+
         const selectedCounters = topCounters.slice(0, MAX_ALTERNATIVES);
 
         // For defensive strategy, include GL counters in alternatives even if non-GL alternatives exist

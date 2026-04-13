@@ -120,8 +120,8 @@ export function generateDefenseStrategyHtml(
           // Use the reason field which has descriptive text like "Malicos GAC omicron..."
           // Truncate to keep it readable
           const reason = m.reason || m.unitBaseId.replace(/_/g, ' ');
-          // Extract short form: "Malicos GAC omicron" from "Malicos GAC omicron massively boosts..."
-          const shortReason = reason.split(' - ')[0].split(' massively')[0].split(' provides')[0];
+          // Use shortDescription if provided, otherwise extract short form from reason
+          const shortReason = m.shortDescription || reason.split(' - ')[0].split(' massively')[0].split(' provides')[0];
           return shortReason;
         }) || ['abilities'];
         const missingText = missingAbilities.join('; ');
@@ -135,7 +135,8 @@ export function generateDefenseStrategyHtml(
         // Missing optional abilities - show info warning with specific ability
         const missingOptionalText = archVal.missingOptional.slice(0, 1).map(m => {
           const reason = m.reason || m.unitBaseId.replace(/_/g, ' ');
-          const shortReason = reason.split(' - ')[0].split(' massively')[0].split(' provides')[0];
+          // Use shortDescription if provided, otherwise extract short form from reason
+          const shortReason = m.shortDescription || reason.split(' - ')[0].split(' massively')[0].split(' provides')[0];
           return shortReason;
         }).join('; ');
         archetypeWarningHtml = `

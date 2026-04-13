@@ -51,7 +51,10 @@ export interface AbilityRequirement {
   
   /** Human-readable reason for UI/debugging */
   reason: string;
-  
+
+  /** Short label for image rendering (e.g. "Piett zeta" instead of full reason) */
+  shortDescription?: string;
+
   /** Display name for UI (optional, can be resolved from localization) */
   displayName?: string;
 }
@@ -188,13 +191,15 @@ export interface ArchetypeValidationResult {
     abilityId: string;
     unitBaseId: string;
     reason: string;
+    shortDescription?: string;
   }[];
-  
+
   /** List of missing optional abilities with their confidence impact */
   missingOptional?: {
     abilityId: string;
     unitBaseId: string;
     reason: string;
+    shortDescription?: string;
     confidenceImpact: number;
   }[];
   

@@ -163,7 +163,14 @@ export class ArchetypeValidator {
       const resolved = this.resolveInheritance(archetype);
       this.resolvedArchetypes.set(archetype.id, resolved);
     }
-    
+
+    // Integrity check: verify all extends targets exist
+    for (const archetype of config.archetypes) {
+      if (archetype.extends && !this.archetypes.has(archetype.extends)) {
+        logger.error(`Archetype ${archetype.id} extends non-existent parent ${archetype.extends}`);
+      }
+    }
+
     logger.info(`Loaded ${this.archetypes.size} archetypes, resolved ${this.resolvedArchetypes.size}`);
   }
   
@@ -175,6 +182,7 @@ export class ArchetypeValidator {
       this.leaderMappings.set(mapping.leaderBaseId, mapping);
     }
     logger.info(`Loaded ${this.leaderMappings.size} leader-to-archetype mappings`);
+    logger.info(`Archetype coverage: ${this.leaderMappings.size} leaders mapped, ${this.resolvedArchetypes.size} archetypes loaded`);
   }
   
   /**
@@ -331,7 +339,11 @@ export class ArchetypeValidator {
       // Check mode gate
       if (req.modeGates && req.modeGates.length > 0) {
         if (!req.modeGates.includes(mode)) {
-          // This requirement doesn't apply to current mode
+          // This requirement doesn't apply to current mode — add info note
+          const modeLabel = req.modeGates.join('/');
+          applicableNotes.push(
+            `${req.unitBaseId}'s key ability only applies in ${modeLabel} — effectiveness may be reduced in ${mode}`
+          );
           continue;
         }
       }
@@ -343,6 +355,7 @@ export class ArchetypeValidator {
           abilityId: req.abilityId,
           unitBaseId: req.unitBaseId,
           reason: req.reason,
+          shortDescription: req.shortDescription,
         });
       }
     }
@@ -354,6 +367,11 @@ export class ArchetypeValidator {
       // Check mode gate
       if (opt.modeGates && opt.modeGates.length > 0) {
         if (!opt.modeGates.includes(mode)) {
+          // This optional requirement doesn't apply to current mode — add info note
+          const modeLabel = opt.modeGates.join('/');
+          applicableNotes.push(
+            `${opt.unitBaseId}'s key ability only applies in ${modeLabel} — effectiveness may be reduced in ${mode}`
+          );
           continue;
         }
       }
@@ -367,6 +385,7 @@ export class ArchetypeValidator {
           abilityId: opt.abilityId,
           unitBaseId: opt.unitBaseId,
           reason: opt.reason,
+          shortDescription: opt.shortDescription,
           confidenceImpact: impact,
         });
       }

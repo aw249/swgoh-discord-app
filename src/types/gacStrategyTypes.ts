@@ -18,6 +18,7 @@ export interface MissingAbilityInfo {
   abilityId: string;
   unitBaseId: string;
   reason: string;
+  shortDescription?: string;
 }
 
 export interface ArchetypeValidationInfo {
