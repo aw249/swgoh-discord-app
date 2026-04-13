@@ -345,7 +345,7 @@ export function generateOffenseStrategyHtml(
   const unusedGLsSection = renderUnusedGLsSection();
 
   // Calculate width based on format (wider to accommodate analysis panel)
-  const containerWidth = format === '3v3' ? 1200 : 1600;
+  const containerWidth = format === '3v3' ? 1050 : 1600;
 
   const html = `<!DOCTYPE html>
 <html lang="en">

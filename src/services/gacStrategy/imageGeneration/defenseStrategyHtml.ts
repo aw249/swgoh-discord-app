@@ -216,7 +216,7 @@ export function generateDefenseStrategyHtml(
 
   // Calculate width based on format - doubled for 2-column layout
   // Single squad width: 5v5 = 950px, 3v3 = 700px → doubled for 2 columns + gap
-  const singleSquadWidth = format === '3v3' ? 680 : 920;
+  const singleSquadWidth = format === '3v3' ? 620 : 920;
   const containerWidth = singleSquadWidth * 2 + 40; // 2 columns + 40px gap
 
   const html = `<!DOCTYPE html>
@@ -313,15 +313,15 @@ export function generateDefenseStrategyHtml(
       flex-direction: column;
       align-items: center;
       gap: 6px;
-      width: ${format === '3v3' ? 200 : 170}px;
+      width: ${format === '3v3' ? 190 : 170}px;
     }
     .character-cell.gl .character-portrait {
       border-color: #fbbf24;
       box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
     }
     .character-portrait {
-      width: 70px;
-      height: 70px;
+      width: ${format === '3v3' ? 80 : 70}px;
+      height: ${format === '3v3' ? 80 : 70}px;
       border-radius: 50%;
       border: 3px solid #c4a35a;
       position: relative;

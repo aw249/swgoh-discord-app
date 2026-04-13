@@ -12,7 +12,6 @@ import { evaluateRosterForDefense } from './gacStrategy/defenseEvaluation';
 import { matchCountersAgainstRoster } from './gacStrategy/squadMatching/matchCounters';
 import { generateDefenseOnlyHtml } from './gacStrategy/imageGeneration/defenseOnlyHtml';
 import { generateMatchedCountersHtml } from './gacStrategy/imageGeneration/matchedCountersHtml';
-import { generateBalancedStrategyHtml } from './gacStrategy/imageGeneration/balancedStrategyHtml';
 import { generateDefenseStrategyHtml } from './gacStrategy/imageGeneration/defenseStrategyHtml';
 import { generateOffenseStrategyHtml } from './gacStrategy/imageGeneration/offenseStrategyHtml';
 import { getTop80CharactersRoster } from './gacStrategy/utils/rosterUtils';
@@ -287,43 +286,6 @@ export class GacStrategyService {
   }
 
   /**
-   * Generate a balanced strategy image showing both offense and defense assignments.
-   */
-  async generateBalancedStrategyImage(
-    opponentLabel: string,
-    balancedOffense: MatchedCounterSquad[],
-    balancedDefense: Array<{
-      squad: UniqueDefensiveSquad;
-      holdPercentage: number | null;
-      seenCount: number | null;
-      avgBanners: number | null;
-      score: number;
-      reason: string;
-    }>,
-    opponentDefense: UniqueDefensiveSquad[],
-    format: string = '5v5',
-    maxSquads: number = 11,
-    userRoster?: SwgohGgFullPlayerResponse,
-    strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced'
-  ): Promise<Buffer> {
-    // Calculate viewport width based on format
-    // 3v3: defense (750) + strategy (1687) + gap (40) = ~2500px needed
-    // 5v5: defense (840) + strategy (1890) + gap (40) = ~2800px needed
-    const viewportWidth = format === '3v3' ? 2600 : 2900;
-    const html = generateBalancedStrategyHtml(
-      opponentLabel,
-      balancedOffense,
-      balancedDefense,
-      opponentDefense,
-      format,
-      maxSquads,
-      userRoster,
-      strategyPreference
-    );
-    return this.browserService.renderHtml(html, { width: viewportWidth, height: 2400 });
-  }
-
-  /**
    * Generate split strategy images: one for defense, one for offense.
    * Returns two separate image buffers for better Discord viewing.
    */
@@ -401,8 +363,8 @@ export class GacStrategyService {
     }
 
     // Generate defense image (2-column layout requires wider viewport)
-    // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 680*2+40=1400)
-    const defenseWidth = format === '3v3' ? 1450 : 1950;
+    // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 620*2+40=1280)
+    const defenseWidth = format === '3v3' ? 1330 : 1950;
     const defenseHtml = generateDefenseStrategyHtml(
       opponentLabel,
       balancedDefense,
@@ -415,7 +377,7 @@ export class GacStrategyService {
     const defenseImage = await this.browserService.renderHtml(defenseHtml, { width: defenseWidth, height: 2400 });
 
     // Generate offense image
-    const offenseWidth = format === '3v3' ? 1250 : 1650;
+    const offenseWidth = format === '3v3' ? 1100 : 1650;
     const offenseHtml = generateOffenseStrategyHtml(
       opponentLabel,
       balancedOffense,
