@@ -16,7 +16,8 @@ export function generateDefenseStrategyHtml(
   format: string = '5v5',
   maxSquads: number = 11,
   userRoster?: SwgohGgFullPlayerResponse,
-  strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced'
+  strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
+  unusedGLs?: string[]
 ): string {
   logger.info(`[Defense Image] Starting HTML generation for ${playerName} (${format} format)`);
   logger.info(`[Defense Image] Input data: ${defenseSquads.length} defense squad(s)`);
@@ -173,6 +174,45 @@ export function generateDefenseStrategyHtml(
 
   const squadRows = visibleDefense.map((def, idx) => renderSquadRow(def, idx)).join('');
   const strategyLabel = strategyPreference === 'defensive' ? 'DEFENSIVE' : strategyPreference === 'offensive' ? 'OFFENSIVE' : 'BALANCED';
+
+  // Render unused GLs section if there are any
+  const renderUnusedGLsSection = (): string => {
+    if (!unusedGLs || unusedGLs.length === 0) {
+      return '';
+    }
+
+    const glCards = unusedGLs.map(glBaseId => {
+      const portraitUrl = getCharacterPortraitUrl(glBaseId);
+      const stats = characterStatsMap.get(glBaseId);
+      const levelLabel = stats?.levelLabel ?? (stats?.relic !== null && stats?.relic !== undefined ? `R${stats.relic}` : '?');
+
+      return `
+        <div class="unused-gl-card">
+          <div class="unused-gl-portrait">
+            <img src="${portraitUrl}" alt="${glBaseId}" onerror="this.style.display='none';" />
+          </div>
+          <div class="unused-gl-info">
+            <div class="unused-gl-name">${glBaseId.replace(/_/g, ' ')}</div>
+            <div class="unused-gl-relic">${levelLabel}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="unused-gls-section">
+        <div class="unused-gls-header">
+          ⚠️ UNUSED GALACTIC LEGENDS
+          <span class="unused-gls-note">These GLs were not assigned to offense or defense - consider manual placement</span>
+        </div>
+        <div class="unused-gls-container">
+          ${glCards}
+        </div>
+      </div>
+    `;
+  };
+
+  const unusedGLsSection = renderUnusedGLsSection();
 
   // Calculate width based on format - doubled for 2-column layout
   // Single squad width: 5v5 = 950px, 3v3 = 700px → doubled for 2 columns + gap
@@ -365,6 +405,80 @@ export function generateDefenseStrategyHtml(
       background: rgba(251, 191, 36, 0.9);
       color: #1a1a1a;
     }
+    .unused-gls-section {
+      background: linear-gradient(135deg, #3a2a1a 0%, #2a1a10 100%);
+      border-top: 2px solid #c4a35a;
+      padding: 16px;
+    }
+    .unused-gls-header {
+      color: #fbbf24;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .unused-gls-note {
+      font-size: 11px;
+      color: #8b7355;
+      font-weight: normal;
+    }
+    .unused-gls-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+    .unused-gl-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #2a2a2a;
+      border: 2px solid #fbbf24;
+      border-radius: 8px;
+      padding: 10px 14px;
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+    }
+    .unused-gl-portrait {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #fbbf24;
+      overflow: hidden;
+      background: #4a4a4a;
+    }
+    .unused-gl-portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .unused-gl-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .unused-gl-name {
+      color: #fbbf24;
+      font-size: 12px;
+      font-weight: bold;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .unused-gl-relic {
+      color: #f5deb3;
+      font-size: 11px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -376,6 +490,7 @@ export function generateDefenseStrategyHtml(
     <div class="squads-grid">
       ${squadRows}
     </div>
+    ${unusedGLsSection}
   </div>
 </body>
 </html>`;

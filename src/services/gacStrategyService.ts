@@ -362,20 +362,7 @@ export class GacStrategyService {
         // Continue without opponent roster - stats will show as '-'
       }
     }
-    // Generate defense image (2-column layout requires wider viewport)
-    // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 680*2+40=1400)
-    const defenseWidth = format === '3v3' ? 1450 : 1950;
-    const defenseHtml = generateDefenseStrategyHtml(
-      opponentLabel,
-      balancedDefense,
-      format,
-      maxSquads,
-      userRoster,
-      strategyPreference
-    );
-    const defenseImage = await this.browserService.renderHtml(defenseHtml, { width: defenseWidth, height: 2400 });
-
-    // Calculate unused GLs for the offense image
+    // Calculate unused GLs (needed for both defense and offense images)
     const unusedGLs: string[] = [];
     if (userRoster) {
       // Get all GLs from user roster
@@ -385,7 +372,7 @@ export class GacStrategyService {
           allUserGLs.add(unit.data.base_id);
         }
       }
-      
+
       // Get GLs used in offense
       const usedGLs = new Set<string>();
       for (const counter of balancedOffense) {
@@ -393,25 +380,39 @@ export class GacStrategyService {
           usedGLs.add(counter.offense.leader.baseId);
         }
       }
-      
+
       // Get GLs used in defense
       for (const defense of balancedDefense) {
         if (isGalacticLegend(defense.squad.leader.baseId)) {
           usedGLs.add(defense.squad.leader.baseId);
         }
       }
-      
+
       // Find unused GLs
       for (const gl of allUserGLs) {
         if (!usedGLs.has(gl)) {
           unusedGLs.push(gl);
         }
       }
-      
+
       if (unusedGLs.length > 0) {
         logger.info(`[Strategy Images] ${unusedGLs.length} GL(s) not placed in strategy: ${unusedGLs.join(', ')}`);
       }
     }
+
+    // Generate defense image (2-column layout requires wider viewport)
+    // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 680*2+40=1400)
+    const defenseWidth = format === '3v3' ? 1450 : 1950;
+    const defenseHtml = generateDefenseStrategyHtml(
+      opponentLabel,
+      balancedDefense,
+      format,
+      maxSquads,
+      userRoster,
+      strategyPreference,
+      unusedGLs
+    );
+    const defenseImage = await this.browserService.renderHtml(defenseHtml, { width: defenseWidth, height: 2400 });
 
     // Generate offense image
     const offenseWidth = format === '3v3' ? 1250 : 1650;
