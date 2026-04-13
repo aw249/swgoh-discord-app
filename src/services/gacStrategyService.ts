@@ -2,7 +2,7 @@ import puppeteer, { Browser } from 'puppeteer';
 import { GacDefensiveSquad, GacDefensiveSquadUnit, GacCounterSquad, GacTopDefenseSquad, SwgohGgFullPlayerResponse } from '../integrations/swgohGgApi';
 import { logger } from '../utils/logger';
 import { UniqueDefensiveSquad, UniqueDefensiveSquadUnit, MatchedCounterSquad } from '../types/gacStrategyTypes';
-import { isGalacticLegend, MAX_DEFENSIVE_SQUADS_BY_LEAGUE } from '../config/gacConstants';
+import { isGalacticLegend, MAX_DEFENSIVE_SQUADS_BY_LEAGUE, normaliseLeague } from '../config/gacConstants';
 import { getCharacterPortraitUrl } from '../config/characterPortraits';
 
 // Import extracted modules
@@ -56,7 +56,7 @@ export class GacStrategyService {
     if (!league) {
       return MAX_DEFENSIVE_SQUADS_BY_LEAGUE['Kyber'][format as '5v5' | '3v3'] || 11;
     }
-    const normalizedLeague = league.charAt(0).toUpperCase() + league.slice(1).toLowerCase();
+    const normalizedLeague = normaliseLeague(league);
     const leagueConfig = MAX_DEFENSIVE_SQUADS_BY_LEAGUE[normalizedLeague];
     if (!leagueConfig) {
       return MAX_DEFENSIVE_SQUADS_BY_LEAGUE['Kyber'][format as '5v5' | '3v3'] || 11;

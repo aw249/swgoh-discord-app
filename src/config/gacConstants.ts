@@ -55,9 +55,17 @@ export function getGLName(baseId: string): string {
   return GL_NAMES[baseId] || baseId;
 }
 
+/**
+ * Normalise a league name to title case (e.g. 'KYBER' -> 'Kyber').
+ */
+export function normaliseLeague(league: string): string {
+  if (!league) return league;
+  return league.charAt(0).toUpperCase() + league.slice(1).toLowerCase();
+}
+
 export function getMaxSquadsForLeague(league: string | null | undefined, format: string = '5v5'): number {
   if (!league) return format === '3v3' ? 15 : 11;
-  const normalizedLeague = league.charAt(0).toUpperCase() + league.slice(1).toLowerCase();
+  const normalizedLeague = normaliseLeague(league);
   const leagueData = MAX_DEFENSIVE_SQUADS_BY_LEAGUE[normalizedLeague];
   if (!leagueData) return format === '3v3' ? 15 : 11;
   return leagueData[format as '5v5' | '3v3'] ?? (format === '3v3' ? 15 : 11);
