@@ -8,8 +8,8 @@ import { SwgohGgFullPlayerResponse } from '../../../integrations/swgohGgApi';
 import { isGalacticLegend } from '../../../config/gacConstants';
 import { getCharacterPortraitUrl } from '../../../config/characterPortraits';
 import { logger } from '../../../utils/logger';
-import { getDisplayRelicLevel, getUnitLevelDisplay } from '../../../utils/unitLevelUtils';
-import { SPEED_ICON, HEALTH_ICON, PROTECTION_ICON, STAT_IDS } from '../../../config/imageConstants';
+import { SPEED_ICON, HEALTH_ICON, PROTECTION_ICON } from '../../../config/imageConstants';
+import { buildCharacterStatsMap, CharacterStatEntry } from '../utils/rosterUtils';
 
 export function generateOffenseStrategyHtml(
   opponentName: string,
@@ -27,55 +27,12 @@ export function generateOffenseStrategyHtml(
   const visibleOffense = offenseSquads.slice(0, maxSquads);
 
   // Create character stats AND level mapping from FULL user roster (not just top 80)
-  const characterStatsMap = new Map<string, { speed: number; health: number; protection: number; relic: number | null; gearLevel: number; levelLabel: string }>();
-  if (userRoster && userRoster.units) {
-    // Use FULL roster to ensure all characters have stats
-    for (const unit of userRoster.units) {
-      if (unit.data && unit.data.base_id && unit.data.combat_type === 1) {
-        const stats = unit.data.stats || {};
-        const speed = Math.round(stats[STAT_IDS.SPEED] || 0);
-        const health = (stats[STAT_IDS.HEALTH] || 0) / 1000;
-        const protection = (stats[STAT_IDS.PROTECTION] || 0) / 1000;
-        // Get relic level using utility function
-        const relic = getDisplayRelicLevel(unit.data.gear_level, unit.data.relic_tier);
-        const levelDisplay = getUnitLevelDisplay(unit.data);
-        characterStatsMap.set(unit.data.base_id, { 
-          speed, 
-          health, 
-          protection, 
-          relic,
-          gearLevel: unit.data.gear_level,
-          levelLabel: levelDisplay.label
-        });
-      }
-    }
-    logger.info(`[Offense Image] Built stats map for ${characterStatsMap.size} characters from user roster`);
-  }
+  const characterStatsMap = userRoster ? buildCharacterStatsMap(userRoster) : new Map<string, CharacterStatEntry>();
+  logger.info(`[Offense Image] Built stats map for ${characterStatsMap.size} characters from user roster`);
 
   // Create character stats mapping from opponent roster for defense squads
-  const opponentStatsMap = new Map<string, { speed: number; health: number; protection: number; relic: number | null; gearLevel: number; levelLabel: string }>();
-  if (opponentRoster && opponentRoster.units) {
-    for (const unit of opponentRoster.units) {
-      if (unit.data && unit.data.base_id && unit.data.combat_type === 1) {
-        const stats = unit.data.stats || {};
-        const speed = Math.round(stats[STAT_IDS.SPEED] || 0);
-        const health = (stats[STAT_IDS.HEALTH] || 0) / 1000;
-        const protection = (stats[STAT_IDS.PROTECTION] || 0) / 1000;
-        // Get relic level using utility function
-        const relic = getDisplayRelicLevel(unit.data.gear_level, unit.data.relic_tier);
-        const levelDisplay = getUnitLevelDisplay(unit.data);
-        opponentStatsMap.set(unit.data.base_id, { 
-          speed, 
-          health, 
-          protection, 
-          relic,
-          gearLevel: unit.data.gear_level,
-          levelLabel: levelDisplay.label
-        });
-      }
-    }
-    logger.info(`[Offense Image] Built stats map for ${opponentStatsMap.size} characters from opponent roster`);
-  }
+  const opponentStatsMap = opponentRoster ? buildCharacterStatsMap(opponentRoster) : new Map<string, CharacterStatEntry>();
+  logger.info(`[Offense Image] Built stats map for ${opponentStatsMap.size} characters from opponent roster`);
 
   // Log each offense squad for debugging
   visibleOffense.forEach((match, idx) => {
@@ -86,7 +43,7 @@ export function generateOffenseStrategyHtml(
     logger.info(`[Offense Image] Battle ${idx + 1}: Offense=${offLeaderBaseId}(R${offLeaderRelic ?? '?'}) [${offMemberIds}] vs Defense=${defLeaderBaseId}`);
   });
 
-  const getCharacterStats = (baseId: string, isOffense: boolean): { speed: number; health: number; protection: number; relic: number | null; gearLevel: number; levelLabel: string } | null => {
+  const getCharacterStats = (baseId: string, isOffense: boolean): CharacterStatEntry | null => {
     if (isOffense) {
       return characterStatsMap.get(baseId) || null;
     } else {

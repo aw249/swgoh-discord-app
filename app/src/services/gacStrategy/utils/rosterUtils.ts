@@ -1,6 +1,45 @@
 import { SwgohGgFullPlayerResponse } from '../../../integrations/swgohGgApi';
 import { isGalacticLegend } from '../../../config/gacConstants';
 import { STAT_IDS } from '../../../config/imageConstants';
+import { getDisplayRelicLevel, getUnitLevelDisplay } from '../../../utils/unitLevelUtils';
+
+export interface CharacterStatEntry {
+  speed: number;
+  health: number;
+  protection: number;
+  relic: number | null;
+  gearLevel: number;
+  levelLabel: string;
+}
+
+/**
+ * Build a map of character stats from a full player roster.
+ * Used by image generation functions to avoid duplicated iteration logic.
+ */
+export function buildCharacterStatsMap(
+  roster: SwgohGgFullPlayerResponse
+): Map<string, CharacterStatEntry> {
+  const map = new Map<string, CharacterStatEntry>();
+  for (const unit of roster.units || []) {
+    if (unit.data?.base_id && unit.data.combat_type === 1) {
+      const stats = unit.data.stats || {};
+      const speed = Math.round(stats[STAT_IDS.SPEED] || 0);
+      const health = (stats[STAT_IDS.HEALTH] || 0) / 1000;
+      const protection = (stats[STAT_IDS.PROTECTION] || 0) / 1000;
+      const relic = getDisplayRelicLevel(unit.data.gear_level, unit.data.relic_tier);
+      const levelDisplay = getUnitLevelDisplay(unit.data);
+      map.set(unit.data.base_id, {
+        speed,
+        health,
+        protection,
+        relic,
+        gearLevel: unit.data.gear_level,
+        levelLabel: levelDisplay.label,
+      });
+    }
+  }
+  return map;
+}
 
 /**
  * Get all characters from roster (no longer limited to top 80).
