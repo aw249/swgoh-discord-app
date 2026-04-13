@@ -3,6 +3,7 @@
  */
 import { SwgohGgFullPlayerResponse, SwgohGgUnit } from '../../integrations/swgohGgApi';
 import { gameDataService } from '../gameDataService';
+import { STAT_IDS } from '../../config/imageConstants';
 
 /**
  * Get Galactic Legend IDs dynamically from GameDataService.
@@ -40,11 +41,11 @@ export function getGLStats(u: SwgohGgUnit) {
     const s = u.data.stats;
     const d = u.data.stat_diffs || {};
 
-    const speed = Math.round(s['5'] || 0);
-    const speedBonus = Math.round(d['5'] || 0);
+    const speed = Math.round(s[STAT_IDS.SPEED] || 0);
+    const speedBonus = Math.round(d[STAT_IDS.SPEED] || 0);
 
-    const health = (s['1'] || 0) / 1000; // Keep as decimal for formatting
-    const protection = (s['28'] || 0) / 1000; // Keep as decimal for formatting
+    const health = (s[STAT_IDS.HEALTH] || 0) / 1000; // Keep as decimal for formatting
+    const protection = (s[STAT_IDS.PROTECTION] || 0) / 1000; // Keep as decimal for formatting
     const offense = Math.round(s['6'] || 0);
     const potency = Math.round((s['17'] || 0) * 100); // Potency as percentage
     const tenacity = Math.round((s['18'] || 0) * 100); // Tenacity as percentage

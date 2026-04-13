@@ -1,5 +1,6 @@
 import { SwgohGgFullPlayerResponse } from '../../../integrations/swgohGgApi';
 import { isGalacticLegend } from '../../../config/gacConstants';
+import { STAT_IDS } from '../../../config/imageConstants';
 
 /**
  * Get all characters from roster (no longer limited to top 80).
@@ -44,9 +45,9 @@ export function createCharacterMaps(roster: SwgohGgFullPlayerResponse): {
     if (unit.data?.base_id && unit.data.combat_type === 1) {
       if (unit.data.name) nameMap.set(unit.data.base_id, unit.data.name);
       const stats = unit.data.stats || {};
-      const speed = Math.round(stats['5'] || 0);
-      const health = (stats['1'] || 0) / 1000;
-      const protection = (stats['28'] || 0) / 1000;
+      const speed = Math.round(stats[STAT_IDS.SPEED] || 0);
+      const health = (stats[STAT_IDS.HEALTH] || 0) / 1000;
+      const protection = (stats[STAT_IDS.PROTECTION] || 0) / 1000;
       statsMap.set(unit.data.base_id, { speed, health, protection });
     }
   }

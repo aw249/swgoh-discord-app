@@ -10,6 +10,7 @@ import { isGalacticLegend } from '../../../config/gacConstants';
 import { getCharacterPortraitUrl } from '../../../config/characterPortraits';
 import { logger } from '../../../utils/logger';
 import { getUnitLevelDisplay } from '../../../utils/unitLevelUtils';
+import { STAT_IDS } from '../../../config/imageConstants';
 
 export function generateBalancedStrategyHtml(
     opponentLabel: string,
@@ -46,9 +47,9 @@ export function generateBalancedStrategyHtml(
           }
           // Extract stats
           const stats = unit.data.stats || {};
-          const speed = Math.round(stats['5'] || 0);
-          const health = (stats['1'] || 0) / 1000; // Convert to K
-          const protection = (stats['28'] || 0) / 1000; // Convert to K
+          const speed = Math.round(stats[STAT_IDS.SPEED] || 0);
+          const health = (stats[STAT_IDS.HEALTH] || 0) / 1000; // Convert to K
+          const protection = (stats[STAT_IDS.PROTECTION] || 0) / 1000; // Convert to K
           characterStatsMap.set(unit.data.base_id, { speed, health, protection });
         }
       }
