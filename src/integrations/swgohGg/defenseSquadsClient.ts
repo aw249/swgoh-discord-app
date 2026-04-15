@@ -65,8 +65,8 @@ export class DefenseSquadsClient {
     // Cache miss - fetch from swgoh.gg
     return await this.browserManager.queueOperation(async () => {
       const page = await this.browserManager.createPage();
-      page.setDefaultNavigationTimeout(60000);
-      page.setDefaultTimeout(60000);
+      page.setDefaultNavigationTimeout(35000);
+      page.setDefaultTimeout(35000);
 
       try {
         // Build the URL
@@ -93,8 +93,8 @@ export class DefenseSquadsClient {
         url += `?${params.join('&')}`;
 
         await page.goto(url, {
-          waitUntil: 'networkidle2',
-          timeout: 60000
+          waitUntil: 'domcontentloaded',
+          timeout: 35000
         });
 
         // Basic Cloudflare / error check
@@ -118,9 +118,9 @@ export class DefenseSquadsClient {
                 doc.querySelector('.data-table tbody')
               );
             },
-            { timeout: 45000, polling: 400 }
+            { timeout: 12000, polling: 200 }
           );
-          await new Promise(r => setTimeout(r, 500));
+          await new Promise(r => setTimeout(r, 250));
         } catch {
           logger.warn('GAC squads table did not appear in time — attempting scrape anyway');
         }

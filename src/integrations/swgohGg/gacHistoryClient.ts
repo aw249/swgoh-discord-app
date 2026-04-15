@@ -128,12 +128,13 @@ export class GacHistoryClient {
       try {
         const historyUrl = `${API_ENDPOINTS.SWGOH_GG_BASE}/p/${allyCode}/gac-history/`;
 
-        page.setDefaultNavigationTimeout(60000);
-        page.setDefaultTimeout(60000);
+        // domcontentloaded + bounded content waits — networkidle2 often adds 30–90s on SPAs with analytics.
+        page.setDefaultNavigationTimeout(35000);
+        page.setDefaultTimeout(35000);
 
         await page.goto(historyUrl, {
-          waitUntil: 'networkidle2',
-          timeout: 60000
+          waitUntil: 'domcontentloaded',
+          timeout: 35000
         });
 
         // Basic Cloudflare / error check
@@ -170,7 +171,7 @@ export class GacHistoryClient {
               }
               return false;
             },
-            { timeout: 45000, polling: 400 }
+            { timeout: 16000, polling: 200 }
           );
 
           await page.waitForFunction(
@@ -192,14 +193,14 @@ export class GacHistoryClient {
               }
               return false;
             },
-            { timeout: 20000, polling: 400 }
+            { timeout: 6000, polling: 200 }
           ).catch(() => {
             logger.warn(
               'Season headers / GAC round links not detected after secondary wait — page may be empty or layout changed'
             );
           });
 
-          await new Promise(resolve => setTimeout(resolve, 800));
+          await new Promise(resolve => setTimeout(resolve, 350));
         } catch (error) {
           logger.warn('Error waiting for page content, continuing anyway:', error);
         }
@@ -447,8 +448,8 @@ export class GacHistoryClient {
           try {
             logger.info(`Scraping GAC event: ${eventUrl}`);
             await page.goto(eventUrl, {
-              waitUntil: 'networkidle2',
-              timeout: 60000
+              waitUntil: 'domcontentloaded',
+              timeout: 35000
             });
 
             try {
@@ -462,12 +463,12 @@ export class GacHistoryClient {
                     doc.querySelector('[id*="battles-defense"]')
                   );
                 },
-                { timeout: 25000, polling: 350 }
+                { timeout: 10000, polling: 150 }
               );
             } catch {
               logger.warn(`Defense tab not ready after load: ${eventUrl} — scraping anyway`);
             }
-            await new Promise(r => setTimeout(r, 400));
+            await new Promise(r => setTimeout(r, 250));
 
             const squads = await this.scrapeGacEventDefensiveSquads(page);
             

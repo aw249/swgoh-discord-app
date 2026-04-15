@@ -31,8 +31,8 @@ export class CountersClient {
       // Try with season ID first, then fallback to no season ID if no results
       const tryGetCounters = async (useSeasonId?: string): Promise<GacCounterSquad[]> => {
         const page = await this.browserManager.createPage();
-        page.setDefaultNavigationTimeout(60000);
-        page.setDefaultTimeout(60000);
+        page.setDefaultNavigationTimeout(35000);
+        page.setDefaultTimeout(35000);
 
         try {
           // Build the counters URL with better parameters for more comprehensive data
@@ -50,8 +50,8 @@ export class CountersClient {
           const url = `${baseUrl}${countersPath}?${params.join('&')}`;
 
           await page.goto(url, {
-            waitUntil: 'networkidle2',
-            timeout: 60000
+            waitUntil: 'domcontentloaded',
+            timeout: 35000
           });
 
           // Basic Cloudflare / error check
@@ -87,9 +87,9 @@ export class CountersClient {
                 }
                 return false;
               },
-              { timeout: 45000, polling: 400 }
+              { timeout: 14000, polling: 200 }
             );
-            await new Promise(resolve => setTimeout(resolve, 800));
+            await new Promise(resolve => setTimeout(resolve, 350));
           } catch (error) {
             logger.warn(
               `Counter list did not become ready in time for ${defensiveLeaderBaseId}` +
