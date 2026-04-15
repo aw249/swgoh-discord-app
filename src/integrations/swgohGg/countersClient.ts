@@ -50,9 +50,16 @@ export class CountersClient {
           const url = `${baseUrl}${countersPath}?${params.join('&')}`;
 
           await page.goto(url, {
-            waitUntil: 'domcontentloaded',
+            waitUntil: 'load',
             timeout: 35000
           });
+
+          // Let counter XHRs finish without full networkidle2 (which can hang). Bounded idle wait.
+          try {
+            await page.waitForNetworkIdle({ idleTime: 500, timeout: 10000 });
+          } catch {
+            logger.debug(`waitForNetworkIdle timed out for counters ${defensiveLeaderBaseId} — continuing`);
+          }
 
           // Basic Cloudflare / error check
           const title = await page.title();
@@ -60,7 +67,7 @@ export class CountersClient {
             throw new Error('Cloudflare challenge not resolved. Please try again.');
           }
 
-          // Counter cards used to be `.paper.paper--size-sm`; layout/MUI or slow Pi breaks a strict wait.
+          // Wait for *counter rows*, not generic #root text (domcontentloaded + root heuristic returned too early).
           try {
             await page.waitForFunction(
               () => {
@@ -73,23 +80,24 @@ export class CountersClient {
                 if (doc.querySelector('.paper.paper--size-sm')) {
                   return true;
                 }
+                const portraits = doc.querySelectorAll('.character-portrait[data-unit-def-tooltip-app]');
+                if (portraits.length >= 6) {
+                  return true;
+                }
                 if (doc.querySelector('.paper .character-portrait[data-unit-def-tooltip-app]')) {
                   return true;
                 }
                 if (
-                  doc.querySelector('[class*="MuiPaper-root"] .character-portrait[data-unit-def-tooltip-app]')
+                  doc.querySelectorAll('[class*="MuiPaper-root"] .character-portrait[data-unit-def-tooltip-app]')
+                    .length >= 4
                 ) {
-                  return true;
-                }
-                const root = doc.querySelector('#root');
-                if (root && (root.textContent || '').length > 400) {
                   return true;
                 }
                 return false;
               },
-              { timeout: 14000, polling: 200 }
+              { timeout: 18000, polling: 250 }
             );
-            await new Promise(resolve => setTimeout(resolve, 350));
+            await new Promise(resolve => setTimeout(resolve, 400));
           } catch (error) {
             logger.warn(
               `Counter list did not become ready in time for ${defensiveLeaderBaseId}` +
@@ -97,8 +105,8 @@ export class CountersClient {
             );
           }
 
-          // Scrape counter squads from the page
-          const counterSquads: GacCounterSquad[] = await page.evaluate(() => {
+          const runScrape = (): Promise<GacCounterSquad[]> =>
+            page.evaluate(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const doc: any = (globalThis as any).document;
             const result: GacCounterSquad[] = [];
@@ -267,6 +275,21 @@ export class CountersClient {
 
             return result;
           });
+
+          let counterSquads = await runScrape();
+          for (let retry = 0; retry < 2 && counterSquads.length === 0; retry++) {
+            logger.warn(
+              `Counters scrape returned 0 for ${defensiveLeaderBaseId}` +
+                `${useSeasonId ? ` (season ${useSeasonId})` : ''} — retry ${retry + 1}/2 after brief settle`
+            );
+            await new Promise(r => setTimeout(r, 2200));
+            try {
+              await page.waitForNetworkIdle({ idleTime: 500, timeout: 8000 });
+            } catch {
+              /* ignore */
+            }
+            counterSquads = await runScrape();
+          }
 
           // Sort by win percentage (highest first), then by seen count
           counterSquads.sort((a, b) => {
