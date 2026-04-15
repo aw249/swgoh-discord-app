@@ -451,6 +451,24 @@ export class GacHistoryClient {
               timeout: 60000
             });
 
+            try {
+              await page.waitForFunction(
+                () => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const doc: any = (globalThis as any).document;
+                  return !!(
+                    doc.querySelector('#battles-defense') ||
+                    doc.querySelector('.gac-counters-battle-summary__side--defense') ||
+                    doc.querySelector('[id*="battles-defense"]')
+                  );
+                },
+                { timeout: 25000, polling: 350 }
+              );
+            } catch {
+              logger.warn(`Defense tab not ready after load: ${eventUrl} — scraping anyway`);
+            }
+            await new Promise(r => setTimeout(r, 400));
+
             const squads = await this.scrapeGacEventDefensiveSquads(page);
             
             if (squads.length === 0) {

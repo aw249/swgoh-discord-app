@@ -65,6 +65,8 @@ export class DefenseSquadsClient {
     // Cache miss - fetch from swgoh.gg
     return await this.browserManager.queueOperation(async () => {
       const page = await this.browserManager.createPage();
+      page.setDefaultNavigationTimeout(60000);
+      page.setDefaultTimeout(60000);
 
       try {
         // Build the URL
@@ -92,7 +94,7 @@ export class DefenseSquadsClient {
 
         await page.goto(url, {
           waitUntil: 'networkidle2',
-          timeout: 30000
+          timeout: 60000
         });
 
         // Basic Cloudflare / error check
@@ -101,14 +103,43 @@ export class DefenseSquadsClient {
           throw new Error('Cloudflare challenge not resolved. Please try again.');
         }
 
+        try {
+          await page.waitForFunction(
+            () => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const doc: any = (globalThis as any).document;
+              const t = doc.title || '';
+              if (t.includes('Just a moment')) {
+                return false;
+              }
+              return !!(
+                doc.querySelector('.data-table tbody tr') ||
+                doc.querySelector('table tbody tr') ||
+                doc.querySelector('.data-table tbody')
+              );
+            },
+            { timeout: 45000, polling: 400 }
+          );
+          await new Promise(r => setTimeout(r, 500));
+        } catch {
+          logger.warn('GAC squads table did not appear in time — attempting scrape anyway');
+        }
+
         // Scrape defense squads from the page
         const defenseSquads: GacTopDefenseSquad[] = await page.evaluate(() => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const doc: any = (globalThis as any).document;
           const result: GacTopDefenseSquad[] = [];
 
-          // Find the data table
-          const table = doc.querySelector('.data-table tbody');
+          // Find the data table (class names have changed on swgoh.gg before)
+          let table = doc.querySelector('.data-table tbody');
+          if (!table) {
+            table = doc.querySelector('table.data-table tbody');
+          }
+          if (!table) {
+            const alt = doc.querySelector('[class*="data-table"] tbody');
+            table = alt || doc.querySelector('table tbody');
+          }
           if (!table) {
             return result;
           }

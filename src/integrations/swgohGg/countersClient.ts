@@ -31,6 +31,8 @@ export class CountersClient {
       // Try with season ID first, then fallback to no season ID if no results
       const tryGetCounters = async (useSeasonId?: string): Promise<GacCounterSquad[]> => {
         const page = await this.browserManager.createPage();
+        page.setDefaultNavigationTimeout(60000);
+        page.setDefaultTimeout(60000);
 
         try {
           // Build the counters URL with better parameters for more comprehensive data
@@ -49,7 +51,7 @@ export class CountersClient {
 
           await page.goto(url, {
             waitUntil: 'networkidle2',
-            timeout: 30000
+            timeout: 60000
           });
 
           // Basic Cloudflare / error check
@@ -58,14 +60,41 @@ export class CountersClient {
             throw new Error('Cloudflare challenge not resolved. Please try again.');
           }
 
-          // Wait for counter entries to appear (the page uses JavaScript to render)
+          // Counter cards used to be `.paper.paper--size-sm`; layout/MUI or slow Pi breaks a strict wait.
           try {
-            await page.waitForSelector('.paper.paper--size-sm', { timeout: 10000 });
-            // Give a small additional delay to ensure all content is rendered
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await page.waitForFunction(
+              () => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const doc: any = (globalThis as any).document;
+                const t = doc.title || '';
+                if (t.includes('Just a moment')) {
+                  return false;
+                }
+                if (doc.querySelector('.paper.paper--size-sm')) {
+                  return true;
+                }
+                if (doc.querySelector('.paper .character-portrait[data-unit-def-tooltip-app]')) {
+                  return true;
+                }
+                if (
+                  doc.querySelector('[class*="MuiPaper-root"] .character-portrait[data-unit-def-tooltip-app]')
+                ) {
+                  return true;
+                }
+                const root = doc.querySelector('#root');
+                if (root && (root.textContent || '').length > 400) {
+                  return true;
+                }
+                return false;
+              },
+              { timeout: 45000, polling: 400 }
+            );
+            await new Promise(resolve => setTimeout(resolve, 800));
           } catch (error) {
-            logger.warn(`No counter entries found on page for ${defensiveLeaderBaseId}${useSeasonId ? ` (season: ${useSeasonId})` : ''}, page may be empty or still loading`);
-            // Continue anyway - the evaluate will return empty array if nothing found
+            logger.warn(
+              `Counter list did not become ready in time for ${defensiveLeaderBaseId}` +
+                `${useSeasonId ? ` (season: ${useSeasonId})` : ''} — continuing with scrape`
+            );
           }
 
           // Scrape counter squads from the page
@@ -74,12 +103,26 @@ export class CountersClient {
             const doc: any = (globalThis as any).document;
             const result: GacCounterSquad[] = [];
 
-            // Find all counter entries (papers with offense and defense squads)
-            const papers = Array.from(doc.querySelectorAll('.paper.paper--size-sm')) as any[];
-            
-            // Debug: log how many papers we found
+            // Counter rows: legacy `.paper.paper--size-sm`, or any `.paper` with counter-like layout, or MUI cards
+            let papers = Array.from(doc.querySelectorAll('.paper.paper--size-sm')) as any[];
             if (papers.length === 0) {
-              console.warn('No .paper.paper--size-sm elements found on page');
+              const loose = Array.from(doc.querySelectorAll('.paper')) as any[];
+              papers = loose.filter(
+                (p: any) =>
+                  p.querySelector('.character-portrait[data-unit-def-tooltip-app]') &&
+                  (p.querySelector('.d-flex.col-gap-2') ||
+                    p.querySelector('[class*="justify-content-lg-end"]') ||
+                    p.querySelector('[class*="justify-content-center"]'))
+              );
+            }
+            if (papers.length === 0) {
+              const raw = Array.from(doc.querySelectorAll('[class*="MuiPaper-root"]')) as any[];
+              const outer = raw.filter(
+                (el: any) => !raw.some((other: any) => other !== el && other.contains(el))
+              );
+              papers = outer.filter(
+                (p: any) => p.querySelectorAll('.character-portrait[data-unit-def-tooltip-app]').length >= 2
+              );
             }
 
             for (const paper of papers) {
