@@ -32,7 +32,7 @@ async function main(): Promise<void> {
     
     // GacService uses combined client for real-time bracket data (Comlink + swgoh.gg hybrid)
     const gacService = new GacService(combinedClient);
-    
+
     // Wait for Comlink to be ready (it may be starting up concurrently)
     // Comlink needs time to: discover public IP, generate guest accounts, start server
     const waitForComlink = async (maxAttempts = 20, delayMs = 1000): Promise<boolean> => {
@@ -50,23 +50,7 @@ async function main(): Promise<void> {
       return false;
     };
 
-    const comlinkReady = await waitForComlink();
-    if (comlinkReady) {
-      logger.info('✅ Comlink is available - using real-time CG game data');
-      
-      // Initialize game data from Comlink (unit definitions, localization)
-      try {
-        await initializeGameData();
-        const glCount = gameDataService.getAllGalacticLegends().length;
-        logger.info(`✅ GameDataService initialized - ${glCount} GLs detected`);
-      } catch (error) {
-        logger.warn('⚠️ Failed to initialize GameDataService, using fallback data:', error);
-      }
-    } else {
-      logger.warn('⚠️ Comlink is not available - falling back to swgoh.gg and static game data');
-    }
-
-    // Initialize caches
+    // Initialize caches (fast — disk read only)
     await initCharacterPortraits();
 
     // Create Discord client
@@ -76,6 +60,25 @@ async function main(): Promise<void> {
 
     // Register commands on startup
     await registerCommands();
+
+    // Game data from Comlink can take 40s+ on a Raspberry Pi. If we await it before
+    // client.login(), Discord has no connected session and slash commands time out
+    // with "The application did not respond". Run this in the background instead.
+    void (async () => {
+      const comlinkReady = await waitForComlink();
+      if (comlinkReady) {
+        logger.info('✅ Comlink is available - using real-time CG game data');
+        try {
+          await initializeGameData();
+          const glCount = gameDataService.getAllGalacticLegends().length;
+          logger.info(`✅ GameDataService initialized - ${glCount} GLs detected`);
+        } catch (error) {
+          logger.warn('⚠️ Failed to initialize GameDataService, using fallback data:', error);
+        }
+      } else {
+        logger.warn('⚠️ Comlink is not available - falling back to swgoh.gg and static game data');
+      }
+    })();
 
     // Handle interactions
     client.on(Events.InteractionCreate, async (interaction) => {

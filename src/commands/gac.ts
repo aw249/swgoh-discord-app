@@ -149,7 +149,10 @@ export const gacCommand = {
           } else if (subcommand === 'opponent') {
             const directAllyCode = interaction.options.getString('allycode');
             const normalizedDirectAllyCode = directAllyCode ? normaliseAllyCode(directAllyCode) : null;
-            const bracketOpponentAllyCode = interaction.options.getString('bracket_opponent');
+            const rawBracketOpponent = interaction.options.getString('bracket_opponent');
+            const bracketOpponentAllyCode = rawBracketOpponent
+              ? normaliseAllyCode(rawBracketOpponent.replace(/\D/g, ''))
+              : null;
             // Explicit ally code always wins; otherwise fall back to selected bracket opponent
             const opponentAllyCode = normalizedDirectAllyCode ?? bracketOpponentAllyCode;
             await handleOpponentCommand(
@@ -162,7 +165,10 @@ export const gacCommand = {
           } else if (subcommand === 'strategy') {
             const directAllyCode = interaction.options.getString('allycode');
             const normalizedDirectAllyCode = directAllyCode ? normaliseAllyCode(directAllyCode) : null;
-            const bracketOpponentAllyCode = interaction.options.getString('bracket_opponent');
+            const rawBracketOpponent = interaction.options.getString('bracket_opponent');
+            const bracketOpponentAllyCode = rawBracketOpponent
+              ? normaliseAllyCode(rawBracketOpponent.replace(/\D/g, ''))
+              : null;
             // Explicit ally code always wins; otherwise fall back to selected bracket opponent
             const opponentAllyCode = normalizedDirectAllyCode ?? bracketOpponentAllyCode;
             const format = interaction.options.getString('format');

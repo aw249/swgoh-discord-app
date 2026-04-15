@@ -46,10 +46,10 @@ module.exports = {
       max_restarts: 10,
       restart_delay: 5000,
       // Memory management (important for Raspberry Pi)
-      // node_args causes Node to OOM at 512 MB before PM2 hits its 750 MB limit,
-      // giving a cleaner shutdown rather than an abrupt PM2 kill.
+      // GameDataService localization JSON parse briefly peaks around 1.4–1.6 GiB RSS;
+      // a 500M–1G PM2 cap causes restart loops right after "Loaded 505 unit definitions".
       node_args: '--max-old-space-size=512',
-      max_memory_restart: '750M',
+      max_memory_restart: '2G',
       // Logging
       error_file: './logs/bot-error.log',
       out_file: './logs/bot-out.log',
