@@ -128,9 +128,12 @@ export class GacHistoryClient {
       try {
         const historyUrl = `${API_ENDPOINTS.SWGOH_GG_BASE}/p/${allyCode}/gac-history/`;
 
+        page.setDefaultNavigationTimeout(60000);
+        page.setDefaultTimeout(60000);
+
         await page.goto(historyUrl, {
           waitUntil: 'networkidle2',
-          timeout: 30000
+          timeout: 60000
         });
 
         // Basic Cloudflare / error check
@@ -139,35 +142,64 @@ export class GacHistoryClient {
           throw new Error('Cloudflare challenge not resolved. Please try again.');
         }
 
-        // Wait for GAC history content to be visible - React app needs time to render
+        // Wait for GAC history content — `.paper` alone is brittle (site redesigns, slow Pi CPUs).
         try {
-          // First wait for the paper container
-          await page.waitForSelector('.paper', { timeout: 10000 });
-          
-          // Then wait for React to actually render the season headers
-          // This ensures the content is fully loaded, not just the skeleton
           await page.waitForFunction(
             () => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const doc: any = (globalThis as any).document;
-              const papers = Array.from(doc.querySelectorAll('.paper')) as any[];
-              let hasSeasonHeader = false;
+              const t = doc.title || '';
+              if (t.includes('Just a moment')) {
+                return false;
+              }
+              if (doc.querySelector('.paper')) {
+                return true;
+              }
+              if (doc.querySelector('[class*="MuiPaper-root"]')) {
+                return true;
+              }
+              for (const a of Array.from(doc.querySelectorAll('a[href*="/gac-history/"]'))) {
+                const href = (a as any).getAttribute('href') || '';
+                if (/\/gac-history\/O\d+\/\d+\//.test(href)) {
+                  return true;
+                }
+              }
+              const root = doc.querySelector('#root');
+              if (root && (root.textContent || '').length > 400) {
+                return true;
+              }
+              return false;
+            },
+            { timeout: 45000, polling: 400 }
+          );
+
+          await page.waitForFunction(
+            () => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const doc: any = (globalThis as any).document;
+              const papers = Array.from(doc.querySelectorAll('.paper, [class*="MuiPaper-root"]')) as any[];
               for (const paper of papers) {
                 const h2 = paper.querySelector('h2');
                 if (h2 && h2.textContent && h2.textContent.includes('Season')) {
-                  hasSeasonHeader = true;
-                  break;
+                  return true;
                 }
               }
-              return hasSeasonHeader;
+              for (const a of Array.from(doc.querySelectorAll('a[href*="/gac-history/"]'))) {
+                const href = (a as any).getAttribute('href') || '';
+                if (/\/gac-history\/O\d+\/\d+\//.test(href)) {
+                  return true;
+                }
+              }
+              return false;
             },
-            { timeout: 15000 }
+            { timeout: 20000, polling: 400 }
           ).catch(() => {
-            logger.warn('Season headers not found after waiting for React render - page may be empty or still loading');
+            logger.warn(
+              'Season headers / GAC round links not detected after secondary wait — page may be empty or layout changed'
+            );
           });
-          
-          // Additional small delay to ensure all content is rendered
-          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          await new Promise(resolve => setTimeout(resolve, 800));
         } catch (error) {
           logger.warn('Error waiting for page content, continuing anyway:', error);
         }
@@ -176,7 +208,28 @@ export class GacHistoryClient {
         const eventUrls = await page.evaluate((maxRounds: number, format: string) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const doc: any = (globalThis as any).document;
-          const papers = Array.from(doc.querySelectorAll('.paper')) as any[];
+          const rawBlocks = Array.from(
+            doc.querySelectorAll('.paper, [class*="MuiPaper-root"]')
+          ) as any[];
+          const papers = rawBlocks.filter(
+            (el: any) => !rawBlocks.some((other: any) => other !== el && other.contains(el))
+          );
+
+          const anchorMatchesFormat = (anchor: any, fmt: string): boolean => {
+            const want = fmt.toLowerCase() === '3v3' ? '(3v3)' : '(5v5)';
+            let el: any = anchor.parentElement;
+            for (let d = 0; d < 24 && el; d++, el = el.parentElement) {
+              const headers = el.querySelectorAll('h1, h2, h3');
+              for (let hi = 0; hi < headers.length; hi++) {
+                const h = headers[hi];
+                const text = ((h.textContent || '') + (h.innerText || '')).toLowerCase();
+                if (text.includes('(3v3)') || text.includes('(5v5)')) {
+                  return text.includes(want.toLowerCase());
+                }
+              }
+            }
+            return true;
+          };
 
           const debugInfo: any = {
             totalPapers: papers.length,
@@ -231,6 +284,13 @@ export class GacHistoryClient {
             }
           }
 
+          if (sectionsToProcess.length === 0 && papers.length > 0) {
+            sectionsToProcess = papers;
+          }
+          if (sectionsToProcess.length === 0) {
+            sectionsToProcess = [doc.body];
+          }
+
           // Collect all valid event URLs from all sections (not limited by season count)
           const allValidHrefs: string[] = [];
 
@@ -272,6 +332,42 @@ export class GacHistoryClient {
                     debugInfo.matchingHrefs++;
                   }
                 }
+              }
+            }
+          }
+
+          if (allValidHrefs.length === 0) {
+            for (const a of Array.from(doc.querySelectorAll('a[href*="/gac-history/"]'))) {
+              let href = ((a as any).getAttribute('href') as string) || '';
+              const q = href.indexOf('?');
+              if (q >= 0) {
+                href = href.slice(0, q);
+              }
+              if (!/\/gac-history\/O\d+\/\d+\//.test(href)) {
+                continue;
+              }
+              if (!anchorMatchesFormat(a, format)) {
+                continue;
+              }
+              let walk: any = a;
+              let skipNoData = false;
+              for (let i = 0; i < 14 && walk; i++, walk = walk.parentElement) {
+                const msg = walk.querySelector && walk.querySelector('.message');
+                if (
+                  msg &&
+                  msg.textContent &&
+                  msg.textContent.trim().toLowerCase().includes('no player data')
+                ) {
+                  skipNoData = true;
+                  break;
+                }
+              }
+              if (skipNoData) {
+                continue;
+              }
+              if (!allValidHrefs.includes(href)) {
+                allValidHrefs.push(href);
+                debugInfo.matchingHrefs++;
               }
             }
           }
@@ -352,7 +448,7 @@ export class GacHistoryClient {
             logger.info(`Scraping GAC event: ${eventUrl}`);
             await page.goto(eventUrl, {
               waitUntil: 'networkidle2',
-              timeout: 30000
+              timeout: 60000
             });
 
             const squads = await this.scrapeGacEventDefensiveSquads(page);
