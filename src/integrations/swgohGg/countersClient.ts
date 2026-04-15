@@ -84,6 +84,10 @@ export class CountersClient {
                 if (portraits.length >= 6) {
                   return true;
                 }
+                const anyUnitAttr = doc.querySelectorAll('[data-unit-def-tooltip-app]');
+                if (anyUnitAttr.length >= 6) {
+                  return true;
+                }
                 if (doc.querySelector('.paper .character-portrait[data-unit-def-tooltip-app]')) {
                   return true;
                 }
@@ -115,13 +119,16 @@ export class CountersClient {
             let papers = Array.from(doc.querySelectorAll('.paper.paper--size-sm')) as any[];
             if (papers.length === 0) {
               const loose = Array.from(doc.querySelectorAll('.paper')) as any[];
-              papers = loose.filter(
-                (p: any) =>
-                  p.querySelector('.character-portrait[data-unit-def-tooltip-app]') &&
-                  (p.querySelector('.d-flex.col-gap-2') ||
-                    p.querySelector('[class*="justify-content-lg-end"]') ||
-                    p.querySelector('[class*="justify-content-center"]'))
-              );
+              papers = loose.filter((p: any) => {
+                const n = p.querySelectorAll('[data-unit-def-tooltip-app]').length;
+                return (
+                  n >= 4 ||
+                  (p.querySelector('.character-portrait[data-unit-def-tooltip-app]') &&
+                    (p.querySelector('.d-flex.col-gap-2') ||
+                      p.querySelector('[class*="justify-content-lg-end"]') ||
+                      p.querySelector('[class*="justify-content-center"]')))
+                );
+              });
             }
             if (papers.length === 0) {
               const raw = Array.from(doc.querySelectorAll('[class*="MuiPaper-root"]')) as any[];
@@ -129,100 +136,192 @@ export class CountersClient {
                 (el: any) => !raw.some((other: any) => other !== el && other.contains(el))
               );
               papers = outer.filter(
-                (p: any) => p.querySelectorAll('.character-portrait[data-unit-def-tooltip-app]').length >= 2
+                (p: any) => p.querySelectorAll('[data-unit-def-tooltip-app]').length >= 4
               );
             }
 
-            for (const paper of papers) {
-              // Find the offense squad (left side) - try multiple selector variations
-              let offenseContainer = paper.querySelector('.d-flex.col-gap-2.justify-content-center.justify-content-lg-end');
-              if (!offenseContainer) {
-                // Try alternative selector without flex-1
-                offenseContainer = paper.querySelector('.d-flex.col-gap-2.justify-content-center.justify-content-lg-end.flex-1');
+            const parseUnitFromPortrait = (portrait: any): { baseId: string; portraitUrl: string | null } | null => {
+              if (!portrait || !portrait.getAttribute) {
+                return null;
               }
-              if (!offenseContainer) {
-                // Try even more flexible selector
-                offenseContainer = paper.querySelector('.d-flex.col-gap-2.justify-content-lg-end');
+              let baseId = portrait.getAttribute('data-unit-def-tooltip-app') as string | null;
+              if (!baseId) {
+                const wrap = portrait.closest ? portrait.closest('a[href*="/characters/"]') : null;
+                if (wrap && wrap.href) {
+                  const m = String(wrap.href).match(/\/characters\/([^/?#]+)/);
+                  if (m) {
+                    baseId = m[1];
+                  }
+                }
               }
-              if (!offenseContainer) {
-                continue;
+              if (!baseId) {
+                return null;
               }
+              let portraitUrl: string | null = null;
+              const img = portrait.querySelector('.character-portrait__img');
+              if (img && img.getAttribute) {
+                portraitUrl = img.getAttribute('src') as string | null;
+              }
+              return { baseId, portraitUrl };
+            };
 
-              // Parse offense squad units - leader has w-48px class, members have w-40px
+            const collectFromCharacterLinks = (root: any): { baseId: string; portraitUrl: string | null }[] => {
+              const out: { baseId: string; portraitUrl: string | null }[] = [];
+              const seen = new Set<string>();
+              const anchors = Array.from(root.querySelectorAll('a[href*="/characters/"]')) as any[];
+              for (const a of anchors) {
+                const href = String(a.href || '');
+                const m = href.match(/\/characters\/([^/?#]+)/);
+                if (!m) {
+                  continue;
+                }
+                const baseId = m[1];
+                if (seen.has(baseId)) {
+                  continue;
+                }
+                seen.add(baseId);
+                const portrait =
+                  a.querySelector('.character-portrait[data-unit-def-tooltip-app]') ||
+                  a.querySelector('.character-portrait');
+                const parsed = portrait ? parseUnitFromPortrait(portrait) : { baseId, portraitUrl: null };
+                if (parsed) {
+                  out.push(parsed);
+                }
+              }
+              return out;
+            };
+
+            const resolveOffenseRoot = (paper: any): any => {
+              const candidates = [
+                '.d-flex.col-gap-2.justify-content-center.justify-content-lg-end',
+                '.d-flex.col-gap-2.justify-content-center.justify-content-lg-end.flex-1',
+                '.d-flex.col-gap-2.justify-content-lg-end',
+                '.d-flex.col-gap-2',
+                '[class*="col-gap"][class*="flex"]',
+                '[class*="gap-2"]',
+                '.d-flex.gap-2',
+                'div.flex.gap-2'
+              ];
+              for (const sel of candidates) {
+                const el = paper.querySelector(sel);
+                if (el && el.querySelector && el.querySelector('[data-unit-def-tooltip-app], .character-portrait')) {
+                  return el;
+                }
+              }
+              const kids = Array.from(paper.children || []) as any[];
+              for (const ch of kids) {
+                if (ch.querySelectorAll && ch.querySelectorAll('[data-unit-def-tooltip-app]').length >= 2) {
+                  return ch;
+                }
+              }
+              return paper;
+            };
+
+            const offenseFromPortraitHalves = (paper: any): { baseId: string; portraitUrl: string | null }[] => {
+              const nodes = Array.from(
+                paper.querySelectorAll('.character-portrait[data-unit-def-tooltip-app]')
+              ) as any[];
+              if (nodes.length < 4) {
+                return [];
+              }
+              let offenseLen = 0;
+              if (nodes.length >= 10) {
+                offenseLen = 5;
+              } else if (nodes.length >= 6) {
+                offenseLen = 3;
+              } else {
+                offenseLen = Math.floor(nodes.length / 2);
+              }
+              const out: { baseId: string; portraitUrl: string | null }[] = [];
+              for (let i = 0; i < offenseLen; i++) {
+                const u = parseUnitFromPortrait(nodes[i]);
+                if (u) {
+                  out.push(u);
+                }
+              }
+              return out;
+            };
+
+            for (const paper of papers) {
+              const offenseRoot = resolveOffenseRoot(paper);
               const offenseUnits: GacDefensiveSquadUnit[] = [];
-              
-              // Get leader first (w-48px) - try multiple selector variations
-              let leaderLink = offenseContainer.querySelector('a.w-48px[href*="a_lead"]') as any;
+
+              let leaderLink = offenseRoot.querySelector('a.w-48px[href*="a_lead"]') as any;
               if (!leaderLink) {
-                // Try without href requirement (some pages might not have the href)
-                leaderLink = offenseContainer.querySelector('a.w-48px.d-block') as any;
+                leaderLink = offenseRoot.querySelector('a.w-48px.d-block') as any;
               }
               if (!leaderLink) {
-                // Try just finding the first w-48px element
-                leaderLink = offenseContainer.querySelector('.w-48px a') as any;
+                leaderLink = offenseRoot.querySelector('.w-48px a') as any;
+              }
+              if (!leaderLink) {
+                leaderLink = offenseRoot.querySelector('a[href*="a_lead"]') as any;
               }
               if (leaderLink) {
-                const portrait = leaderLink.querySelector('.character-portrait[data-unit-def-tooltip-app]');
-                if (portrait) {
-                  const baseId = portrait.getAttribute('data-unit-def-tooltip-app') as string | null;
-                  if (baseId) {
-                    let portraitUrl: string | null = null;
-                    const img = portrait.querySelector('.character-portrait__img');
-                    if (img && img.getAttribute) {
-                      portraitUrl = img.getAttribute('src') as string | null;
-                    }
-                    offenseUnits.push({
-                      baseId,
-                      relicLevel: null,
-                      portraitUrl
-                    });
+                const portrait =
+                  leaderLink.querySelector('.character-portrait[data-unit-def-tooltip-app]') ||
+                  leaderLink.querySelector('.character-portrait');
+                const parsed = portrait ? parseUnitFromPortrait(portrait) : null;
+                if (parsed) {
+                  offenseUnits.push({
+                    baseId: parsed.baseId,
+                    relicLevel: null,
+                    portraitUrl: parsed.portraitUrl
+                  });
+                }
+              }
+
+              let memberLinks = Array.from(
+                offenseRoot.querySelectorAll('a.w-40px[href*="a_member"]')
+              ) as any[];
+              if (memberLinks.length === 0) {
+                memberLinks = Array.from(offenseRoot.querySelectorAll('a.w-40px.d-block')) as any[];
+              }
+              if (memberLinks.length === 0) {
+                memberLinks = Array.from(offenseRoot.querySelectorAll('.w-40px a')) as any[];
+              }
+              if (memberLinks.length === 0) {
+                memberLinks = Array.from(offenseRoot.querySelectorAll('a[href*="a_member"]')) as any[];
+              }
+
+              for (const memberLink of memberLinks) {
+                const portrait =
+                  memberLink.querySelector('.character-portrait[data-unit-def-tooltip-app]') ||
+                  memberLink.querySelector('.character-portrait');
+                if (!portrait) {
+                  continue;
+                }
+                const parsed = parseUnitFromPortrait(portrait);
+                if (!parsed) {
+                  continue;
+                }
+                offenseUnits.push({
+                  baseId: parsed.baseId,
+                  relicLevel: null,
+                  portraitUrl: parsed.portraitUrl
+                });
+              }
+
+              if (offenseUnits.length < 2 && offenseRoot !== paper) {
+                const fromLinks = collectFromCharacterLinks(offenseRoot);
+                if (fromLinks.length > offenseUnits.length) {
+                  offenseUnits.length = 0;
+                  for (const u of fromLinks) {
+                    offenseUnits.push({ baseId: u.baseId, relicLevel: null, portraitUrl: u.portraitUrl });
                   }
                 }
               }
 
-              // Get members (w-40px with a_member) - try multiple selector variations
-              let memberLinks = Array.from(
-                offenseContainer.querySelectorAll('a.w-40px[href*="a_member"]')
-              ) as any[];
-              if (memberLinks.length === 0) {
-                // Try without href requirement
-                memberLinks = Array.from(
-                  offenseContainer.querySelectorAll('a.w-40px.d-block')
-                ) as any[];
-              }
-              if (memberLinks.length === 0) {
-                // Try finding all w-40px links
-                memberLinks = Array.from(
-                  offenseContainer.querySelectorAll('.w-40px a')
-                ) as any[];
-              }
-
-              for (const memberLink of memberLinks) {
-                const portrait = memberLink.querySelector('.character-portrait[data-unit-def-tooltip-app]');
-                if (!portrait) {
-                  continue;
+              if (offenseUnits.length < 2) {
+                const halves = offenseFromPortraitHalves(paper);
+                if (halves.length > offenseUnits.length) {
+                  offenseUnits.length = 0;
+                  for (const u of halves) {
+                    offenseUnits.push({ baseId: u.baseId, relicLevel: null, portraitUrl: u.portraitUrl });
+                  }
                 }
-
-                const baseId = portrait.getAttribute('data-unit-def-tooltip-app') as string | null;
-                if (!baseId) {
-                  continue;
-                }
-
-                let portraitUrl: string | null = null;
-                const img = portrait.querySelector('.character-portrait__img');
-                if (img && img.getAttribute) {
-                  portraitUrl = img.getAttribute('src') as string | null;
-                }
-
-                offenseUnits.push({
-                  baseId,
-                  relicLevel: null,
-                  portraitUrl
-                });
               }
 
               if (offenseUnits.length === 0) {
-                // Debug: log why we skipped this paper
                 console.warn('Skipping paper - no offense units found');
                 continue;
               }
