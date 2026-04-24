@@ -22,11 +22,15 @@ jest.mock('puppeteer', () => {
   const mockSetContent = jest.fn().mockResolvedValue(undefined);
   const mockScreenshot = jest.fn().mockResolvedValue(Buffer.from('fake-png'));
 
+  // evaluate returns a fake content height for the viewport resize step
+  const mockEvaluate = jest.fn().mockResolvedValue(500);
+
   const mockPage = {
     setDefaultTimeout: mockSetDefaultTimeout,
     setViewport: mockSetViewport,
     setContent: mockSetContent,
     screenshot: mockScreenshot,
+    evaluate: mockEvaluate,
     close: mockPageClose,
   };
 
@@ -106,7 +110,10 @@ describe('BrowserService', () => {
       expect.objectContaining({ width: 800, height: 600 })
     );
     expect(page.setContent).toHaveBeenCalledWith(html, { waitUntil: 'networkidle0' });
-    expect(page.screenshot).toHaveBeenCalledWith({ type: 'png', fullPage: true });
+    // After content is set, evaluate measures content height, then viewport is resized
+    expect(page.evaluate).toHaveBeenCalled();
+    expect(page.setViewport).toHaveBeenCalledTimes(2);
+    expect(page.screenshot).toHaveBeenCalledWith({ type: 'png' });
     expect(buffer).toBeInstanceOf(Buffer);
   });
 

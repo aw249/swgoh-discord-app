@@ -186,7 +186,7 @@ export async function balanceOffenseAndDefense(
     logger.info(`Pre-fetching defense stats for ${offenseCounterLeaders.length} offense counter leaders to make data-driven placement decisions`);
     
     for (const counter of offenseCounterLeaders) {
-      const stats = await getDefenseStatsForSquad(counter.offense.leader.baseId, seasonId, defenseClient, defenseSquadStatsCache, topDefenseSquadsCache);
+      const stats = await getDefenseStatsForSquad(counter.offense.leader.baseId, seasonId, defenseClient, defenseSquadStatsCache, topDefenseSquadsCache, format);
       offenseDefenseStats.set(counter.offense.leader.baseId, stats);
     }
     
@@ -1184,7 +1184,7 @@ export async function balanceOffenseAndDefense(
           
           if (availableNonGLChars.length >= membersNeeded) {
             // Get defense stats for this GL
-            const stats = await getDefenseStatsForSquad(unusedGL, seasonId, defenseClient, defenseSquadStatsCache, topDefenseSquadsCache);
+            const stats = await getDefenseStatsForSquad(unusedGL, seasonId, defenseClient, defenseSquadStatsCache, topDefenseSquadsCache, format);
             
             // Try to find recommended squad members from defense data
             let selectedMembers: string[] = [];

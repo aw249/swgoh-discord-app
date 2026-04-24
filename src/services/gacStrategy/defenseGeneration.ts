@@ -132,7 +132,7 @@ export async function generateDefenseSquadsFromRoster(
         if (squadExists) continue; // Skip - will be handled by existing matching logic
         
         // Try to find defense stats for this leader
-        const stats = await getDefenseStatsForSquad(leaderId, seasonId, defenseClient, defenseSquadStatsCache, topDefenseSquadsCache);
+        const stats = await getDefenseStatsForSquad(leaderId, seasonId, defenseClient, defenseSquadStatsCache, topDefenseSquadsCache, format);
         
         // Build the squad
         // Portrait URLs will be constructed from baseId when rendering (similar to existing logic)

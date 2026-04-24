@@ -25,7 +25,8 @@ export async function getDefenseStatsForSquad(
   seasonId: string | undefined,
   defenseClient: DefenseClient | undefined,
   defenseSquadStatsCache: DefenseStatsCache,
-  topDefenseSquadsCache: TopDefenseSquadsCache
+  topDefenseSquadsCache: TopDefenseSquadsCache,
+  format?: string
 ): Promise<{ holdPercentage: number | null; seenCount: number | null }> {
     // Check cache first
     const cacheKey = seasonId ? `${leaderBaseId}_${seasonId}` : leaderBaseId;
@@ -44,7 +45,7 @@ export async function getDefenseStatsForSquad(
       let topDefenseSquads = topDefenseSquadsCache.get(cacheKey2);
       
       if (!topDefenseSquads) {
-        topDefenseSquads = await defenseClient.getTopDefenseSquads('percent', seasonId);
+        topDefenseSquads = await defenseClient.getTopDefenseSquads('percent', seasonId, format);
         topDefenseSquadsCache.set(cacheKey2, topDefenseSquads);
       }
 

@@ -68,7 +68,22 @@ export class BrowserService {
         deviceScaleFactor: viewport.deviceScaleFactor ?? DEFAULT_DEVICE_SCALE_FACTOR
       });
       await page.setContent(html, { waitUntil: 'networkidle0' });
-      const screenshot = await page.screenshot({ type: 'png', fullPage: true });
+
+      // Measure actual content height to produce a tightly-cropped image.
+      // Without this, fullPage captures the entire viewport (often much taller
+      // than the content), producing oversized PNGs and duplicated content
+      // on Chromium/ARM builds (Raspberry Pi).
+      const contentHeight = await page.evaluate(() => (globalThis as any).document.body.scrollHeight);
+      const scaleFactor = viewport.deviceScaleFactor ?? DEFAULT_DEVICE_SCALE_FACTOR;
+      await page.setViewport({
+        width: viewport.width,
+        height: contentHeight,
+        deviceScaleFactor: scaleFactor
+      });
+      // Brief pause for layout to settle after viewport resize
+      await new Promise(r => setTimeout(r, 50));
+
+      const screenshot = await page.screenshot({ type: 'png' });
       return screenshot as Buffer;
     } finally {
       await page.close();

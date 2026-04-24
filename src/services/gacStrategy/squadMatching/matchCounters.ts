@@ -531,7 +531,7 @@ export async function matchCountersAgainstRoster(
             // This allows the counter to appear as an alternative with a warning
             archetypePenalty = -50;
             logger.debug(
-              `Counter ${counter.leader.baseId} missing required abilities: ${archetypeValidation.missingRequired?.join(', ')} - applying penalty`
+              `Counter ${counter.leader.baseId} missing required abilities: ${archetypeValidation.missingRequired?.map(r => r.shortDescription || r.reason).join(', ')} - applying penalty`
             );
           } else if (archetypeValidation.confidence < 1.0) {
             // Missing optional abilities - small penalty based on confidence
@@ -641,7 +641,7 @@ export async function matchCountersAgainstRoster(
           // Log warnings if counter has missing abilities
           if (!archetypeValidation.viable) {
             logger.warn(
-              `Counter ${counter.leader.baseId} missing required abilities: ${archetypeValidation.missingRequired?.join(', ')}`
+              `Counter ${counter.leader.baseId} missing required abilities: ${archetypeValidation.missingRequired?.map(r => r.shortDescription || r.reason).join(', ')}`
             );
           } else if (archetypeValidation.warnings && archetypeValidation.warnings.length > 0) {
             logger.info(

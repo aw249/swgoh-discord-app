@@ -176,9 +176,20 @@ export class DefenseSquadsClient {
                 return;
               }
               let portraitUrl: string | null = null;
-              const img = portrait.querySelector('.character-portrait__img');
-              if (img && img.getAttribute) {
-                portraitUrl = img.getAttribute('src') as string | null;
+              // New layout: portrait URL is in a CSS variable on the portrait element
+              const styleAttr = portrait.getAttribute('style') as string | null;
+              if (styleAttr) {
+                const urlMatch = styleAttr.match(/--character-portrait--image-url:\s*url\(([^)]+)\)/);
+                if (urlMatch) {
+                  portraitUrl = urlMatch[1];
+                }
+              }
+              // Legacy fallback: img element with src
+              if (!portraitUrl) {
+                const img = portrait.querySelector('.character-portrait__img');
+                if (img && img.getAttribute) {
+                  portraitUrl = img.getAttribute('src') as string | null;
+                }
               }
               units.push({
                 baseId,

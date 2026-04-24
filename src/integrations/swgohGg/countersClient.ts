@@ -156,9 +156,20 @@ export class CountersClient {
                 return null;
               }
               let portraitUrl: string | null = null;
-              const img = portrait.querySelector('.character-portrait__img');
-              if (img && img.getAttribute) {
-                portraitUrl = img.getAttribute('src') as string | null;
+              // New layout: portrait URL is in a CSS variable on the portrait element
+              const styleAttr = portrait.getAttribute('style') as string | null;
+              if (styleAttr) {
+                const urlMatch = styleAttr.match(/--character-portrait--image-url:\s*url\(([^)]+)\)/);
+                if (urlMatch) {
+                  portraitUrl = urlMatch[1];
+                }
+              }
+              // Legacy fallback: img element with src
+              if (!portraitUrl) {
+                const img = portrait.querySelector('.character-portrait__img');
+                if (img && img.getAttribute) {
+                  portraitUrl = img.getAttribute('src') as string | null;
+                }
               }
               return { baseId, portraitUrl };
             };
@@ -338,11 +349,13 @@ export class CountersClient {
                 continue;
               }
 
-              // Extract stats (Seen, Win %, Avg banners) - try multiple selector variations
-              let statsContainer = paper.querySelector('.white-space-nowrap.d-flex.align-items-center');
+              // Extract stats (Seen, Win %, Avg banners)
+              // Tailwind redesign: div.whitespace-nowrap.flex.items-center wraps three div.flex-1 blocks,
+              // each with a div.font-bold value and a sibling label.
+              // Legacy Bootstrap: .white-space-nowrap.d-flex.align-items-center with .fw-bold values.
+              let statsContainer = paper.querySelector('.whitespace-nowrap.flex.items-center');
               if (!statsContainer) {
-                // Try alternative selector
-                statsContainer = paper.querySelector('.white-space-nowrap.d-flex.align-items-center.flex-1');
+                statsContainer = paper.querySelector('.white-space-nowrap.d-flex.align-items-center');
               }
               let winPercentage: number | null = null;
               let seenCount: number | null = null;
@@ -352,19 +365,22 @@ export class CountersClient {
                 const statDivs = Array.from(statsContainer.querySelectorAll('.flex-1')) as any[];
                 if (statDivs.length >= 3) {
                   // First stat: Seen
-                  const seenText = statDivs[0]?.querySelector('.fw-bold')?.textContent?.trim();
+                  const seenEl = statDivs[0]?.querySelector('.font-bold') || statDivs[0]?.querySelector('.fw-bold');
+                  const seenText = seenEl?.textContent?.trim();
                   if (seenText) {
                     seenCount = parseInt(seenText.replace(/,/g, ''), 10) || null;
                   }
 
                   // Second stat: Win %
-                  const winText = statDivs[1]?.querySelector('.fw-bold')?.textContent?.trim();
+                  const winEl = statDivs[1]?.querySelector('.font-bold') || statDivs[1]?.querySelector('.fw-bold');
+                  const winText = winEl?.textContent?.trim();
                   if (winText) {
                     winPercentage = parseFloat(winText.replace('%', '')) || null;
                   }
 
                   // Third stat: Avg banners
-                  const avgText = statDivs[2]?.querySelector('.fw-bold')?.textContent?.trim();
+                  const avgEl = statDivs[2]?.querySelector('.font-bold') || statDivs[2]?.querySelector('.fw-bold');
+                  const avgText = avgEl?.textContent?.trim();
                   if (avgText) {
                     avgBanners = parseFloat(avgText) || null;
                   }

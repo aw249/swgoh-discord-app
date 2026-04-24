@@ -60,11 +60,22 @@ export class GacHistoryClient {
           }
 
           let portraitUrl: string | null = null;
-          const img = container.querySelector('.character-portrait__img') as any;
-          if (img && img.getAttribute) {
-            const src = img.getAttribute('src') as string | null;
-            if (src) {
-              portraitUrl = src;
+          // New layout: portrait URL is in a CSS variable on the portrait element
+          const styleAttr = portrait.getAttribute('style') as string | null;
+          if (styleAttr) {
+            const urlMatch = styleAttr.match(/--character-portrait--image-url:\s*url\(([^)]+)\)/);
+            if (urlMatch) {
+              portraitUrl = urlMatch[1];
+            }
+          }
+          // Legacy fallback: img element with src
+          if (!portraitUrl) {
+            const img = container.querySelector('.character-portrait__img') as any;
+            if (img && img.getAttribute) {
+              const src = img.getAttribute('src') as string | null;
+              if (src) {
+                portraitUrl = src;
+              }
             }
           }
 
@@ -144,7 +155,7 @@ export class GacHistoryClient {
           throw new Error('swgoh.gg returned an error page while loading GAC history.');
         }
 
-        // Wait for GAC history content — `.paper` alone is brittle (site redesigns, slow Pi CPUs).
+        // Wait for GAC history content — `.panel` (2025+ Tailwind) or `.paper` (legacy).
         try {
           await page.waitForFunction(
             () => {
@@ -154,10 +165,7 @@ export class GacHistoryClient {
               if (t.includes('Just a moment')) {
                 return false;
               }
-              if (doc.querySelector('.paper')) {
-                return true;
-              }
-              if (doc.querySelector('[class*="MuiPaper-root"]')) {
+              if (doc.querySelector('.panel') || doc.querySelector('.paper')) {
                 return true;
               }
               for (const a of Array.from(doc.querySelectorAll('a[href*="/gac-history/"]'))) {
@@ -179,9 +187,11 @@ export class GacHistoryClient {
             () => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const doc: any = (globalThis as any).document;
-              const papers = Array.from(doc.querySelectorAll('.paper, [class*="MuiPaper-root"]')) as any[];
-              for (const paper of papers) {
-                const h2 = paper.querySelector('h2');
+              // 2025+ Tailwind: .panel with .panel__header containing h2
+              // Legacy: .paper with h2
+              const sections = Array.from(doc.querySelectorAll('.panel, .paper')) as any[];
+              for (const section of sections) {
+                const h2 = section.querySelector('h2') || section.querySelector('.panel__header h2');
                 if (h2 && h2.textContent && h2.textContent.includes('Season')) {
                   return true;
                 }
@@ -210,8 +220,10 @@ export class GacHistoryClient {
         const eventUrls = await page.evaluate((maxRounds: number, format: string) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const doc: any = (globalThis as any).document;
+          // 2025+ Tailwind: season sections are .panel elements with .panel__header containing h2
+          // Legacy: .paper elements with h2
           const rawBlocks = Array.from(
-            doc.querySelectorAll('.paper, [class*="MuiPaper-root"]')
+            doc.querySelectorAll('.panel, .paper')
           ) as any[];
           const papers = rawBlocks.filter(
             (el: any) => !rawBlocks.some((other: any) => other !== el && other.contains(el))
@@ -249,7 +261,8 @@ export class GacHistoryClient {
           const formatPattern = format.toLowerCase() === '3v3' ? '(3v3)' : '(5v5)';
           
           for (const paper of papers) {
-            const h2 = paper.querySelector('h2');
+            // 2025+: h2 is inside .panel__header; legacy: h2 directly in .paper
+            const h2 = paper.querySelector('.panel__header h2') || paper.querySelector('h2');
             if (h2) {
               debugInfo.papersWithH2++;
               // Get text content including nested spans
@@ -271,9 +284,9 @@ export class GacHistoryClient {
           if (formatSections.length > 0) {
             sectionsToProcess = formatSections;
           } else {
-            // Fallback 1: Try papers with h2 that have text (might be different format)
+            // Fallback 1: Try sections with h2 that have text (might be different format)
             sectionsToProcess = papers.filter((paper: any) => {
-              const h2 = paper.querySelector('h2');
+              const h2 = paper.querySelector('.panel__header h2') || paper.querySelector('h2');
               return h2 && (h2.textContent || h2.innerText);
             });
             
@@ -460,18 +473,27 @@ export class GacHistoryClient {
                 () => {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const doc: any = (globalThis as any).document;
-                  return !!(
+                  // Defense tab and portraits must be present for a valid scrape
+                  const hasDefenseTab = !!(
                     doc.querySelector('#battles-defense') ||
                     doc.querySelector('.gac-counters-battle-summary__side--defense') ||
                     doc.querySelector('[id*="battles-defense"]')
                   );
+                  if (!hasDefenseTab) return false;
+                  // Wait for at least one portrait to load within the defense tab
+                  const defTab = doc.querySelector('#battles-defense');
+                  if (defTab && defTab.querySelectorAll('.character-portrait[data-unit-def-tooltip-app]').length > 0) {
+                    return true;
+                  }
+                  // Fallback: defense tab exists but may still be loading portraits
+                  return hasDefenseTab;
                 },
-                { timeout: 10000, polling: 150 }
+                { timeout: 12000, polling: 200 }
               );
             } catch {
               logger.warn(`Defense tab not ready after load: ${eventUrl} — scraping anyway`);
             }
-            await new Promise(r => setTimeout(r, 250));
+            await new Promise(r => setTimeout(r, 400));
 
             const squads = await this.scrapeGacEventDefensiveSquads(page);
             
