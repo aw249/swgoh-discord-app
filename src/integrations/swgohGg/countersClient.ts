@@ -54,17 +54,11 @@ export class CountersClient {
             timeout: 35000
           });
 
-          // Let counter XHRs finish without full networkidle2 (which can hang). Bounded idle wait.
-          try {
-            await page.waitForNetworkIdle({ idleTime: 500, timeout: 10000 });
-          } catch {
-            logger.debug(`waitForNetworkIdle timed out for counters ${defensiveLeaderBaseId} — continuing`);
-          }
+          await this.browserManager.settleSwgohGgPageAfterNavigation(page, 60000);
 
-          // Basic Cloudflare / error check
           const title = await page.title();
-          if (title.includes('Just a moment') || title.toLowerCase().includes('error')) {
-            throw new Error('Cloudflare challenge not resolved. Please try again.');
+          if (title.toLowerCase().includes('error')) {
+            throw new Error('swgoh.gg returned an error page while loading counters.');
           }
 
           // Wait for *counter rows*, not generic #root text (domcontentloaded + root heuristic returned too early).

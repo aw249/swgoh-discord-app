@@ -5,6 +5,16 @@ import puppeteer, { Browser, Page } from 'puppeteer';
 import { logger } from '../../utils/logger';
 import { RequestQueue } from '../../utils/requestQueue';
 
+/** Cloudflare managed-challenge titles — wait for these to disappear before scraping. */
+function isCloudflareInterstitialTitle(title: string): boolean {
+  const t = title.toLowerCase();
+  return (
+    title.includes('Just a moment') ||
+    t.includes('attention required') ||
+    t.includes('checking your browser')
+  );
+}
+
 // Shared queue for swgoh.gg HTTP / Puppeteer work so that multiple
 // Discord commands do not spawn many concurrent heavy browser tasks.
 // Start conservatively with a single concurrent task; this can be
@@ -91,6 +101,8 @@ export class BrowserManager {
         timeout: 30000
       });
 
+      await this.settleSwgohGgPageAfterNavigation(page, 55000);
+
       // Wait a bit for Cloudflare challenge to complete if needed
       if (!responseCaptured) {
         await new Promise(resolve => setTimeout(resolve, 3000));
@@ -101,6 +113,8 @@ export class BrowserManager {
             waitUntil: 'networkidle2',
             timeout: 30000
           });
+
+          await this.settleSwgohGgPageAfterNavigation(page, 45000);
 
           if (response) {
             const contentType = response.headers()['content-type'] || '';
@@ -168,7 +182,41 @@ export class BrowserManager {
     await page.setUserAgent(
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     );
+    await page.setViewport({ width: 1365, height: 900, deviceScaleFactor: 1 });
     return page;
+  }
+
+  /**
+   * After navigation, Cloudflare may still show "Just a moment…" while Turnstile runs.
+   * A single `page.title()` check is too early — poll until the real app loads or timeout.
+   */
+  async waitForCloudflareChallengeToFinish(page: Page, timeoutMs = 55000): Promise<void> {
+    const pollMs = 450;
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      const title = await page.title();
+      if (!isCloudflareInterstitialTitle(title)) {
+        return;
+      }
+      await new Promise(r => setTimeout(r, pollMs));
+    }
+    const final = await page.title();
+    if (isCloudflareInterstitialTitle(final)) {
+      logger.error(`Cloudflare interstitial still active after ${timeoutMs}ms (title: ${final.slice(0, 120)})`);
+      throw new Error('Cloudflare challenge not resolved. Please try again.');
+    }
+  }
+
+  /**
+   * Wait for CF to clear, then a short network idle window so SPA/XHR can populate.
+   */
+  async settleSwgohGgPageAfterNavigation(page: Page, cfTimeoutMs = 55000): Promise<void> {
+    await this.waitForCloudflareChallengeToFinish(page, cfTimeoutMs);
+    try {
+      await page.waitForNetworkIdle({ idleTime: 450, timeout: 15000 });
+    } catch {
+      logger.debug('waitForNetworkIdle ended before idle (continuing)');
+    }
   }
 
   /**

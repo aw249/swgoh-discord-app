@@ -93,14 +93,15 @@ export class DefenseSquadsClient {
         url += `?${params.join('&')}`;
 
         await page.goto(url, {
-          waitUntil: 'domcontentloaded',
+          waitUntil: 'load',
           timeout: 35000
         });
 
-        // Basic Cloudflare / error check
+        await this.browserManager.settleSwgohGgPageAfterNavigation(page, 60000);
+
         const title = await page.title();
-        if (title.includes('Just a moment') || title.toLowerCase().includes('error')) {
-          throw new Error('Cloudflare challenge not resolved. Please try again.');
+        if (title.toLowerCase().includes('error')) {
+          throw new Error('swgoh.gg returned an error page while loading defense squads list.');
         }
 
         try {

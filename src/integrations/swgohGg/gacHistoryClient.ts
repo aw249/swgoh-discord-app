@@ -137,10 +137,11 @@ export class GacHistoryClient {
           timeout: 35000
         });
 
-        // Basic Cloudflare / error check
+        await this.browserManager.settleSwgohGgPageAfterNavigation(page, 60000);
+
         const title = await page.title();
-        if (title.includes('Just a moment') || title.toLowerCase().includes('error')) {
-          throw new Error('Cloudflare challenge not resolved. Please try again.');
+        if (title.toLowerCase().includes('error')) {
+          throw new Error('swgoh.gg returned an error page while loading GAC history.');
         }
 
         // Wait for GAC history content — `.paper` alone is brittle (site redesigns, slow Pi CPUs).
@@ -451,6 +452,8 @@ export class GacHistoryClient {
               waitUntil: 'domcontentloaded',
               timeout: 35000
             });
+
+            await this.browserManager.settleSwgohGgPageAfterNavigation(page, 45000);
 
             try {
               await page.waitForFunction(
