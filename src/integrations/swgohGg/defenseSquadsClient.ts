@@ -114,8 +114,10 @@ export class DefenseSquadsClient {
                 return false;
               }
               return !!(
+                doc.querySelector('table.stat-table tbody tr') ||
                 doc.querySelector('.data-table tbody tr') ||
                 doc.querySelector('table tbody tr') ||
+                doc.querySelector('table.stat-table tbody') ||
                 doc.querySelector('.data-table tbody')
               );
             },
@@ -132,8 +134,11 @@ export class DefenseSquadsClient {
           const doc: any = (globalThis as any).document;
           const result: GacTopDefenseSquad[] = [];
 
-          // Find the data table (class names have changed on swgoh.gg before)
-          let table = doc.querySelector('.data-table tbody');
+          // Meta squads table: `stat-table` (2025+); legacy `data-table`
+          let table = doc.querySelector('table.stat-table tbody');
+          if (!table) {
+            table = doc.querySelector('.data-table tbody');
+          }
           if (!table) {
             table = doc.querySelector('table.data-table tbody');
           }
@@ -158,59 +163,60 @@ export class DefenseSquadsClient {
             // Get units - leader is in w-48px div, members are in w-40px divs
             const units: GacDefensiveSquadUnit[] = [];
             
-            // Get leader first (w-48px)
-            const leaderDiv = unitsCell.querySelector('.w-48px');
-            if (leaderDiv) {
-              const leaderLink = leaderDiv.querySelector('a');
-              if (leaderLink) {
-                const portrait = leaderLink.querySelector('.character-portrait[data-unit-def-tooltip-app]');
-                if (portrait) {
-                  const baseId = portrait.getAttribute('data-unit-def-tooltip-app') as string | null;
-                  if (baseId) {
-                    let portraitUrl: string | null = null;
-                    const img = portrait.querySelector('.character-portrait__img');
-                    if (img && img.getAttribute) {
-                      portraitUrl = img.getAttribute('src') as string | null;
-                    }
-                    units.push({
-                      baseId,
-                      relicLevel: null,
-                      portraitUrl
-                    });
-                  }
-                }
+            const pushPortraitFromLink = (link: any): void => {
+              if (!link) {
+                return;
               }
-            }
-
-            // Get members (w-40px)
-            const memberDivs = Array.from(unitsCell.querySelectorAll('.w-40px')) as any[];
-            for (const memberDiv of memberDivs) {
-              const memberLink = memberDiv.querySelector('a');
-              if (!memberLink) {
-                continue;
-              }
-              
-              const portrait = memberLink.querySelector('.character-portrait[data-unit-def-tooltip-app]');
+              const portrait = link.querySelector('.character-portrait[data-unit-def-tooltip-app]');
               if (!portrait) {
-                continue;
+                return;
               }
-
               const baseId = portrait.getAttribute('data-unit-def-tooltip-app') as string | null;
               if (!baseId) {
-                continue;
+                return;
               }
-
               let portraitUrl: string | null = null;
               const img = portrait.querySelector('.character-portrait__img');
               if (img && img.getAttribute) {
                 portraitUrl = img.getAttribute('src') as string | null;
               }
-
               units.push({
                 baseId,
                 relicLevel: null,
                 portraitUrl
               });
+            };
+
+            // Current layout: flex row with w-[48px] leader + w-[40px] members (Tailwind arbitrary widths)
+            const flexRow = unitsCell.querySelector('div.flex.gap-x-2');
+            if (flexRow && flexRow.children && flexRow.children.length >= 2) {
+              const slots = Array.from(flexRow.children) as any[];
+              for (const slot of slots) {
+                const cls = String(slot.className || '');
+                const isSlot =
+                  cls.includes('w-[48px]') ||
+                  cls.includes('w-[40px]') ||
+                  cls.includes('w-48px') ||
+                  cls.includes('w-40px');
+                if (!isSlot) {
+                  continue;
+                }
+                pushPortraitFromLink(slot.querySelector('a'));
+              }
+            }
+
+            if (units.length === 0) {
+              // Legacy: leader (w-48px), members (w-40px)
+              const leaderDiv = unitsCell.querySelector('.w-48px') || unitsCell.querySelector('[class*="w-[48px]"]');
+              if (leaderDiv) {
+                pushPortraitFromLink(leaderDiv.querySelector('a'));
+              }
+              const memberDivs = Array.from(
+                unitsCell.querySelectorAll('.w-40px, [class*="w-[40px]"]')
+              ) as any[];
+              for (const memberDiv of memberDivs) {
+                pushPortraitFromLink(memberDiv.querySelector('a'));
+              }
             }
 
             if (units.length === 0) {

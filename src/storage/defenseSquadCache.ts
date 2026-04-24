@@ -49,6 +49,14 @@ class DefenseSquadCache {
         );
         return null;
       }
+
+      // Empty cache files usually mean a failed scrape under an old DOM; refetch with current parsers.
+      if (!data.squads || data.squads.length === 0) {
+        logger.info(
+          'Defense squads cache file exists but has 0 squads — ignoring cache and refetching'
+        );
+        return null;
+      }
       
       logger.info(
         `Cache hit: Found ${data.squads.length} cached defense squad(s) ` +

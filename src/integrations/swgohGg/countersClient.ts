@@ -71,7 +71,7 @@ export class CountersClient {
                 if (t.includes('Just a moment')) {
                   return false;
                 }
-                if (doc.querySelector('.paper.paper--size-sm')) {
+                if (doc.querySelector('.paper.paper--size-sm') || doc.querySelector('.panel.panel--size-sm')) {
                   return true;
                 }
                 const portraits = doc.querySelectorAll('.character-portrait[data-unit-def-tooltip-app]');
@@ -109,16 +109,20 @@ export class CountersClient {
             const doc: any = (globalThis as any).document;
             const result: GacCounterSquad[] = [];
 
-            // Counter rows: legacy `.paper.paper--size-sm`, or any `.paper` with counter-like layout, or MUI cards
+            // Counter rows: legacy `.paper`, current `.panel.panel--size-sm` (swgoh.gg 2025+), or MUI cards
             let papers = Array.from(doc.querySelectorAll('.paper.paper--size-sm')) as any[];
             if (papers.length === 0) {
-              const loose = Array.from(doc.querySelectorAll('.paper')) as any[];
+              papers = Array.from(doc.querySelectorAll('.panel.panel--size-sm')) as any[];
+            }
+            if (papers.length === 0) {
+              const loose = Array.from(doc.querySelectorAll('.paper, .panel')) as any[];
               papers = loose.filter((p: any) => {
                 const n = p.querySelectorAll('[data-unit-def-tooltip-app]').length;
                 return (
                   n >= 4 ||
                   (p.querySelector('.character-portrait[data-unit-def-tooltip-app]') &&
                     (p.querySelector('.d-flex.col-gap-2') ||
+                      p.querySelector('div.flex.gap-x-2') ||
                       p.querySelector('[class*="justify-content-lg-end"]') ||
                       p.querySelector('[class*="justify-content-center"]')))
                 );
@@ -187,11 +191,17 @@ export class CountersClient {
 
             const resolveOffenseRoot = (paper: any): any => {
               const candidates = [
+                // Tailwind redesign (counter offense column)
+                'div.flex.gap-x-2.justify-center.flex-1',
+                'div.flex.gap-x-2.flex-1',
+                'div[class*="gap-x-2"][class*="lg:justify-end"]',
+                'div.flex.gap-x-2',
                 '.d-flex.col-gap-2.justify-content-center.justify-content-lg-end',
                 '.d-flex.col-gap-2.justify-content-center.justify-content-lg-end.flex-1',
                 '.d-flex.col-gap-2.justify-content-lg-end',
                 '.d-flex.col-gap-2',
                 '[class*="col-gap"][class*="flex"]',
+                '[class*="gap-x-2"]',
                 '[class*="gap-2"]',
                 '.d-flex.gap-2',
                 'div.flex.gap-2'
@@ -240,7 +250,10 @@ export class CountersClient {
               const offenseRoot = resolveOffenseRoot(paper);
               const offenseUnits: GacDefensiveSquadUnit[] = [];
 
-              let leaderLink = offenseRoot.querySelector('a.w-48px[href*="a_lead"]') as any;
+              let leaderLink = offenseRoot.querySelector('a[href*="a_lead"]') as any;
+              if (!leaderLink) {
+                leaderLink = offenseRoot.querySelector('a.w-48px[href*="a_lead"]') as any;
+              }
               if (!leaderLink) {
                 leaderLink = offenseRoot.querySelector('a.w-48px.d-block') as any;
               }
@@ -248,7 +261,7 @@ export class CountersClient {
                 leaderLink = offenseRoot.querySelector('.w-48px a') as any;
               }
               if (!leaderLink) {
-                leaderLink = offenseRoot.querySelector('a[href*="a_lead"]') as any;
+                leaderLink = offenseRoot.querySelector('[class*="w-[48px]"] a') as any;
               }
               if (leaderLink) {
                 const portrait =
@@ -264,9 +277,12 @@ export class CountersClient {
                 }
               }
 
-              let memberLinks = Array.from(
-                offenseRoot.querySelectorAll('a.w-40px[href*="a_member"]')
-              ) as any[];
+              let memberLinks = Array.from(offenseRoot.querySelectorAll('a[href*="a_member"]')) as any[];
+              if (memberLinks.length === 0) {
+                memberLinks = Array.from(
+                  offenseRoot.querySelectorAll('a.w-40px[href*="a_member"]')
+                ) as any[];
+              }
               if (memberLinks.length === 0) {
                 memberLinks = Array.from(offenseRoot.querySelectorAll('a.w-40px.d-block')) as any[];
               }
@@ -274,7 +290,9 @@ export class CountersClient {
                 memberLinks = Array.from(offenseRoot.querySelectorAll('.w-40px a')) as any[];
               }
               if (memberLinks.length === 0) {
-                memberLinks = Array.from(offenseRoot.querySelectorAll('a[href*="a_member"]')) as any[];
+                memberLinks = Array.from(
+                  offenseRoot.querySelectorAll('[class*="w-[40px]"] a[href*="a_member"]')
+                ) as any[];
               }
 
               for (const memberLink of memberLinks) {
