@@ -8,6 +8,7 @@ import { helpCommand } from '../commands/help';
 import { gacCommand } from '../commands/gac';
 import { PlayerService } from '../services/playerService';
 import { GacService } from '../services/gacService';
+import { BracketCacheWarmer } from '../services/bracketCacheWarmer';
 import { filePlayerStore as playerStore } from '../storage/fileStore';
 
 import { SwgohGgApiClient } from '../integrations/swgohGgApi';
@@ -129,17 +130,19 @@ async function main(): Promise<void> {
       }
     });
 
+    // Background bracket cache warmer — keeps autocomplete fast
+    const bracketWarmer = new BracketCacheWarmer(gacService, playerStore);
+
     // Handle ready event
     client.once(Events.ClientReady, async (readyClient) => {
       logger.info(`Bot logged in as ${readyClient.user.tag}`);
-      
-      // Bracket discovery now happens on-demand when users run /gac commands
-      // Bracket IDs are cached persistently to disk for fast subsequent lookups
+      bracketWarmer.start();
     });
 
     // Handle graceful shutdown
     process.on('SIGINT', async () => {
       logger.info('Shutting down gracefully...');
+      bracketWarmer.stop();
       await flushCharacterPortraits();
       await combinedClient.close();
       await client.destroy();
@@ -148,6 +151,7 @@ async function main(): Promise<void> {
 
     process.on('SIGTERM', async () => {
       logger.info('Shutting down gracefully...');
+      bracketWarmer.stop();
       await flushCharacterPortraits();
       await combinedClient.close();
       await client.destroy();
