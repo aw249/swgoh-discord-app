@@ -6,6 +6,25 @@
  */
 import { logger } from '../utils/logger';
 
+/** Comlink can drop large responses (e.g. localization JSON) under load; treat as transient. */
+function isTransientComlinkFetchError(error: unknown): boolean {
+  if (error instanceof TypeError && error.message === 'fetch failed') {
+    return true;
+  }
+  const err = error as Error & { code?: string; cause?: unknown };
+  if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT' || err.code === 'ECONNREFUSED') {
+    return true;
+  }
+  const cause = err.cause as { code?: string } | undefined;
+  const code = cause?.code;
+  return (
+    code === 'UND_ERR_SOCKET' ||
+    code === 'ECONNRESET' ||
+    code === 'UND_ERR_HEADERS_TIMEOUT' ||
+    code === 'UND_ERR_BODY_TIMEOUT'
+  );
+}
+
 export interface UnitDefinition {
   baseId: string;
   nameKey: string;
@@ -49,6 +68,30 @@ export class GameDataService {
   
   // Cache for 24 hours (game data rarely changes)
   private readonly CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+  /** Retry Comlink HTTP calls when the server closes the socket mid-body (common on Pi + large JSON). */
+  private async withComlinkRetries<T>(operation: string, fn: () => Promise<T>): Promise<T> {
+    const maxAttempts = 5;
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await fn();
+      } catch (e) {
+        lastError = e;
+        const transient = isTransientComlinkFetchError(e);
+        if (!transient || attempt === maxAttempts) {
+          throw e;
+        }
+        const delayMs = Math.min(10_000, 1000 * 2 ** (attempt - 1));
+        logger.warn(
+          `${operation} failed (attempt ${attempt}/${maxAttempts}), retrying in ${delayMs}ms:`,
+          e instanceof Error ? e.message : e
+        );
+        await new Promise((r) => setTimeout(r, delayMs));
+      }
+    }
+    throw lastError;
+  }
 
   private constructor(comlinkUrl?: string) {
     this.comlinkUrl = comlinkUrl ?? process.env.COMLINK_URL ?? 'http://localhost:3200';
@@ -130,96 +173,102 @@ export class GameDataService {
    * Fetch metadata from Comlink
    */
   private async fetchMetadata(): Promise<GameDataMetadata> {
-    const response = await fetch(`${this.comlinkUrl}/metadata`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ payload: {} }),
+    return this.withComlinkRetries('Comlink /metadata', async () => {
+      const response = await fetch(`${this.comlinkUrl}/metadata`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload: {} }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch metadata: ${response.status}`);
+      }
+
+      const data = await response.json() as GameDataMetadata;
+      return {
+        latestGamedataVersion: data.latestGamedataVersion,
+        latestLocalizationBundleVersion: data.latestLocalizationBundleVersion,
+        serverVersion: data.serverVersion,
+      };
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch metadata: ${response.status}`);
-    }
-
-    const data = await response.json() as GameDataMetadata;
-    return {
-      latestGamedataVersion: data.latestGamedataVersion,
-      latestLocalizationBundleVersion: data.latestLocalizationBundleVersion,
-      serverVersion: data.serverVersion,
-    };
   }
 
   /**
    * Fetch and parse game data from Comlink
    */
   private async fetchGameData(version: string): Promise<void> {
-    const response = await fetch(`${this.comlinkUrl}/data`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        payload: {
-          version,
-          includePveUnits: false,
-          requestSegment: 0,
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch game data: ${response.status}`);
-    }
-
-    const data = await response.json() as { units: ComlinkUnitData[] };
-    
-    this.units.clear();
-    for (const unit of data.units) {
-      this.units.set(unit.baseId, {
-        baseId: unit.baseId,
-        nameKey: unit.nameKey,
-        combatType: unit.combatType,
-        categoryId: unit.categoryId || [],
-        forceAlignment: unit.forceAlignment || 0,
-        rarity: unit.rarity || 0,
-        obtainable: unit.obtainable ?? true,
-        obtainableTime: unit.obtainableTime || 0,
+    await this.withComlinkRetries('Comlink /data', async () => {
+      const response = await fetch(`${this.comlinkUrl}/data`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payload: {
+            version,
+            includePveUnits: false,
+            requestSegment: 0,
+          },
+        }),
       });
-    }
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch game data: ${response.status}`);
+      }
+
+      const data = await response.json() as { units: ComlinkUnitData[] };
+
+      this.units.clear();
+      for (const unit of data.units) {
+        this.units.set(unit.baseId, {
+          baseId: unit.baseId,
+          nameKey: unit.nameKey,
+          combatType: unit.combatType,
+          categoryId: unit.categoryId || [],
+          forceAlignment: unit.forceAlignment || 0,
+          rarity: unit.rarity || 0,
+          obtainable: unit.obtainable ?? true,
+          obtainableTime: unit.obtainableTime || 0,
+        });
+      }
+    });
   }
 
   /**
    * Fetch and parse English localization from Comlink
    */
   private async fetchLocalization(bundleVersion: string): Promise<void> {
-    const response = await fetch(`${this.comlinkUrl}/localization`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        unzip: true,
-        payload: { id: bundleVersion },
-      }),
-    });
+    await this.withComlinkRetries('Comlink /localization', async () => {
+      const response = await fetch(`${this.comlinkUrl}/localization`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          unzip: true,
+          payload: { id: bundleVersion },
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch localization: ${response.status}`);
-    }
-
-    const data = await response.json() as Record<string, string>;
-    const engData = data['Loc_ENG_US.txt'];
-    
-    if (!engData) {
-      throw new Error('English localization not found');
-    }
-
-    // Parse pipe-separated format: KEY|VALUE
-    this.localization.clear();
-    const lines = engData.split('\n');
-    for (const line of lines) {
-      const pipeIndex = line.indexOf('|');
-      if (pipeIndex > 0) {
-        const key = line.substring(0, pipeIndex);
-        const value = line.substring(pipeIndex + 1);
-        this.localization.set(key, value);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch localization: ${response.status}`);
       }
-    }
+
+      const data = await response.json() as Record<string, string>;
+      const engData = data['Loc_ENG_US.txt'];
+
+      if (!engData) {
+        throw new Error('English localization not found');
+      }
+
+      // Parse pipe-separated format: KEY|VALUE
+      this.localization.clear();
+      const lines = engData.split('\n');
+      for (const line of lines) {
+        const pipeIndex = line.indexOf('|');
+        if (pipeIndex > 0) {
+          const key = line.substring(0, pipeIndex);
+          const value = line.substring(pipeIndex + 1);
+          this.localization.set(key, value);
+        }
+      }
+    });
   }
 
   // ===== Public API =====
