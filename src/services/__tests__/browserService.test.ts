@@ -5,15 +5,9 @@
  * hoisted to the top of the file by Babel/ts-jest, any variables referenced
  * inside the factory must themselves be defined inside the factory (or via
  * jest.fn() with a separate spy reference obtained after the mock is set up).
- * We use module-level jest.fn() stubs that are assigned values once inside
- * beforeEach so the implementation can be changed per test.
  */
 
 import { BrowserService } from '../browserService';
-
-// ---------------------------------------------------------------------------
-// Build reusable mock objects INSIDE jest.mock factory to avoid hoisting issues
-// ---------------------------------------------------------------------------
 
 jest.mock('puppeteer', () => {
   const mockPageClose = jest.fn().mockResolvedValue(undefined);
@@ -21,9 +15,9 @@ jest.mock('puppeteer', () => {
   const mockSetViewport = jest.fn().mockResolvedValue(undefined);
   const mockSetContent = jest.fn().mockResolvedValue(undefined);
   const mockScreenshot = jest.fn().mockResolvedValue(Buffer.from('fake-png'));
-
-  // evaluate returns a fake content height for the viewport resize step
-  const mockEvaluate = jest.fn().mockResolvedValue(500);
+  // page.evaluate is new — used to wait for images/fonts and measure content height.
+  // Return a plausible content height so the service can resize the viewport.
+  const mockEvaluate = jest.fn().mockImplementation(async () => 1800);
 
   const mockPage = {
     setDefaultTimeout: mockSetDefaultTimeout,
@@ -52,23 +46,7 @@ jest.mock('puppeteer', () => {
   };
 });
 
-// Get a handle on the mocked module so we can inspect calls
 import puppeteer from 'puppeteer';
-
-// ---------------------------------------------------------------------------
-// Helpers to retrieve deeply nested mocks from the mocked module
-// ---------------------------------------------------------------------------
-
-async function launchMockBrowser() {
-  // Calling through the mock returns our fake browser object
-  return (puppeteer.launch as jest.Mock).mock.results[
-    (puppeteer.launch as jest.Mock).mock.results.length - 1
-  ]?.value;
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
 
 describe('BrowserService', () => {
   let service: BrowserService;
@@ -82,44 +60,54 @@ describe('BrowserService', () => {
     await service.close();
   });
 
-  // -------------------------------------------------------------------------
-  // close() on a fresh instance doesn't throw
-  // -------------------------------------------------------------------------
-
   it('close() on a fresh instance does not throw', async () => {
     await expect(service.close()).resolves.toBeUndefined();
-    // Browser was never launched so puppeteer.launch should never be called
     expect((puppeteer.launch as jest.Mock)).not.toHaveBeenCalled();
   });
 
-  // -------------------------------------------------------------------------
-  // renderHtml calls page methods in the correct order
-  // -------------------------------------------------------------------------
-
-  it('renderHtml calls setViewport, setContent, and screenshot', async () => {
+  it('renderHtml calls setContent with networkidle0 and screenshots with a clip (not fullPage)', async () => {
     const html = '<html><body>Hello</body></html>';
     const viewport = { width: 800, height: 600 };
 
     const buffer = await service.renderHtml(html, viewport);
 
-    // Retrieve the page mock via the browser that was launched
     const browser = await (puppeteer.launch as jest.Mock).mock.results[0].value;
     const page = await browser.newPage.mock.results[0].value;
 
-    expect(page.setViewport).toHaveBeenCalledWith(
-      expect.objectContaining({ width: 800, height: 600 })
-    );
     expect(page.setContent).toHaveBeenCalledWith(html, { waitUntil: 'networkidle0' });
-    // After content is set, evaluate measures content height, then viewport is resized
-    expect(page.evaluate).toHaveBeenCalled();
-    expect(page.setViewport).toHaveBeenCalledTimes(2);
-    expect(page.screenshot).toHaveBeenCalledWith({ type: 'png' });
+
+    // Screenshot is taken with a clip (not fullPage). This is the key change
+    // that avoids the tiled-capture duplication bug.
+    expect(page.screenshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'png',
+        clip: expect.objectContaining({ x: 0, y: 0, width: 800 }),
+      })
+    );
+    expect(page.screenshot).not.toHaveBeenCalledWith(
+      expect.objectContaining({ fullPage: true })
+    );
     expect(buffer).toBeInstanceOf(Buffer);
   });
 
-  // -------------------------------------------------------------------------
-  // Default deviceScaleFactor is applied when not specified
-  // -------------------------------------------------------------------------
+  it('sets the viewport twice: initial for layout, then resized to measured content height', async () => {
+    await service.renderHtml('<html></html>', { width: 800, height: 2400 });
+
+    const browser = await (puppeteer.launch as jest.Mock).mock.results[0].value;
+    const page = await browser.newPage.mock.results[0].value;
+
+    // First call: initial viewport for CSS layout, width matches caller.
+    expect(page.setViewport).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ width: 800 })
+    );
+
+    // Second call: resized to the measured content height (our mock returns 1800).
+    expect(page.setViewport).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ width: 800, height: 1800 })
+    );
+  });
 
   it('uses default deviceScaleFactor when not specified in viewport', async () => {
     const expectedScaleFactor = parseFloat(process.env.DEVICE_SCALE_FACTOR || '2');
@@ -145,10 +133,6 @@ describe('BrowserService', () => {
     );
   });
 
-  // -------------------------------------------------------------------------
-  // close() calls browser.close() after a browser has been launched
-  // -------------------------------------------------------------------------
-
   it('close() calls browser.close() after a browser has been used', async () => {
     await service.renderHtml('<html></html>', { width: 100, height: 100 });
 
@@ -158,10 +142,6 @@ describe('BrowserService', () => {
 
     expect(browser.close).toHaveBeenCalledTimes(1);
   });
-
-  // -------------------------------------------------------------------------
-  // page.close() is called in the finally block
-  // -------------------------------------------------------------------------
 
   it('page.close() is called after renderHtml (cleanup in finally block)', async () => {
     await service.renderHtml('<html></html>', { width: 100, height: 100 });
