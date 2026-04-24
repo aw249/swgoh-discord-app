@@ -102,12 +102,23 @@ export class GacStrategyService {
         members: squad.members.map(toUniqueUnit)
       }));
 
+      // Filter by format: 5v5 squads have 4 members, 3v3 squads have 2 members.
+      // Without this, 3v3 squads leak through when format filtering on the history
+      // page fails (e.g. selectors change) and produce 3-character offense images.
+      const expectedMembers = format === '3v3' ? 2 : 4;
+      const formatFiltered = allSquads.filter(squad => squad.members.length === expectedMembers);
+      if (formatFiltered.length < allSquads.length) {
+        logger.info(
+          `Filtered opponent squads by format: ${allSquads.length} total -> ${formatFiltered.length} matching ${format} (${allSquads.length - formatFiltered.length} wrong-format removed)`
+        );
+      }
+
       // De-duplicate by leader - keep only the most recent (first) occurrence of each leader
       // This is because the opponent can only set one squad per leader in any GAC round
       const seenLeaders = new Set<string>();
       const uniqueSquads: UniqueDefensiveSquad[] = [];
-      
-      for (const squad of allSquads) {
+
+      for (const squad of formatFiltered) {
         if (!seenLeaders.has(squad.leader.baseId)) {
           seenLeaders.add(squad.leader.baseId);
           uniqueSquads.push(squad);

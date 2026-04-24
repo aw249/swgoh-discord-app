@@ -1399,7 +1399,73 @@ export async function balanceOffenseAndDefense(
       }
       */
     }
-    
+
+    // Safety net: place any remaining unused GLs on defense using known compositions.
+    // This avoids the aggressive offense-replacement issues of the full block above,
+    // while ensuring no GL is left completely unassigned.
+    const stillUnusedGLs = Array.from(allUserGLsForPlacement).filter(gl =>
+      !usedGLsForPlacement.has(gl) && !usedLeaders.has(gl)
+    );
+    for (const unusedGL of stillUnusedGLs) {
+      // Try to find this GL in defense suggestions with no conflicts
+      for (const defenseSuggestion of sortedDefense) {
+        if (defenseSuggestion.squad.leader.baseId !== unusedGL) continue;
+        const defenseUnits = [
+          defenseSuggestion.squad.leader.baseId,
+          ...defenseSuggestion.squad.members.map(m => m.baseId)
+        ];
+        const hasConflict = defenseUnits.some(unitId => usedCharacters.has(unitId));
+        if (!hasConflict && balancedDefense.length < maxDefenseSquads) {
+          logger.info(`[GL Safety Net] Placing unused GL ${unusedGL} on defense (Hold: ${defenseSuggestion.holdPercentage?.toFixed(1) ?? 'N/A'}%)`);
+          balancedDefense.push(defenseSuggestion);
+          for (const unitId of defenseUnits) { usedCharacters.add(unitId); }
+          usedLeaders.add(unusedGL);
+          usedGLsForPlacement.add(unusedGL);
+          break;
+        }
+        // If full squad conflicts, try with conflict tolerance (allow 1 member swap)
+        const conflictingMembers = defenseSuggestion.squad.members.filter(m => usedCharacters.has(m.baseId));
+        if (conflictingMembers.length <= 1 && !usedCharacters.has(unusedGL) && balancedDefense.length < maxDefenseSquads) {
+          // Build squad with non-conflicting members only
+          const cleanMembers = defenseSuggestion.squad.members.filter(m => !usedCharacters.has(m.baseId));
+          if (cleanMembers.length >= (format === '3v3' ? 2 : 4) - 1) {
+            // Fill remaining slot from available roster
+            const needed = (format === '3v3' ? 2 : 4) - cleanMembers.length;
+            const fillers: typeof cleanMembers = [];
+            if (needed > 0 && userRoster) {
+              for (const unit of userRoster.units || []) {
+                if (fillers.length >= needed) break;
+                if (unit.data.combat_type === 1 && unit.data.rarity >= 7 &&
+                    !isGalacticLegend(unit.data.base_id) &&
+                    !usedCharacters.has(unit.data.base_id) &&
+                    !cleanMembers.some(m => m.baseId === unit.data.base_id)) {
+                  fillers.push({ baseId: unit.data.base_id, relicLevel: null, portraitUrl: null });
+                }
+              }
+            }
+            const finalMembers = [...cleanMembers.slice(0, (format === '3v3' ? 2 : 4) - fillers.length), ...fillers];
+            if (finalMembers.length === (format === '3v3' ? 2 : 4)) {
+              const glSquad = { leader: defenseSuggestion.squad.leader, members: finalMembers };
+              const allUnits = [unusedGL, ...finalMembers.map(m => m.baseId)];
+              logger.info(`[GL Safety Net] Placing unused GL ${unusedGL} on defense with adjusted composition`);
+              balancedDefense.push({
+                squad: glSquad,
+                holdPercentage: defenseSuggestion.holdPercentage,
+                seenCount: defenseSuggestion.seenCount,
+                avgBanners: defenseSuggestion.avgBanners,
+                score: defenseSuggestion.score,
+                reason: `GL safety net (Hold: ${defenseSuggestion.holdPercentage?.toFixed(1) ?? 'N/A'}%)`
+              });
+              for (const unitId of allUnits) { usedCharacters.add(unitId); }
+              usedLeaders.add(unusedGL);
+              usedGLsForPlacement.add(unusedGL);
+              break;
+            }
+          }
+        }
+      }
+    }
+
     // Post-processing: Replace low win rate counters (< 75%) with better alternatives, especially unused GLs
     // This ensures we use the best available counters, especially if GLs are available
     const MIN_WIN_RATE_THRESHOLD = 75;
