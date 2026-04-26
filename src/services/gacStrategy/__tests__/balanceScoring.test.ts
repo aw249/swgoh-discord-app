@@ -111,3 +111,61 @@ describe('defenseViability', () => {
     expect(defenseViability(makeDef({ holdPercentage: 30, seenCount: null }))).toBeCloseTo(9, 1);
   });
 });
+
+import { bestAvailableAlt } from '../balanceScoring';
+
+describe('bestAvailableAlt', () => {
+  it('returns viability 0 and null alt when alternatives is empty', () => {
+    const c = makeCounter({ alternatives: [] });
+    expect(bestAvailableAlt(c, new Set(), '5v5')).toEqual({ alt: null, viability: 0 });
+  });
+
+  it('returns the highest-viability alternative whose units are all available', () => {
+    const altA = makeCounter({
+      offense: { leader: { baseId: 'A', relicLevel: null, portraitUrl: null }, members: [{ baseId: 'A2', relicLevel: null, portraitUrl: null }] },
+      winPercentage: 70,
+    });
+    const altB = makeCounter({
+      offense: { leader: { baseId: 'B', relicLevel: null, portraitUrl: null }, members: [{ baseId: 'B2', relicLevel: null, portraitUrl: null }] },
+      winPercentage: 90,
+    });
+    const c = makeCounter({ alternatives: [altA, altB] });
+    const result = bestAvailableAlt(c, new Set(), '5v5');
+    expect(result.alt).toBe(altB);
+    expect(result.viability).toBeGreaterThan(0);
+  });
+
+  it('skips alternatives whose leader is in claimedChars', () => {
+    const altA = makeCounter({
+      offense: { leader: { baseId: 'A', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 70,
+    });
+    const altB = makeCounter({
+      offense: { leader: { baseId: 'B', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 90,
+    });
+    const c = makeCounter({ alternatives: [altA, altB] });
+    const result = bestAvailableAlt(c, new Set(['B']), '5v5');
+    expect(result.alt).toBe(altA);
+  });
+
+  it('skips alternatives whose members are in claimedChars', () => {
+    const altA = makeCounter({
+      offense: { leader: { baseId: 'A', relicLevel: null, portraitUrl: null }, members: [{ baseId: 'M1', relicLevel: null, portraitUrl: null }] },
+      winPercentage: 70,
+    });
+    const c = makeCounter({ alternatives: [altA] });
+    const result = bestAvailableAlt(c, new Set(['M1']), '5v5');
+    expect(result.alt).toBeNull();
+    expect(result.viability).toBe(0);
+  });
+
+  it('skips alternatives with null offense leader', () => {
+    const altA = makeCounter({
+      offense: { leader: { baseId: '', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 70,
+    });
+    const c = makeCounter({ alternatives: [altA] });
+    expect(bestAvailableAlt(c, new Set(), '5v5')).toEqual({ alt: null, viability: 0 });
+  });
+});

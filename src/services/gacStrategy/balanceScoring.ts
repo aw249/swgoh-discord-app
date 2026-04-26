@@ -81,3 +81,30 @@ export function defenseViability(input: DefenseScoreInput): number {
   if (input.holdPercentage === null) return 0;
   return input.holdPercentage * confidenceMultiplier(input.seenCount);
 }
+
+export interface AltSearchResult {
+  alt: MatchedCounterSquad | null;
+  viability: number;
+}
+
+/**
+ * Find the best alternative counter from `counter.alternatives` whose
+ * leader and members are all absent from `claimedChars`. Returns the
+ * winner and its viability, or { alt: null, viability: 0 } if none fit.
+ */
+export function bestAvailableAlt(
+  counter: MatchedCounterSquad,
+  claimedChars: Set<string>,
+  format: string
+): AltSearchResult {
+  let best: AltSearchResult = { alt: null, viability: 0 };
+  for (const alt of counter.alternatives ?? []) {
+    if (!alt.offense.leader.baseId) continue;
+    if (claimedChars.has(alt.offense.leader.baseId)) continue;
+    const memberCollision = alt.offense.members.some(m => m.baseId && claimedChars.has(m.baseId));
+    if (memberCollision) continue;
+    const v = offenseViability(alt, format);
+    if (v > best.viability) best = { alt, viability: v };
+  }
+  return best;
+}
