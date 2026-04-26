@@ -1942,7 +1942,13 @@ export async function balanceOffenseAndDefense(
     // For offensive strategy, be lenient with conflicts - allow defense squads even if they share 1-2 characters with offense
     // For offensive strategy, allow GLs on defense ONLY if they weren't used on offense (remaining unused GLs)
     // Continue until we reach maxDefenseSquads or run out of suggestions
+    //
+    // GATE: this lenient pass is the offensive-strategy supplemental fill only.
+    // For 'defensive' and 'balanced', the defense-first allocator above already
+    // ran with strict conflict checking; running the lenient pass here would
+    // silently re-add squads that share characters with already-placed defense.
     for (const defenseSuggestion of sortedDefense) {
+      if (strategyPreference !== 'offensive') break;
       if (balancedDefense.length >= maxDefenseSquads) {
         break; // Reached max defense squads
       }
