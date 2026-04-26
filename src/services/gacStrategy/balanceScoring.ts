@@ -23,6 +23,15 @@ export const MAX_SEEN_OFFENSE = 10000;
 export const CONFIDENCE_FLOOR = 0.30;
 
 /**
+ * Minimum win rate for an offense alternative to count as "viable" during
+ * a contention swap. If defense wants to claim a leader and the only alt
+ * available has win < this floor (or null/N/A), we keep the primary on
+ * offense. Avoids forcing the user into 30-50% matchups just to fill a
+ * defense slot.
+ */
+export const ALT_WIN_FLOOR = 60;
+
+/**
  * Maximum theoretical banners per battle, with first-attempt bonus + all
  * units surviving full HP/protection.
  * Source: https://swgoh.wiki/wiki/Grand_Arena_Championships
@@ -124,8 +133,12 @@ export interface ClaimDecision {
  *   3. Compute bestAltV from primary's alternatives, EXCLUDING any alt that would
  *      reuse the contested leader (defense is about to claim it, so an "alt"
  *      led by the same character is a no-op that fails downstream).
- *   4. swapCost = max(0, primaryOffenseV - bestAltV).
- *   5. claim if defenseV >= swapCost; emit replacementCounter when bestAlt was found.
+ *   4. If no alt exists, OR the best alt's win rate is below ALT_WIN_FLOOR (or
+ *      null), bail — keeping the primary on offense is better than forcing a
+ *      weak/speculative replacement just to fill a defense slot.
+ *   5. swapCost = max(0, primaryOffenseV - bestAltV).
+ *   6. claim if defenseV >= swapCost; emit replacementCounter (always non-null
+ *      at this point because we bailed on null-alt above).
  */
 export function shouldDefenseClaim(
   leaderId: string,
@@ -143,10 +156,17 @@ export function shouldDefenseClaim(
   const claimedWithLeader = new Set(claimedChars);
   claimedWithLeader.add(leaderId);
   const { alt, viability: altV } = bestAvailableAlt(primary, claimedWithLeader, format);
-  const swapCost = Math.max(0, primaryV - altV);
 
+  // Bail if there's no usable alt to fall back to — forcing offense into the
+  // alternative-walk fallback often produces challenging matchups (low win or
+  // null win). The user prefers a known-good primary to a speculative fill.
+  if (alt === null) return { claim: false };
+  const altWin = alt.adjustedWinPercentage ?? alt.winPercentage;
+  if (altWin === null || altWin < ALT_WIN_FLOOR) return { claim: false };
+
+  const swapCost = Math.max(0, primaryV - altV);
   if (defenseV >= swapCost) {
-    return { claim: true, replacementCounter: alt ?? undefined };
+    return { claim: true, replacementCounter: alt };
   }
   return { claim: false };
 }

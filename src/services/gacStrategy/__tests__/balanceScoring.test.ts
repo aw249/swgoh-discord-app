@@ -213,28 +213,61 @@ describe('shouldDefenseClaim', () => {
     expect(result.claim).toBe(false);
   });
 
-  it('claims when offense primary has null win (speculative)', () => {
-    // Primary win=null → primaryV=0 → swap cost=0; any positive defense V claims
+  it('does not claim when primary is speculative AND no alt exists', () => {
+    // Primary win=null with no alt: contention has nothing to swap to. Keep
+    // primary on offense — even a speculative match is more useful to the
+    // user than an empty offense slot.
     const primary = makeCounter({
       offense: { leader: { baseId: 'BOBA', relicLevel: null, portraitUrl: null }, members: [] },
       winPercentage: null, avgBanners: 60, seenCount: 1000, alternatives: [],
     });
     const slotMap = new Map([['BOBA', primary]]);
     const result = shouldDefenseClaim('BOBA', 5, slotMap, new Set(), '5v5');
-    expect(result.claim).toBe(true);
+    expect(result.claim).toBe(false);
   });
 
-  it('handles missing alt gracefully', () => {
+  it('does not claim when no alt exists, even with positive defense gain', () => {
+    // No alt to swap to → bail. Forcing offense to walk alternatives at the
+    // call site would either find a weak alt or leave the slot empty.
     const primary = makeCounter({
       offense: { leader: { baseId: 'X', relicLevel: null, portraitUrl: null }, members: [] },
       winPercentage: 50, avgBanners: 30, seenCount: 100, alternatives: [],
     });
     const slotMap = new Map([['X', primary]]);
-    // primary V = 50 × (30/69) × 0.65 ≈ 14.1; no alt → cost 14.1
-    // defense V 20 → claim
     const result = shouldDefenseClaim('X', 20, slotMap, new Set(), '5v5');
-    expect(result.claim).toBe(true);
-    expect(result.replacementCounter).toBeUndefined();
+    expect(result.claim).toBe(false);
+  });
+
+  it('does not claim when the only alt has win < ALT_WIN_FLOOR', () => {
+    // Alt exists but is a 30% match — forcing offense into that is worse
+    // than keeping the primary on offense, regardless of defense gain.
+    const weakAlt = makeCounter({
+      offense: { leader: { baseId: 'WEAK', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 30, avgBanners: 40, seenCount: 1000,
+    });
+    const primary = makeCounter({
+      offense: { leader: { baseId: 'STRONG', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 80, avgBanners: 60, seenCount: 5000,
+      alternatives: [weakAlt],
+    });
+    const slotMap = new Map([['STRONG', primary]]);
+    const result = shouldDefenseClaim('STRONG', 80, slotMap, new Set(), '5v5');
+    expect(result.claim).toBe(false);
+  });
+
+  it('does not claim when the only alt has null win rate', () => {
+    const nullWinAlt = makeCounter({
+      offense: { leader: { baseId: 'UNKNOWN', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: null, avgBanners: 50, seenCount: 1000,
+    });
+    const primary = makeCounter({
+      offense: { leader: { baseId: 'STRONG', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 80, avgBanners: 60, seenCount: 5000,
+      alternatives: [nullWinAlt],
+    });
+    const slotMap = new Map([['STRONG', primary]]);
+    const result = shouldDefenseClaim('STRONG', 80, slotMap, new Set(), '5v5');
+    expect(result.claim).toBe(false);
   });
 
   it('never returns an alt whose leader matches the contested leader', () => {
