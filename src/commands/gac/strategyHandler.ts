@@ -302,6 +302,7 @@ export async function handleStrategyCommand(
   );
 
   const offenseCount = balancedOffense.filter(m => m.offense.leader.baseId).length;
+  const uncounteredCount = balancedOffense.filter(m => !m.offense.leader.baseId).length;
   const defenseCount = balancedDefense.length;
   const strategyLabel = strategyPreference === 'defensive' ? 'Defensive' : strategyPreference === 'offensive' ? 'Offensive' : 'Balanced';
 
@@ -318,13 +319,18 @@ export async function handleStrategyCommand(
 
   // Create one embed per offense chunk
   const totalChunks = offenseImages.length;
+  const totalDefenseSlots = offenseCount + uncounteredCount;
+  const uncounteredLine = uncounteredCount > 0
+    ? `\n**${uncounteredCount}** opponent defence${uncounteredCount !== 1 ? 's' : ''} need manual counter${uncounteredCount !== 1 ? 's' : ''}`
+    : '';
   const offenseEmbeds = offenseImages.map((_, i) => {
     const partLabel = totalChunks > 1 ? ` — Part ${i + 1}/${totalChunks}` : '';
     return new EmbedBuilder()
       .setTitle(`⚔️ Your Offense${partLabel}`)
       .setDescription(
         `Counter squads vs opponent's defense\n` +
-        `**${offenseCount}** offense squad${offenseCount !== 1 ? 's' : ''}`
+        `**${offenseCount}** of **${totalDefenseSlots}** opponent defence${totalDefenseSlots !== 1 ? 's' : ''} countered` +
+        uncounteredLine
       )
       .setImage(`attachment://gac-offense-${i + 1}.png`)
       .setColor(0x4ade80)

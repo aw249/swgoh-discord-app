@@ -391,18 +391,26 @@ export class GacStrategyService {
     // Generate offense images. Split into up to 3 chunks of ~5 battles each
     // to keep each image short enough to dodge Chromium's tall-screenshot
     // duplication path. Single chunk (no chunking) for ≤5 battles.
+    //
+    // Split balancedOffense into:
+    //   - countered: entries with a real offense leader, become battle rows
+    //   - uncountered: entries with empty offense.leader.baseId, rendered in
+    //     a separate "Uncountered Defenses" section on the LAST chunk only
     const offenseWidth = format === '3v3' ? 1100 : 1650;
-    const visibleOffense = balancedOffense.slice(0, maxSquads);
-    const totalBattles = visibleOffense.length;
+    const visible = balancedOffense.slice(0, maxSquads);
+    const counteredBattles = visible.filter(c => !!c.offense.leader.baseId);
+    const uncounteredDefenses = visible.filter(c => !c.offense.leader.baseId);
+
+    const totalBattles = counteredBattles.length;
     const totalChunks = Math.max(1, Math.min(3, Math.ceil(totalBattles / 5)));
-    const baseSize = Math.floor(totalBattles / totalChunks);
-    const remainder = totalBattles % totalChunks;
+    const baseSize = totalBattles > 0 ? Math.floor(totalBattles / totalChunks) : 0;
+    const remainder = totalBattles > 0 ? totalBattles % totalChunks : 0;
 
     const offenseImages: Buffer[] = [];
     let cursor = 0;
     for (let i = 0; i < totalChunks; i++) {
       const size = baseSize + (i < remainder ? 1 : 0);
-      const chunk = visibleOffense.slice(cursor, cursor + size);
+      const chunk = counteredBattles.slice(cursor, cursor + size);
       const isLast = i === totalChunks - 1;
       const chunkInfo = totalChunks > 1 ? { current: i + 1, total: totalChunks } : undefined;
 
@@ -415,7 +423,8 @@ export class GacStrategyService {
         opponentRoster,
         isLast ? unusedGLs : undefined,
         cursor,
-        chunkInfo
+        chunkInfo,
+        isLast ? uncounteredDefenses : undefined
       );
       const offenseImage = await this.browserService.renderHtml(offenseHtml, { width: offenseWidth, height: 2400 });
       offenseImages.push(offenseImage);

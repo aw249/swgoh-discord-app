@@ -20,7 +20,8 @@ export function generateOffenseStrategyHtml(
   opponentRoster?: SwgohGgFullPlayerResponse,
   unusedGLs?: string[],
   startBattleIndex: number = 0,
-  chunkInfo?: { current: number; total: number }
+  chunkInfo?: { current: number; total: number },
+  uncounteredDefenses?: MatchedCounterSquad[]
 ): string {
   logger.info(`[Offense Image] Starting HTML generation vs ${opponentName} (${format} format)`);
   logger.info(`[Offense Image] Input data: ${offenseSquads.length} offense squad(s)`);
@@ -346,6 +347,56 @@ export function generateOffenseStrategyHtml(
   };
 
   const unusedGLsSection = renderUnusedGLsSection();
+
+  // Render uncountered-defenses section: opponent squads with no available counter.
+  // Shows the user what they're up against so they can plan a manual counter.
+  // Each entry mirrors the opponent's squad portrait layout (leader + members).
+  const renderUncounteredSection = (): string => {
+    if (!uncounteredDefenses || uncounteredDefenses.length === 0) return '';
+
+    const cards = uncounteredDefenses.map(match => {
+      const oppLeader = match.defense.leader;
+      const oppMembers = match.defense.members ?? [];
+      const leaderPortrait = getCharacterPortraitUrl(oppLeader.baseId);
+
+      const memberPortraitsHtml = oppMembers.map(m => {
+        const url = getCharacterPortraitUrl(m.baseId);
+        return `
+          <div class="uncountered-member-portrait">
+            <img src="${url}" alt="${m.baseId}" onerror="this.style.display='none';" />
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="uncountered-card">
+          <div class="uncountered-leader">
+            <div class="uncountered-leader-portrait">
+              <img src="${leaderPortrait}" alt="${oppLeader.baseId}" onerror="this.style.display='none';" />
+            </div>
+            <div class="uncountered-leader-name">${oppLeader.baseId.replace(/_/g, ' ')}</div>
+          </div>
+          <div class="uncountered-members">
+            ${memberPortraitsHtml}
+          </div>
+          <div class="uncountered-banner">✗ Manual counter required</div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="uncountered-section">
+        <div class="uncountered-header">
+          ⚠️ UNCOUNTERED DEFENCES (${uncounteredDefenses.length})
+          <span class="uncountered-note">No automatic counter found in your roster — pick manually</span>
+        </div>
+        <div class="uncountered-container">
+          ${cards}
+        </div>
+      </div>
+    `;
+  };
+  const uncounteredSection = renderUncounteredSection();
 
   // Calculate width based on format (wider to accommodate analysis panel)
   const containerWidth = format === '3v3' ? 1050 : 1600;
@@ -733,6 +784,99 @@ export function generateOffenseStrategyHtml(
       font-weight: bold;
       text-align: center;
     }
+    .uncountered-section {
+      background: linear-gradient(135deg, #3a1a1a 0%, #2a1010 100%);
+      border-top: 2px solid #ef5350;
+      padding: 16px;
+    }
+    .uncountered-header {
+      color: #ef5350;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .uncountered-note {
+      font-size: 11px;
+      color: #b78282;
+      font-weight: normal;
+    }
+    .uncountered-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+    .uncountered-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      background: #2a1818;
+      border: 2px solid #ef5350;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 0 12px rgba(239, 83, 80, 0.3);
+      min-width: 220px;
+    }
+    .uncountered-leader {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .uncountered-leader-portrait {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 2px solid #ef5350;
+      overflow: hidden;
+      background: #4a4a4a;
+    }
+    .uncountered-leader-portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .uncountered-leader-name {
+      color: #ef5350;
+      font-size: 13px;
+      font-weight: bold;
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .uncountered-members {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    .uncountered-member-portrait {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid #8b3838;
+      overflow: hidden;
+      background: #4a4a4a;
+    }
+    .uncountered-member-portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .uncountered-banner {
+      color: #fff;
+      background: #ef5350;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -742,6 +886,7 @@ export function generateOffenseStrategyHtml(
       <div class="header-subtitle">${format} • ${visibleOffense.length} Battle${visibleOffense.length !== 1 ? 's' : ''}${chunkInfo ? ` (${startBattleIndex + 1}-${startBattleIndex + visibleOffense.length})` : ''}</div>
     </div>
     ${battleRows}
+    ${uncounteredSection}
     ${unusedGLsSection}
   </div>
 </body>

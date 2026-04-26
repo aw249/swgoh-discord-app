@@ -973,8 +973,20 @@ export async function balanceOffenseAndDefense(
           );
         }
       }
+
+      // Add empty offense entries for unmatched defenses so the user sees what
+      // they're up against even when no counter is available. The defensive
+      // flow does this separately (around line 899); mirroring here for
+      // balanced/offensive so the uncountered-defenses section in the offense
+      // image has data to render.
+      const alreadyMatchedDefenses = new Set(balancedOffense.map(c => c.defense.leader.baseId));
+      for (const counter of offenseCounters) {
+        if (!counter.offense.leader.baseId && !alreadyMatchedDefenses.has(counter.defense.leader.baseId)) {
+          balancedOffense.push(counter);
+        }
+      }
     }
-    
+
     const usedGLsForPlacement = new Set<string>();
     for (const offenseCounter of balancedOffense) {
       if (offenseCounter.offense.leader.baseId && isGalacticLegend(offenseCounter.offense.leader.baseId)) {
