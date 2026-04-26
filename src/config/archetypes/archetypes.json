@@ -747,8 +747,8 @@
     },
     {
       "id": "PHASMA_FO_GAC",
-      "displayName": "Captain Phasma FO (GAC Solo)",
-      "description": "Phasma with GAC omicron for solo/undersized counters",
+      "displayName": "Captain Phasma FO",
+      "description": "Phasma with GAC omicron — niche utility, not a reliable solo in current meta",
       "modes": [
         "GAC_3v3",
         "GAC_5v5"
@@ -778,10 +778,7 @@
         }
       ],
       "tags": [
-        "first-order",
-        "solo",
-        "undersized",
-        "gac-specialist"
+        "first-order"
       ],
       "optionalAbilities": []
     },

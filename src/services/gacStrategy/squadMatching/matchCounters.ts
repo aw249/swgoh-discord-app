@@ -562,7 +562,33 @@ export async function matchCountersAgainstRoster(
             );
           }
           
-          const totalScore = viabilityScoreWeighted + relicDeltaScore + defensePenalty + opponentDefenseBonus + trapPenalty + nonGlBonus + archetypePenalty;
+          // Undersized-vs-high-tier bonus: when a counter has fewer units than
+          // the format expects (Bane solo, Bane+Dooku duo, Wampa solo, SEE+Wat
+          // duo, etc.) and beats a high-tier opponent, prefer it. Reasons:
+          //   1. Slot efficiency — uses fewer roster characters, freeing them
+          //      for defense or other offense slots.
+          //   2. The user's stated preference: "Bane should be used against
+          //      A-tier squads".
+          // High-tier proxy: opponent is a GL. (Once getDefenseStatsForSquad
+          // is implemented per IMPROVEMENTS.md 10.4, expand this to also
+          // include high-hold non-GL opponents like Third Sister, Baylan, etc.)
+          // Bonus only applies when the counter's win rate is at least decent
+          // (>= 70%) — we don't promote losing undersized matches.
+          const counterUnitCount = 1 + counter.members.length;
+          const isUndersized = counterUnitCount < expectedCounterSize;
+          let undersizedBonus = 0;
+          if (isUndersized && baseWinRate >= 70 && isDefensiveSquadGL) {
+            // Slot-efficiency bonus scales with how undersized the counter is.
+            // 5v5 with 1-unit counter (Bane solo) gets +20; 2-unit duo gets +12.
+            const missingSlots = expectedCounterSize - counterUnitCount;
+            undersizedBonus = missingSlots * 5;
+            logger.info(
+              `[Undersized bonus] ${counter.leader.baseId} (${counterUnitCount}u) vs GL ${defensiveSquad.leader.baseId}: ` +
+              `+${undersizedBonus} (${missingSlots} slot${missingSlots !== 1 ? 's' : ''} freed for defense)`
+            );
+          }
+
+          const totalScore = viabilityScoreWeighted + relicDeltaScore + defensePenalty + opponentDefenseBonus + trapPenalty + nonGlBonus + archetypePenalty + undersizedBonus;
 
           // For defensive strategy, include GL counters in alternatives even if non-GL alternatives exist
           // They will be tried last during balancing if all non-GL alternatives conflict
