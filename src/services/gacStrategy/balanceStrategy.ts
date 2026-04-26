@@ -117,7 +117,12 @@ export async function balanceOffenseAndDefense(
     // Track all used characters across both offense and defense
     const usedCharacters = new Set<string>();
     const usedLeaders = new Set<string>();
-    
+
+    // Widen the defense-first allocator to include 'balanced' mode (with
+    // the contention rule applied per leader in Task 10). 'offensive' keeps
+    // offense-first.
+    const defenseFirst = strategyPreference === 'defensive' || strategyPreference === 'balanced';
+
     // CRITICAL: Ensure ALL GLs are used (either offense or defense)
     // GLs are the strongest characters in the game and should NEVER be left unused
     const allUserGLsForPlacement = new Set<string>();
@@ -247,7 +252,7 @@ export async function balanceOffenseAndDefense(
       );
       
       // Strategy-specific adjustments
-      if (strategyPreference === 'defensive') {
+      if (defenseFirst) {
         // Defensive: Heavily penalize offense squads that are better on defense
         if (aIsBetterOnDef && !bIsBetterOnDef) {
           return 1; // a should come after b
@@ -401,7 +406,7 @@ export async function balanceOffenseAndDefense(
         }
       }
       
-      if (strategyPreference === 'defensive') {
+      if (defenseFirst) {
         // Defensive: Prioritize GLs first, then by strength (relic level), then hold %
         // GLs should always come before non-GLs for defensive strategy
         if (aIsGL && !bIsGL) {
@@ -563,7 +568,7 @@ export async function balanceOffenseAndDefense(
     
     // For defensive strategy, prioritize defense first, then add offense
     // For balanced/offensive, prioritize offense first, then add defense
-    if (strategyPreference === 'defensive') {
+    if (defenseFirst) {
       // DEFENSIVE STRATEGY: Add defense first, then offense
       // For defensive strategy, be more lenient about character conflicts within defense
       // Allow defense squads even if they share 1-2 characters, as long as leaders are unique
@@ -676,7 +681,7 @@ export async function balanceOffenseAndDefense(
         // Try non-GL first, then GL if all non-GL conflict
         let nonGlCounters: MatchedCounterSquad[] = [];
         let glCounters: MatchedCounterSquad[] = [];
-        if (strategyPreference === 'defensive') {
+        if (defenseFirst) {
           for (const c of countersToTry) {
             if (!c.offense.leader.baseId) continue;
             if (isGalacticLegend(c.offense.leader.baseId)) {
@@ -700,7 +705,7 @@ export async function balanceOffenseAndDefense(
           // 1. We've already tried all non-GL alternatives and they all conflicted (we're now in the GL counters section)
           // 2. The GL is not already used on defense
           const isCounterGL = isGalacticLegend(counterToTry.offense.leader.baseId);
-          if (strategyPreference === 'defensive' && isCounterGL) {
+          if (defenseFirst && isCounterGL) {
             // Check if GL is already used on defense
             if (usedLeaders.has(counterToTry.offense.leader.baseId)) {
               logger.info(
@@ -785,7 +790,7 @@ export async function balanceOffenseAndDefense(
       
       // For defensive strategy, if we don't have enough offense teams, log which opponent defenses need manual counters
       // We don't generate random fallback teams - they lack synergy and are not useful
-      if (strategyPreference === 'defensive' && balancedOffense.length < maxOffenseNeeded) {
+      if (defenseFirst && balancedOffense.length < maxOffenseNeeded) {
         const needed = maxOffenseNeeded - balancedOffense.length;
         const unmatchedDefenses = offenseCounters
           .filter(c => !c.offense.leader.baseId)
