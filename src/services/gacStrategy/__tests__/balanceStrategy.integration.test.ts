@@ -41,9 +41,10 @@ const noopCache = { get: () => undefined, set: () => undefined } as any;
 describe('balanceOffenseAndDefense — balanced mode contention', () => {
   it('claims a leader for defense when an offense alt is still strong', async () => {
     // LV is leader of offense vs SLKR (95% win, 5000 seen) AND a top-hold defense candidate (33% hold)
-    // Alternative: JMK vs SLKR (70% win, 5000 seen) — still wins
+    // Alternative: JMK vs SLKR (80% win, 5000 seen) — within ALT_WIN_DROP_LIMIT
+    // of primary's 95%, so swap is allowed and JMK still wins.
     // Expected: LV lands on defense; JMK takes the SLKR offense slot.
-    const altJmk = mkCounter('JMK', 'SLKR', 70, 50, 5000);
+    const altJmk = mkCounter('JMK', 'SLKR', 80, 50, 5000);
     const offense = [
       mkCounter('LV', 'SLKR', 95, 60, 5000, [altJmk]),
     ];

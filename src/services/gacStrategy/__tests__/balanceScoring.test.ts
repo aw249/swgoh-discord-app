@@ -270,18 +270,53 @@ describe('shouldDefenseClaim', () => {
     expect(result.claim).toBe(false);
   });
 
+  it('does not swap a high-confidence primary for a much weaker alt', () => {
+    // Primary is 95% win — high confidence. Alt is 65% win — viable per
+    // ALT_WIN_FLOOR but a 30-point drop. With ALT_WIN_DROP_LIMIT=20, bail.
+    const weakerAlt = makeCounter({
+      offense: { leader: { baseId: 'WEAKER', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 65, avgBanners: 60, seenCount: 5000,
+    });
+    const primary = makeCounter({
+      offense: { leader: { baseId: 'STRONG', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 95, avgBanners: 65, seenCount: 5000,
+      alternatives: [weakerAlt],
+    });
+    const slotMap = new Map([['STRONG', primary]]);
+    const result = shouldDefenseClaim('STRONG', 80, slotMap, new Set(), '5v5');
+    expect(result.claim).toBe(false);
+  });
+
+  it('does swap a high-confidence primary for a similarly-confident alt', () => {
+    // Primary 95%, alt 80% (15-point drop) — within ALT_WIN_DROP_LIMIT, allow swap.
+    const closeAlt = makeCounter({
+      offense: { leader: { baseId: 'CLOSE', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 80, avgBanners: 60, seenCount: 5000,
+    });
+    const primary = makeCounter({
+      offense: { leader: { baseId: 'STRONG', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 95, avgBanners: 65, seenCount: 5000,
+      alternatives: [closeAlt],
+    });
+    const slotMap = new Map([['STRONG', primary]]);
+    const result = shouldDefenseClaim('STRONG', 50, slotMap, new Set(), '5v5');
+    expect(result.claim).toBe(true);
+    expect(result.replacementCounter?.offense.leader.baseId).toBe('CLOSE');
+  });
+
   it('never returns an alt whose leader matches the contested leader', () => {
     // Real-world bug: counter.alternatives can contain another comp led by the
     // same character (different teammates). When defense claims that character,
     // the alt is a no-op and offense ends up with no usable counter.
     // Expected: alt with same leader is excluded from the search.
+    // Win rates kept within ALT_WIN_DROP_LIMIT so the swap is otherwise legal.
     const sameLeaderAlt = makeCounter({
       offense: { leader: { baseId: 'LV', relicLevel: null, portraitUrl: null }, members: [{ baseId: 'OTHER', relicLevel: null, portraitUrl: null }] },
-      winPercentage: 90, avgBanners: 60, seenCount: 5000,
+      winPercentage: 85, avgBanners: 60, seenCount: 5000,
     });
     const realDifferentAlt = makeCounter({
       offense: { leader: { baseId: 'JMK', relicLevel: null, portraitUrl: null }, members: [] },
-      winPercentage: 70, avgBanners: 55, seenCount: 1000,
+      winPercentage: 80, avgBanners: 60, seenCount: 5000,
     });
     const primary = makeCounter({
       offense: { leader: { baseId: 'LV', relicLevel: null, portraitUrl: null }, members: [] },
@@ -289,12 +324,11 @@ describe('shouldDefenseClaim', () => {
       alternatives: [sameLeaderAlt, realDifferentAlt],
     });
     const slotMap = new Map([['LV', primary]]);
-    // defenseV=40 is high enough to claim against a real-alt swap cost of ~32
-    // (primary V≈78, JMK alt V≈46) but not against a bogus same-leader alt cost
-    // of ~4 (which would happen if the bug were unfixed).
-    const result = shouldDefenseClaim('LV', 40, slotMap, new Set(), '5v5');
+    // 95% primary, 80% JMK alt → 15-point drop, within ALT_WIN_DROP_LIMIT.
+    // defenseV=50 high enough to claim past the (small) swap cost.
+    const result = shouldDefenseClaim('LV', 50, slotMap, new Set(), '5v5');
     expect(result.claim).toBe(true);
-    // Must not be the same-leader alt, even though it has higher win rate
+    // Must not be the same-leader alt
     expect(result.replacementCounter?.offense.leader.baseId).not.toBe('LV');
     expect(result.replacementCounter?.offense.leader.baseId).toBe('JMK');
   });

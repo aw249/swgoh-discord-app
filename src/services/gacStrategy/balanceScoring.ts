@@ -32,6 +32,15 @@ export const CONFIDENCE_FLOOR = 0.30;
 export const ALT_WIN_FLOOR = 60;
 
 /**
+ * Maximum allowed win-rate drop between primary and alt when swapping for
+ * a contention claim. If the primary is a high-confidence pick (e.g. 95% win),
+ * we only swap to an alt if it's within this many points (e.g. an alt at 80%
+ * is acceptable for a 95% primary, but a 60% alt is not — that's giving up
+ * confidence the user explicitly asked us to preserve).
+ */
+export const ALT_WIN_DROP_LIMIT = 20;
+
+/**
  * Maximum theoretical banners per battle, with first-attempt bonus + all
  * units surviving full HP/protection.
  * Source: https://swgoh.wiki/wiki/Grand_Arena_Championships
@@ -163,6 +172,14 @@ export function shouldDefenseClaim(
   if (alt === null) return { claim: false };
   const altWin = alt.adjustedWinPercentage ?? alt.winPercentage;
   if (altWin === null || altWin < ALT_WIN_FLOOR) return { claim: false };
+
+  // Confidence preservation: don't swap a high-confidence primary for a much
+  // weaker alt, even if the swap would mathematically pay off in defense gain.
+  // The user explicitly wants confident matchups preserved on offense.
+  const primaryWin = primary.adjustedWinPercentage ?? primary.winPercentage;
+  if (primaryWin !== null && primaryWin - altWin > ALT_WIN_DROP_LIMIT) {
+    return { claim: false };
+  }
 
   const swapCost = Math.max(0, primaryV - altV);
   if (defenseV >= swapCost) {

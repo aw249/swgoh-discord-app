@@ -381,9 +381,24 @@ export async function matchCountersAgainstRoster(
             normalizedSeenScore = 50;
           }
           
-          // Combined viability score: 60% win rate, 40% seen count (proven usage)
-          // This ensures counters with both high win % AND high usage are prioritized
-          const viabilityScore = (baseWinRate * 0.6) + (normalizedSeenScore * 0.4);
+          // Combined viability score: 75% win rate, 25% seen count.
+          // Win rate is the dominant signal — user feedback: prefer counters
+          // that give confidence, not just well-trodden weak ones. Seen count
+          // still matters as a confirmation signal but no longer dilutes a
+          // strong win rate.
+          let viabilityScore = (baseWinRate * 0.75) + (normalizedSeenScore * 0.25);
+
+          // Confidence-tier bonus: when BOTH win rate and seen count are high,
+          // the counter is provably strong and should be promoted past anything
+          // with merely-decent stats. The thresholds below are tuned to make
+          // 95%+/5k+ counters jump ahead of borderline 80%/2k options.
+          if (baseWinRate >= 95 && normalizedSeenScore >= 60) {
+            viabilityScore += 30;
+          } else if (baseWinRate >= 90 && normalizedSeenScore >= 50) {
+            viabilityScore += 15;
+          } else if (baseWinRate >= 80 && normalizedSeenScore >= 40) {
+            viabilityScore += 5;
+          }
           
           // Score counter based on:
           // 1. Viability score (win % + seen count, weighted 50%)
