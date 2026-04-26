@@ -137,6 +137,11 @@ export async function balanceOffenseAndDefense(
     // Map: offense MatchedCounterSquad → forced alternative the offense pass
     // should use because defense claimed the primary's leader.
     const forcedAlternatives = new Map<MatchedCounterSquad, MatchedCounterSquad>();
+    // Set of leader baseIds that have been promised as a contention-rule
+    // replacement counter. Used to prevent two swaps from recording the same
+    // alt leader (only one offense slot can field that leader). Also blocks
+    // defense from claiming a leader who's been earmarked for offense.
+    const promisedAltLeaders = new Set<string>();
 
     // CRITICAL: Ensure ALL GLs are used (either offense or defense)
     // GLs are the strongest characters in the game and should NEVER be left unused
@@ -614,6 +619,18 @@ export async function balanceOffenseAndDefense(
           );
           continue; // Skip - leader already used
         }
+
+        // Block defense from claiming a leader who's already been promised as
+        // an offense alt by an earlier contention swap. Otherwise the offense
+        // pass's forced-alt would conflict with this defense placement and
+        // fall through to the standard alternative walk (often a weak match).
+        if (promisedAltLeaders.has(defenseSuggestion.squad.leader.baseId)) {
+          logger.debug(
+            `Skipping defense squad ${defenseSuggestion.squad.leader.baseId} - ` +
+            `leader already promised as offense alt by an earlier contention swap`
+          );
+          continue;
+        }
         
         // Check for character conflicts - be lenient for defensive strategy
         // BUT: If a character is needed for offense counters (especially for opponent GLs that only have GL counters),
@@ -674,7 +691,12 @@ export async function balanceOffenseAndDefense(
             holdPercentage: defenseSuggestion.holdPercentage,
             seenCount: defenseSuggestion.seenCount,
           });
-          const decision = shouldDefenseClaim(leaderId, defenseV, offenseLeaderToSlot, usedCharacters, format);
+          // Treat already-promised alt leaders as unavailable when scoring the
+          // best fallback for this slot — prevents two contention swaps from
+          // pointing offense at the same alt leader (only one can play).
+          const claimedForAltSearch = new Set(usedCharacters);
+          for (const altLeader of promisedAltLeaders) claimedForAltSearch.add(altLeader);
+          const decision = shouldDefenseClaim(leaderId, defenseV, offenseLeaderToSlot, claimedForAltSearch, format);
           if (!decision.claim) {
             logger.debug(
               `[Balanced] Defense skipping ${leaderId} — offense value of leaving them on offense exceeds defense gain ` +
@@ -685,6 +707,7 @@ export async function balanceOffenseAndDefense(
           if (decision.replacementCounter) {
             const primary = offenseLeaderToSlot.get(leaderId)!;
             forcedAlternatives.set(primary, decision.replacementCounter);
+            promisedAltLeaders.add(decision.replacementCounter.offense.leader.baseId);
             logger.info(
               `[Balanced] Offense slot vs ${primary.defense.leader.baseId} swapped: ` +
               `${leaderId} → ${decision.replacementCounter.offense.leader.baseId}. ` +
