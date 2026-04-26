@@ -4,6 +4,8 @@
 // All functions are deterministic, side-effect free, and unit-testable.
 // Constants are exported so they can be tuned in one place.
 
+import { MatchedCounterSquad } from '../../types/gacStrategyTypes';
+
 // --- Tunable constants ---
 
 /**
@@ -43,4 +45,18 @@ export function confidenceMultiplier(seen: number | null): number {
   const numerator = Math.log10(cap + 1);
   const denominator = Math.log10(MAX_SEEN_OFFENSE + 1);
   return CONFIDENCE_FLOOR + (1 - CONFIDENCE_FLOOR) * (numerator / denominator);
+}
+
+/**
+ * Composite "is this offense counter worth using" score.
+ *   winRate × (avgBanners / formatMax, capped at 1) × confidence(seen)
+ * Returns 0 if winPercentage or avgBanners is null.
+ * Uses adjustedWinPercentage when present (the existing GL-conservation tweak).
+ */
+export function offenseViability(counter: MatchedCounterSquad, format: string): number {
+  const win = counter.adjustedWinPercentage ?? counter.winPercentage;
+  if (win === null || counter.avgBanners === null) return 0;
+  const max = maxBannersForFormat(format);
+  const bannerFraction = Math.min(1, counter.avgBanners / max);
+  return win * bannerFraction * confidenceMultiplier(counter.seenCount);
 }
