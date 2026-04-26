@@ -189,7 +189,8 @@ export class GacStrategyService {
     seasonId?: string,
     format: string = '5v5',
     strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
-    userDatacronLeveragedChars?: Set<string>
+    userDatacronLeveragedChars?: Set<string>,
+    metaDatacronActivatedChars?: Set<string>
   ): Promise<MatchedCounterSquad[]> {
     if (!this.counterClient) {
       logger.warn('Counter client not available, cannot match counters');
@@ -202,7 +203,8 @@ export class GacStrategyService {
       seasonId,
       format,
       strategyPreference,
-      userDatacronLeveragedChars
+      userDatacronLeveragedChars,
+      metaDatacronActivatedChars
     );
   }
 

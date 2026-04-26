@@ -150,7 +150,8 @@ export async function matchCountersAgainstRoster(
     seasonId?: string,
     format: string = '5v5',
     strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
-    userDatacronLeveragedChars?: Set<string>
+    userDatacronLeveragedChars?: Set<string>,
+    metaDatacronActivatedChars?: Set<string>
   ): Promise<MatchedCounterSquad[]> {
     if (!counterClient) {
       logger.warn('Counter client not available, cannot match counters');
@@ -256,6 +257,23 @@ export async function matchCountersAgainstRoster(
 
           if (!hasAllUnits) {
             continue;
+          }
+
+          // Datacron filter: if this counter's leader (or any member) is a
+          // character that focused datacrons in the meta empower, AND the
+          // user doesn't have any datacron leveraging that character, drop
+          // the counter. The bot shouldn't recommend a counter whose published
+          // win rate depends on a cron the user can't run.
+          if (metaDatacronActivatedChars && metaDatacronActivatedChars.size > 0) {
+            const leaderIsMetaCron = metaDatacronActivatedChars.has(counter.leader.baseId);
+            const userHasMatchingCron = !!(userDatacronLeveragedChars && userDatacronLeveragedChars.has(counter.leader.baseId));
+            if (leaderIsMetaCron && !userHasMatchingCron) {
+              logger.info(
+                `[Datacron filter] Dropping counter ${counter.leader.baseId} vs ${defensiveSquad.leader.baseId}: ` +
+                `meta has a focused datacron empowering ${counter.leader.baseId}, user does not own it`
+              );
+              continue;
+            }
           }
 
           // Check relic levels - filter out counters where user's units are too weak
@@ -704,11 +722,20 @@ export async function matchCountersAgainstRoster(
           // this counter's leader, flag it as a soft warning (no filtering — the
           // heuristic can miss).
           let datacronWarning: string | undefined;
-          if (
-            looksDatacronDependent(counter.winPercentage, counter.seenCount) &&
-            !(userDatacronLeveragedChars && userDatacronLeveragedChars.has(counter.leader.baseId))
-          ) {
+          const looksCronDep = looksDatacronDependent(counter.winPercentage, counter.seenCount);
+          const userHasLeverage = !!(userDatacronLeveragedChars && userDatacronLeveragedChars.has(counter.leader.baseId));
+          if (looksCronDep && !userHasLeverage) {
             datacronWarning = 'May require a datacron not in your grid';
+            logger.info(
+              `[Datacron warning] ${counter.leader.baseId} vs ${defensiveSquad.leader.baseId}: ` +
+              `${counter.winPercentage?.toFixed(0) ?? '?'}% win, ${counter.seenCount?.toLocaleString() ?? 'N/A'} seen — ` +
+              `flagging as possibly datacron-dependent`
+            );
+          } else if (looksCronDep && userHasLeverage) {
+            logger.info(
+              `[Datacron leveraged] ${counter.leader.baseId} vs ${defensiveSquad.leader.baseId}: ` +
+              `user's focused datacrons cover this leader — suppressing warning`
+            );
           }
 
           return {

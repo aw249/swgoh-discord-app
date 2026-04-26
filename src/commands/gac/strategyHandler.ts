@@ -5,7 +5,11 @@ import { GacApiClient } from './commandUtils';
 import { logger } from '../../utils/logger';
 import { getMaxSquadsForLeague, FALLBACK_SEASON_IDS } from '../../config/gacConstants';
 import { comlinkClient } from '../../integrations/comlink/comlinkClient';
-import { extractDatacronLeveragedCharacters } from '../../services/gacStrategy/utils/datacronUtils';
+import {
+  extractDatacronLeveragedCharacters,
+  extractMetaActivatedCharacters,
+} from '../../services/gacStrategy/utils/datacronUtils';
+import { getMetaCronTags } from '../../services/gacStrategy/utils/datacronMetaService';
 
 export async function handleStrategyCommand(
   interaction: ChatInputCommandInteraction,
@@ -116,25 +120,32 @@ export async function handleStrategyCommand(
     : swgohGgApiClient.getFullPlayer.bind(swgohGgApiClient);
   const userRoster = await getRosterWithStats(yourAllyCode);
 
-  // Fetch user's datacron grid via comlink (best-effort) so we can flag
-  // counters that may require a datacron the user doesn't have. Failures
-  // are non-fatal — fall back to flagging on win/seen heuristic alone.
+  // Fetch user's datacron grid + meta datacron tags so we can FILTER OUT
+  // counters that depend on a datacron the user doesn't own. Failures here
+  // are non-fatal — empty sets bypass the filter entirely (best-effort
+  // degradation: better to recommend a possibly-cron-dependent counter
+  // than to drop everything because comlink hiccupped).
   let userDatacronLeveragedChars: Set<string> | undefined;
+  let metaDatacronActivatedChars: Set<string> | undefined;
   try {
-    const playerData = await comlinkClient.getPlayer(yourAllyCode);
     const rosterBaseIds = new Set<string>(
       (userRoster.units ?? []).map(u => u.data.base_id)
     );
+    const [playerData, metaTags] = await Promise.all([
+      comlinkClient.getPlayer(yourAllyCode),
+      getMetaCronTags(),
+    ]);
     userDatacronLeveragedChars = extractDatacronLeveragedCharacters(
       playerData.datacron,
       rosterBaseIds
     );
+    metaDatacronActivatedChars = extractMetaActivatedCharacters(metaTags, rosterBaseIds);
     logger.info(
-      `Datacron lookup: ${userDatacronLeveragedChars.size} character(s) leveraged ` +
-      `by user's focused datacrons`
+      `Datacron lookup: user owns ${userDatacronLeveragedChars.size} cron-leveraged character(s); ` +
+      `meta has ${metaDatacronActivatedChars.size} cron-leverageable character(s) in your roster`
     );
   } catch (error) {
-    logger.warn('Could not fetch datacrons from comlink, datacron warnings will use heuristic only:', error);
+    logger.warn('Could not fetch datacrons from comlink, cron filter disabled for this run:', error);
   }
 
   // Get season ID from bracket if available (for counter matching)
@@ -249,7 +260,8 @@ export async function handleStrategyCommand(
     seasonId,
     format,
     strategyPreference,
-    userDatacronLeveragedChars
+    userDatacronLeveragedChars,
+    metaDatacronActivatedChars
   );
 
   logger.info(
