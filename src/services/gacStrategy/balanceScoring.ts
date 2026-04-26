@@ -60,3 +60,24 @@ export function offenseViability(counter: MatchedCounterSquad, format: string): 
   const bannerFraction = Math.min(1, counter.avgBanners / max);
   return win * bannerFraction * confidenceMultiplier(counter.seenCount);
 }
+
+/**
+ * Minimal shape needed to score a defense suggestion.
+ * Matches the relevant subset of DefenseSuggestion / the inline shape
+ * used by balanceOffenseAndDefense's `defenseSuggestions` parameter.
+ */
+export interface DefenseScoreInput {
+  holdPercentage: number | null;
+  seenCount: number | null;
+}
+
+/**
+ * Composite "is this defense placement worth defending" score.
+ *   holdPercentage × confidence(seen)
+ * Returns 0 if holdPercentage is null. Banner yield on defense is paid
+ * by the opponent so it's irrelevant to the user-side score.
+ */
+export function defenseViability(input: DefenseScoreInput): number {
+  if (input.holdPercentage === null) return 0;
+  return input.holdPercentage * confidenceMultiplier(input.seenCount);
+}

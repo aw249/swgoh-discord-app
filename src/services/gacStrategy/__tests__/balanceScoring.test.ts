@@ -87,3 +87,27 @@ describe('offenseViability', () => {
     expect(offenseViability(c, '5v5')).toBeCloseTo(43.0, 1);
   });
 });
+
+import { defenseViability, DefenseScoreInput } from '../balanceScoring';
+
+const makeDef = (overrides: Partial<DefenseScoreInput> = {}): DefenseScoreInput => ({
+  holdPercentage: 30,
+  seenCount: 5000,
+  ...overrides,
+});
+
+describe('defenseViability', () => {
+  it('returns 0 when holdPercentage is null', () => {
+    expect(defenseViability(makeDef({ holdPercentage: null }))).toBe(0);
+  });
+
+  it('combines hold and seen confidence', () => {
+    // 30 × confidenceMultiplier(5000) ≈ 30 × 0.945 ≈ 28.4
+    expect(defenseViability(makeDef({ holdPercentage: 30, seenCount: 5000 }))).toBeCloseTo(28.4, 1);
+  });
+
+  it('uses confidence floor for null seen', () => {
+    // 30 × 0.30 = 9
+    expect(defenseViability(makeDef({ holdPercentage: 30, seenCount: null }))).toBeCloseTo(9, 1);
+  });
+});
