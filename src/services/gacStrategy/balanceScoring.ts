@@ -31,3 +31,16 @@ export const MAX_BANNERS_3V3 = 63; // Conservative; verify against wiki at any b
 export function maxBannersForFormat(format: string): number {
   return format === '3v3' ? MAX_BANNERS_3V3 : MAX_BANNERS_5V5;
 }
+
+/**
+ * Confidence multiplier for a counter's seen count.
+ * Log-scaled so 100→0.65, 1k→0.83, 10k→1.0. Floor at CONFIDENCE_FLOOR
+ * for null/zero/negative inputs.
+ */
+export function confidenceMultiplier(seen: number | null): number {
+  if (seen === null || seen <= 0) return CONFIDENCE_FLOOR;
+  const cap = Math.min(seen, MAX_SEEN_OFFENSE);
+  const numerator = Math.log10(cap + 1);
+  const denominator = Math.log10(MAX_SEEN_OFFENSE + 1);
+  return CONFIDENCE_FLOOR + (1 - CONFIDENCE_FLOOR) * (numerator / denominator);
+}
