@@ -4,6 +4,8 @@ import { GacStrategyService } from '../../services/gacStrategyService';
 import { GacApiClient } from './commandUtils';
 import { logger } from '../../utils/logger';
 import { getMaxSquadsForLeague, FALLBACK_SEASON_IDS } from '../../config/gacConstants';
+import { comlinkClient } from '../../integrations/comlink/comlinkClient';
+import { extractDatacronLeveragedCharacters } from '../../services/gacStrategy/utils/datacronUtils';
 
 export async function handleStrategyCommand(
   interaction: ChatInputCommandInteraction,
@@ -113,6 +115,27 @@ export async function handleStrategyCommand(
     ? swgohGgApiClient.getFullPlayerWithStats.bind(swgohGgApiClient)
     : swgohGgApiClient.getFullPlayer.bind(swgohGgApiClient);
   const userRoster = await getRosterWithStats(yourAllyCode);
+
+  // Fetch user's datacron grid via comlink (best-effort) so we can flag
+  // counters that may require a datacron the user doesn't have. Failures
+  // are non-fatal — fall back to flagging on win/seen heuristic alone.
+  let userDatacronLeveragedChars: Set<string> | undefined;
+  try {
+    const playerData = await comlinkClient.getPlayer(yourAllyCode);
+    const rosterBaseIds = new Set<string>(
+      (userRoster.units ?? []).map(u => u.data.base_id)
+    );
+    userDatacronLeveragedChars = extractDatacronLeveragedCharacters(
+      playerData.datacron,
+      rosterBaseIds
+    );
+    logger.info(
+      `Datacron lookup: ${userDatacronLeveragedChars.size} character(s) leveraged ` +
+      `by user's focused datacrons`
+    );
+  } catch (error) {
+    logger.warn('Could not fetch datacrons from comlink, datacron warnings will use heuristic only:', error);
+  }
 
   // Get season ID from bracket if available (for counter matching)
   // Always use the PREVIOUS season of the requested format, as the current season
@@ -225,7 +248,8 @@ export async function handleStrategyCommand(
     userRoster,
     seasonId,
     format,
-    strategyPreference
+    strategyPreference,
+    userDatacronLeveragedChars
   );
 
   logger.info(

@@ -188,7 +188,8 @@ export class GacStrategyService {
     userRoster: SwgohGgFullPlayerResponse,
     seasonId?: string,
     format: string = '5v5',
-    strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced'
+    strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
+    userDatacronLeveragedChars?: Set<string>
   ): Promise<MatchedCounterSquad[]> {
     if (!this.counterClient) {
       logger.warn('Counter client not available, cannot match counters');
@@ -200,7 +201,8 @@ export class GacStrategyService {
       userRoster,
       seasonId,
       format,
-      strategyPreference
+      strategyPreference,
+      userDatacronLeveragedChars
     );
   }
 

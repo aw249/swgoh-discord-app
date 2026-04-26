@@ -22,7 +22,7 @@ export interface ComlinkPlayerData {
   guildName?: string;
   profileStat: ProfileStat[];
   rosterUnit: ComlinkRosterUnit[];
-  datacron?: unknown[];
+  datacron?: ComlinkDatacron[];
   pvpProfile?: unknown[];
   seasonStatus?: unknown[];
 }
@@ -31,6 +31,25 @@ export interface ProfileStat {
   nameKey: string;
   value: string;
   index: number;
+}
+
+/**
+ * Datacron grid entry for a player. The tags array carries semantic hints
+ * (e.g. "maulhatefueled", "vaderduelsend") that identify the buff theme.
+ * Only `focused` datacrons have committed level-9 abilities — base ones are
+ * just stat sticks waiting to be focused.
+ */
+export interface ComlinkDatacron {
+  id: string;
+  setId: number;
+  templateId: string;
+  tag: string[];
+  affix: unknown[];
+  rerollOption: unknown[];
+  rerollIndex: number;
+  rerollCount: number;
+  locked: boolean;
+  focused: boolean;
 }
 
 export interface ComlinkRosterUnit {

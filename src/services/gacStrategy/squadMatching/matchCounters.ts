@@ -15,6 +15,7 @@ import { logger } from '../../../utils/logger';
 import { isGalacticLegend } from '../../../config/gacConstants';
 import { getTop80CharactersRoster } from '../utils/rosterUtils';
 import { getAllUnitIds } from "../utils/squadUtils";
+import { looksDatacronDependent } from '../utils/datacronUtils';
 import { ArchetypeConfig, LeaderArchetypeMapping } from '../../../types/archetypeTypes';
 import { 
   getArchetypeValidator, 
@@ -143,12 +144,13 @@ interface CounterClient {
 
 export async function matchCountersAgainstRoster(
   counterClient: CounterClient,
-  
+
     defensiveSquads: UniqueDefensiveSquad[],
     userRoster: SwgohGgFullPlayerResponse,
     seasonId?: string,
     format: string = '5v5',
-    strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced'
+    strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
+    userDatacronLeveragedChars?: Set<string>
   ): Promise<MatchedCounterSquad[]> {
     if (!counterClient) {
       logger.warn('Counter client not available, cannot match counters');
@@ -696,6 +698,19 @@ export async function matchCountersAgainstRoster(
             );
           }
 
+          // Datacron warning: high win rate with low sample size often signals
+          // a counter that depends on a specific datacron the broader playerbase
+          // doesn't have. If the user's focused datacrons don't appear to leverage
+          // this counter's leader, flag it as a soft warning (no filtering — the
+          // heuristic can miss).
+          let datacronWarning: string | undefined;
+          if (
+            looksDatacronDependent(counter.winPercentage, counter.seenCount) &&
+            !(userDatacronLeveragedChars && userDatacronLeveragedChars.has(counter.leader.baseId))
+          ) {
+            datacronWarning = 'May require a datacron not in your grid';
+          }
+
           return {
             offense: offenseSquad,
             defense: defensiveSquad,
@@ -707,7 +722,8 @@ export async function matchCountersAgainstRoster(
             worstCaseRelicDelta,
             bestCaseRelicDelta,
             keyMatchups,
-            archetypeValidation
+            archetypeValidation,
+            datacronWarning
           };
         };
 

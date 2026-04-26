@@ -260,12 +260,16 @@ export function generateOffenseStrategyHtml(
       }
     }
 
+    const datacronBadge = match.datacronWarning
+      ? `<span class="battle-datacron-warning">⚠ ${match.datacronWarning}</span>`
+      : '';
     return `
       <div class="battle-row">
         <div class="battle-header">
           <div class="battle-title">
             <span class="battle-number">Battle ${index + 1 + startBattleIndex}</span>
             <span class="battle-assessment" style="background: ${assessmentColor};">${assessmentIcon} ${overallAssessment}</span>
+            ${datacronBadge}
           </div>
         </div>
         <div class="battle-main">
@@ -876,6 +880,17 @@ export function generateOffenseStrategyHtml(
       padding: 4px 10px;
       border-radius: 4px;
       text-align: center;
+    }
+    .battle-datacron-warning {
+      display: inline-block;
+      background: #1f1f1f;
+      color: #fbbf24;
+      border: 1px solid #fbbf24;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin-left: 8px;
     }
   </style>
 </head>

@@ -50,6 +50,13 @@ export interface MatchedCounterSquad {
   alternatives?: MatchedCounterSquad[];
   /** Archetype validation results - indicates if zetas/omicrons are correct */
   archetypeValidation?: ArchetypeValidationInfo;
+  /**
+   * Set when this counter looks datacron-dependent (high win rate, low sample
+   * count) and the user's focused datacrons don't appear to leverage its leader.
+   * Surface as a soft warning in the offense image — don't filter out, since
+   * the heuristic can miss.
+   */
+  datacronWarning?: string;
 }
 
 export interface DefenseSuggestion {
