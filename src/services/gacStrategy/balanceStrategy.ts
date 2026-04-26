@@ -1396,6 +1396,18 @@ export async function balanceOffenseAndDefense(
         ];
         const hasConflict = defenseUnits.some(unitId => usedCharacters.has(unitId));
         if (!hasConflict && balancedDefense.length < maxDefenseSquads) {
+          // Strict dedup: don't double-place a GL or its members
+          const safetyNetUnits = [
+            defenseSuggestion.squad.leader.baseId,
+            ...defenseSuggestion.squad.members.map(m => m.baseId),
+          ];
+          const collision = safetyNetUnits.find(u => usedCharacters.has(u));
+          if (collision) {
+            logger.info(
+              `[GL Safety Net] Skipping ${unusedGL} — ${collision} already in another squad`
+            );
+            continue;
+          }
           logger.info(`[GL Safety Net] Placing unused GL ${unusedGL} on defense (Hold: ${defenseSuggestion.holdPercentage?.toFixed(1) ?? 'N/A'}%)`);
           balancedDefense.push(defenseSuggestion);
           for (const unitId of defenseUnits) { usedCharacters.add(unitId); }
@@ -1427,6 +1439,18 @@ export async function balanceOffenseAndDefense(
             if (finalMembers.length === (format === '3v3' ? 2 : 4)) {
               const glSquad = { leader: defenseSuggestion.squad.leader, members: finalMembers };
               const allUnits = [unusedGL, ...finalMembers.map(m => m.baseId)];
+              // Strict dedup: don't double-place a GL or its members
+              const safetyNetUnits = [
+                glSquad.leader.baseId,
+                ...glSquad.members.map(m => m.baseId),
+              ];
+              const collision = safetyNetUnits.find(u => usedCharacters.has(u));
+              if (collision) {
+                logger.info(
+                  `[GL Safety Net] Skipping ${unusedGL} — ${collision} already in another squad`
+                );
+                continue;
+              }
               logger.info(`[GL Safety Net] Placing unused GL ${unusedGL} on defense with adjusted composition`);
               balancedDefense.push({
                 squad: glSquad,
