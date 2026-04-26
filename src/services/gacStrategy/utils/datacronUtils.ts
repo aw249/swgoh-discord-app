@@ -28,27 +28,28 @@ import { ComlinkDatacron } from '../../../integrations/comlink/comlinkClient';
 const MIN_NAME_FRAGMENT_LENGTH = 4;
 
 /**
- * Internal: substring-match a single tag against roster base IDs and return
- * the matching characters.
+ * Internal: match a single tag against roster base IDs.
+ * EXACT match only: the tag (lowercased) must equal the base ID (lowercased).
+ *
+ * Substring matching produced too many false positives — "stormtrooperluke"
+ * matched GRANDMASTERLUKE via the "luke" suffix; "vaderduelsend" matched
+ * any character with "vader" in their name. The filter dropped legit
+ * counters that didn't actually need a datacron.
+ *
+ * Trade-off: themed cron tags ("vaderduelsend", "maulhatefueled") that
+ * aren't direct character names won't match anything. The cron-leverage
+ * set under-counts in those cases, which means the filter under-filters
+ * (we may recommend a counter that DOES need a cron). That's the safer
+ * direction — better to recommend a cron-dependent counter than to drop
+ * a usable one.
  */
 function charactersForTag(tag: string, candidateBaseIds: Iterable<string>): Set<string> {
   const matched = new Set<string>();
   const lcTag = tag.toLowerCase();
-  if (!lcTag) return matched;
+  if (!lcTag || lcTag.length < MIN_NAME_FRAGMENT_LENGTH) return matched;
   for (const baseId of candidateBaseIds) {
-    const lcBase = baseId.toLowerCase();
-    if (lcTag.includes(lcBase) && lcBase.length >= MIN_NAME_FRAGMENT_LENGTH) {
+    if (baseId.toLowerCase() === lcTag) {
       matched.add(baseId);
-      continue;
-    }
-    // 4+ char suffix of baseId in tag (catches DARTHMAUL→"maul" in "maulhatefueled")
-    for (let i = 0; i + MIN_NAME_FRAGMENT_LENGTH <= lcBase.length; i++) {
-      const frag = lcBase.slice(i);
-      if (frag.length < MIN_NAME_FRAGMENT_LENGTH) break;
-      if (lcTag.includes(frag)) {
-        matched.add(baseId);
-        break;
-      }
     }
   }
   return matched;
