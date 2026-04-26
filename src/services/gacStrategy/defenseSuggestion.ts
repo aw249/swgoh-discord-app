@@ -126,8 +126,14 @@ export async function suggestDefenseSquads(
       // For now, set a low target (will be adjusted based on actual offense usage)
       targetGLDefense = 0; // Start with 0, but allow unused GLs to be placed on defense
     } else {
-      // Balanced: Current behavior (30-40% of defense slots)
-      targetGLDefense = userGLs.size > 0 ? Math.max(1, Math.floor(maxDefenseSquads * 0.35)) : 0;
+      // Balanced: ~20% of defense slots reserved for GLs. The remainder of GLs
+      // stay available for offense — keeps strong offense counters on the
+      // attack side rather than sweeping them all into defense. Was 0.35; the
+      // higher ratio was producing 6 of 9 GLs on defense, leaving offense with
+      // weak fallbacks. The contention rule in balanceStrategy.ts handles the
+      // case-by-case trade-offs; this just sets the upper bound on how many
+      // GL squads are pre-baked into suggestions.
+      targetGLDefense = userGLs.size > 0 ? Math.max(1, Math.floor(maxDefenseSquads * 0.20)) : 0;
     }
     
     let glDefenseCount = 0;
