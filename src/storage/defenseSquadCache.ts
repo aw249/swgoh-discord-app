@@ -38,17 +38,20 @@ class DefenseSquadCache {
       const fileContent = await fs.readFile(cachePath, 'utf-8');
       const data = JSON.parse(fileContent) as { squads: GacTopDefenseSquad[]; cachedAt: string };
       
-      // Check if cache is too old (e.g., older than 7 days)
+      // Refresh daily — swgoh.gg defense aggregations evolve through the season
+      // as new GAC rounds are played; 7-day staleness was missing meta shifts.
+      // Override via DEFENSE_CACHE_TTL_HOURS env var.
       const cachedAt = new Date(data.cachedAt);
-      const daysSinceCache = (Date.now() - cachedAt.getTime()) / (1000 * 60 * 60 * 24);
-      const maxCacheAge = 7; // days
-      
-      if (daysSinceCache > maxCacheAge) {
+      const hoursSinceCache = (Date.now() - cachedAt.getTime()) / (1000 * 60 * 60);
+      const maxCacheAgeHours = parseFloat(process.env.DEFENSE_CACHE_TTL_HOURS || '24');
+
+      if (hoursSinceCache > maxCacheAgeHours) {
         logger.info(
-          `Cache expired: Defense squads cache is ${daysSinceCache.toFixed(1)} days old (max: ${maxCacheAge} days)`
+          `Cache expired: Defense squads cache is ${hoursSinceCache.toFixed(1)}h old (max: ${maxCacheAgeHours}h)`
         );
         return null;
       }
+      const daysSinceCache = hoursSinceCache / 24;
 
       // Empty cache files usually mean a failed scrape under an old DOM; refetch with current parsers.
       if (!data.squads || data.squads.length === 0) {

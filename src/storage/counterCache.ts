@@ -9,6 +9,15 @@ interface TeammateCount {
   weightedCount: number;  // Weighted by seen count of the squads
 }
 
+/**
+ * Maximum age for cached per-leader counter data, in hours.
+ * Override via COUNTER_CACHE_TTL_HOURS env var. swgoh.gg's counter pages
+ * accumulate game data through the season — early-season counters often
+ * have null win % until enough games are played. A 24h refresh window
+ * picks up the daily accumulation without hammering swgoh.gg.
+ */
+const COUNTER_CACHE_TTL_HOURS = parseFloat(process.env.COUNTER_CACHE_TTL_HOURS || '24');
+
 class CounterCache {
   private readonly baseDir: string;
   // Cache for GL teammates, keyed by "seasonId:glBaseId:format"
@@ -43,10 +52,20 @@ class CounterCache {
   ): Promise<GacCounterSquad[] | null> {
     try {
       const cachePath = this.getCachePath(seasonId, defensiveLeaderBaseId);
+      const stat = await fs.stat(cachePath);
+      const hoursSinceCache = (Date.now() - stat.mtimeMs) / (1000 * 60 * 60);
+      if (hoursSinceCache > COUNTER_CACHE_TTL_HOURS) {
+        logger.info(
+          `Cache expired: counter cache for ${defensiveLeaderBaseId} is ` +
+          `${hoursSinceCache.toFixed(1)}h old (max: ${COUNTER_CACHE_TTL_HOURS}h)`
+        );
+        return null;
+      }
       const fileContent = await fs.readFile(cachePath, 'utf-8');
       const counters = JSON.parse(fileContent) as GacCounterSquad[];
       logger.info(
-        `Cache hit: Found ${counters.length} cached counter(s) for ${defensiveLeaderBaseId} (season: ${seasonId})`
+        `Cache hit: Found ${counters.length} cached counter(s) for ${defensiveLeaderBaseId} ` +
+        `(season: ${seasonId}, age: ${hoursSinceCache.toFixed(1)}h)`
       );
       return counters;
     } catch (error: any) {
