@@ -18,7 +18,9 @@ export function generateOffenseStrategyHtml(
   maxSquads: number = 11,
   userRoster?: SwgohGgFullPlayerResponse,
   opponentRoster?: SwgohGgFullPlayerResponse,
-  unusedGLs?: string[]
+  unusedGLs?: string[],
+  startBattleIndex: number = 0,
+  chunkInfo?: { current: number; total: number }
 ): string {
   logger.info(`[Offense Image] Starting HTML generation vs ${opponentName} (${format} format)`);
   logger.info(`[Offense Image] Input data: ${offenseSquads.length} offense squad(s)`);
@@ -261,7 +263,7 @@ export function generateOffenseStrategyHtml(
       <div class="battle-row">
         <div class="battle-header">
           <div class="battle-title">
-            <span class="battle-number">Battle ${index + 1}</span>
+            <span class="battle-number">Battle ${index + 1 + startBattleIndex}</span>
             <span class="battle-assessment" style="background: ${assessmentColor};">${assessmentIcon} ${overallAssessment}</span>
           </div>
         </div>
@@ -736,8 +738,8 @@ export function generateOffenseStrategyHtml(
 <body>
   <div class="container">
       <div class="header">
-      ⚔️ OFFENSE STRATEGY vs ${opponentName}
-      <div class="header-subtitle">${format} • ${visibleOffense.length} Battle${visibleOffense.length !== 1 ? 's' : ''}</div>
+      ⚔️ OFFENSE STRATEGY vs ${opponentName}${chunkInfo ? ` — Part ${chunkInfo.current}/${chunkInfo.total}` : ''}
+      <div class="header-subtitle">${format} • ${visibleOffense.length} Battle${visibleOffense.length !== 1 ? 's' : ''}${chunkInfo ? ` (${startBattleIndex + 1}-${startBattleIndex + visibleOffense.length})` : ''}</div>
     </div>
     ${battleRows}
     ${unusedGLsSection}

@@ -165,7 +165,7 @@ async function main(): Promise<void> {
 
   await status('Rendering strategy PNGs…');
   const opponentName = targetName || targetAllyCode;
-  const { defenseImage, offenseImage } = await gacStrategyService.generateSplitStrategyImages(
+  const { defenseImage, offenseImages } = await gacStrategyService.generateSplitStrategyImages(
     opponentName,
     balancedOffense,
     balancedDefense,
@@ -178,12 +178,16 @@ async function main(): Promise<void> {
 
   const stamp = Date.now();
   const defPath = path.join('/tmp', `gac-strategy-test-defense-${stamp}.png`);
-  const offPath = path.join('/tmp', `gac-strategy-test-offense-${stamp}.png`);
   await fs.promises.writeFile(defPath, defenseImage);
-  await fs.promises.writeFile(offPath, offenseImage);
+  const offPaths: string[] = [];
+  for (let i = 0; i < offenseImages.length; i++) {
+    const p = path.join('/tmp', `gac-strategy-test-offense-${stamp}-${i + 1}.png`);
+    await fs.promises.writeFile(p, offenseImages[i]);
+    offPaths.push(p);
+  }
 
-  logger.info(`OK — wrote:\n  ${defPath}\n  ${offPath}`);
-  console.log(JSON.stringify({ yourAllyCode, opponentAllyCode, format, opponentName, squads: squads.length, offenseCount, defenseCount, defPath, offPath }, null, 2));
+  logger.info(`OK — wrote:\n  ${defPath}\n  ${offPaths.join('\n  ')}`);
+  console.log(JSON.stringify({ yourAllyCode, opponentAllyCode, format, opponentName, squads: squads.length, offenseCount, defenseCount, defPath, offPaths }, null, 2));
   } finally {
     await gacStrategyService.closeBrowser().catch(() => undefined);
     await swgohGgApiClient.close().catch(() => undefined);

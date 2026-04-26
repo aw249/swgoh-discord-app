@@ -284,8 +284,8 @@ export async function handleStrategyCommand(
   // Use opponent's name if available, otherwise fall back to ally code
   const opponentName = targetName || targetAllyCode;
 
-  // Generate split images: one for defense, one for offense
-  const { defenseImage, offenseImage } = await gacStrategyService.generateSplitStrategyImages(
+  // Generate split images: one for defense, one or more for offense (chunked)
+  const { defenseImage, offenseImages } = await gacStrategyService.generateSplitStrategyImages(
     opponentName,
     balancedOffense,
     balancedDefense,
@@ -297,7 +297,9 @@ export async function handleStrategyCommand(
   );
 
   const defenseAttachment = new AttachmentBuilder(defenseImage, { name: 'gac-defense.png' });
-  const offenseAttachment = new AttachmentBuilder(offenseImage, { name: 'gac-offense.png' });
+  const offenseAttachments = offenseImages.map((buf, i) =>
+    new AttachmentBuilder(buf, { name: `gac-offense-${i + 1}.png` })
+  );
 
   const offenseCount = balancedOffense.filter(m => m.offense.leader.baseId).length;
   const defenseCount = balancedDefense.length;
@@ -314,21 +316,25 @@ export async function handleStrategyCommand(
     .setColor(0xc4a35a)
     .setFooter({ text: `League: ${league || 'Unknown'} | Format: ${format}` });
 
-  // Create embed for offense image
-  const offenseEmbed = new EmbedBuilder()
-    .setTitle('⚔️ Your Offense')
-    .setDescription(
-      `Counter squads vs opponent's defense\n` +
-      `**${offenseCount}** offense squad${offenseCount !== 1 ? 's' : ''}`
-    )
-    .setImage('attachment://gac-offense.png')
-    .setColor(0x4ade80)
-    .setFooter({ text: `Strategy: ${strategyLabel} | Squads balanced to avoid character reuse` });
+  // Create one embed per offense chunk
+  const totalChunks = offenseImages.length;
+  const offenseEmbeds = offenseImages.map((_, i) => {
+    const partLabel = totalChunks > 1 ? ` — Part ${i + 1}/${totalChunks}` : '';
+    return new EmbedBuilder()
+      .setTitle(`⚔️ Your Offense${partLabel}`)
+      .setDescription(
+        `Counter squads vs opponent's defense\n` +
+        `**${offenseCount}** offense squad${offenseCount !== 1 ? 's' : ''}`
+      )
+      .setImage(`attachment://gac-offense-${i + 1}.png`)
+      .setColor(0x4ade80)
+      .setFooter({ text: `Strategy: ${strategyLabel} | Squads balanced to avoid character reuse` });
+  });
 
   try {
     await interaction.editReply({
-      embeds: [defenseEmbed, offenseEmbed],
-      files: [defenseAttachment, offenseAttachment]
+      embeds: [defenseEmbed, ...offenseEmbeds],
+      files: [defenseAttachment, ...offenseAttachments]
     });
   } finally {
     await gacStrategyService.closeBrowser();

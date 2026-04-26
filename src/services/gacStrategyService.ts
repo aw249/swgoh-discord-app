@@ -316,7 +316,7 @@ export class GacStrategyService {
     userRoster?: SwgohGgFullPlayerResponse,
     strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
     opponentAllyCode?: string
-  ): Promise<{ defenseImage: Buffer; offenseImage: Buffer }> {
+  ): Promise<{ defenseImage: Buffer; offenseImages: Buffer[] }> {
     // Fetch opponent roster if ally code provided
     // Must use getFullPlayerWithStats to get calculated stats (Speed, Health, Protection)
     // Comlink doesn't provide these stats, only swgoh.gg does
@@ -387,19 +387,40 @@ export class GacStrategyService {
     );
     const defenseImage = await this.browserService.renderHtml(defenseHtml, { width: defenseWidth, height: 2400 });
 
-    // Generate offense image
+    // Generate offense images. Split into up to 3 chunks of ~5 battles each
+    // to keep each image short enough to dodge Chromium's tall-screenshot
+    // duplication path. Single chunk (no chunking) for ≤5 battles.
     const offenseWidth = format === '3v3' ? 1100 : 1650;
-    const offenseHtml = generateOffenseStrategyHtml(
-      opponentLabel,
-      balancedOffense,
-      format,
-      maxSquads,
-      userRoster,
-      opponentRoster,
-      unusedGLs
-    );
-    const offenseImage = await this.browserService.renderHtml(offenseHtml, { width: offenseWidth, height: 2400 });
+    const visibleOffense = balancedOffense.slice(0, maxSquads);
+    const totalBattles = visibleOffense.length;
+    const totalChunks = Math.max(1, Math.min(3, Math.ceil(totalBattles / 5)));
+    const baseSize = Math.floor(totalBattles / totalChunks);
+    const remainder = totalBattles % totalChunks;
 
-    return { defenseImage, offenseImage };
+    const offenseImages: Buffer[] = [];
+    let cursor = 0;
+    for (let i = 0; i < totalChunks; i++) {
+      const size = baseSize + (i < remainder ? 1 : 0);
+      const chunk = visibleOffense.slice(cursor, cursor + size);
+      const isLast = i === totalChunks - 1;
+      const chunkInfo = totalChunks > 1 ? { current: i + 1, total: totalChunks } : undefined;
+
+      const offenseHtml = generateOffenseStrategyHtml(
+        opponentLabel,
+        chunk,
+        format,
+        chunk.length,
+        userRoster,
+        opponentRoster,
+        isLast ? unusedGLs : undefined,
+        cursor,
+        chunkInfo
+      );
+      const offenseImage = await this.browserService.renderHtml(offenseHtml, { width: offenseWidth, height: 2400 });
+      offenseImages.push(offenseImage);
+      cursor += size;
+    }
+
+    return { defenseImage, offenseImages };
   }
 }
