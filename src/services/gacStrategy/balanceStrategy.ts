@@ -626,24 +626,14 @@ export async function balanceOffenseAndDefense(
           continue; // Skip - these characters are needed for offense
         }
         
-        // For defensive strategy, only skip if there are MANY conflicts (>= 50% of squad)
-        // This allows GL squads and other strong defense squads even if they share 1-2 characters
+        // Strict conflict check: defense-vs-defense character sharing is illegal
+        // in GAC (each unit can only be assigned to one slot). Any conflict = reject.
         if (conflictCount > 0) {
-          const conflictRatio = conflictCount / squadSize;
-          // Skip only if >= 50% of the squad conflicts AND we have other options
-          if (conflictRatio >= 0.5 && sortedDefense.length - balancedDefense.length > (maxDefenseSquads - balancedDefense.length) * 2) {
-            logger.debug(
-              `Skipping defense squad ${defenseSuggestion.squad.leader.baseId} - ` +
-              `${conflictCount}/${squadSize} character(s) already used (${(conflictRatio * 100).toFixed(0)}%): ${conflictingUnits.join(', ')}`
-            );
-            continue; // Skip this defense squad - too many conflicts
-          } else {
-            // Allow this squad despite minor conflicts
-            logger.debug(
-              `Allowing defense squad ${defenseSuggestion.squad.leader.baseId} despite ` +
-              `${conflictCount} minor character conflict(s): ${conflictingUnits.join(', ')}`
-            );
-          }
+          logger.debug(
+            `Skipping defense squad ${defenseSuggestion.squad.leader.baseId} - ` +
+            `${conflictCount}/${squadSize} character(s) already in another squad: ${conflictingUnits.join(', ')}`
+          );
+          continue;
         }
         
         // Add this defense squad
@@ -655,20 +645,10 @@ export async function balanceOffenseAndDefense(
         );
         balancedDefense.push(defenseSuggestion);
         
-        // Mark characters as used, but only mark non-conflicting ones if we're being lenient
-        // This allows other defense squads to still be considered
-        if (conflictCount > 0 && conflictCount < squadSize * 0.5) {
-          // Only mark non-conflicting characters
-          for (const unitId of defenseUnits) {
-            if (!conflictingUnits.includes(unitId)) {
-              usedCharacters.add(unitId);
-            }
-          }
-        } else {
-          // Mark all characters as used
-          for (const unitId of defenseUnits) {
-            usedCharacters.add(unitId);
-          }
+        // Mark all squad characters as used. The strict conflict check above
+        // guarantees we never reach here with any conflict.
+        for (const unitId of defenseUnits) {
+          usedCharacters.add(unitId);
         }
         usedLeaders.add(defenseSuggestion.squad.leader.baseId);
       }
