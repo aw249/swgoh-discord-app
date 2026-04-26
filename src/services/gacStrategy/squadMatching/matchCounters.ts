@@ -205,10 +205,16 @@ export async function matchCountersAgainstRoster(
           seasonId
         );
 
-        // Filter counter squads by format (3v3 = 3 units, 5v5 = 5 units)
+        // Filter counter squads by format. Allow up to expectedCounterSize units —
+        // undersized counters are intentional (Wampa solo, Bane+Dooku duo,
+        // Sith Eternal Emperor + Wat Tambor, etc.) and are MORE efficient on
+        // offense because they free roster slots for defense.
+        // Wrong-format squads (3v3 leaking into 5v5 query) come through with
+        // <= expectedCounterSize too; we trust the swgoh.gg format query and
+        // reject only over-sized squads (likely scraping errors).
         const filteredCounterSquads = counterSquads.filter(counter => {
           const allUnits = [counter.leader, ...counter.members];
-          return allUnits.length === expectedCounterSize;
+          return allUnits.length >= 1 && allUnits.length <= expectedCounterSize;
         });
 
         // Add logging to debug format filtering

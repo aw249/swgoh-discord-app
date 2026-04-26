@@ -102,11 +102,12 @@ export class GacStrategyService {
         members: squad.members.map(toUniqueUnit)
       }));
 
-      // Filter by format: 5v5 squads have 4 members, 3v3 squads have 2 members.
-      // Without this, 3v3 squads leak through when format filtering on the history
-      // page fails (e.g. selectors change) and produce 3-character offense images.
+      // Filter by format: allow up to expectedMembers (5v5: 4, 3v3: 2). Undersized
+      // squads are legit (Wampa solo, Bane+Dooku duo, etc.) and should be shown.
+      // We trust the swgoh.gg format query for the upper bound; over-sized squads
+      // would indicate scraping error.
       const expectedMembers = format === '3v3' ? 2 : 4;
-      const formatFiltered = allSquads.filter(squad => squad.members.length === expectedMembers);
+      const formatFiltered = allSquads.filter(squad => squad.members.length <= expectedMembers);
       if (formatFiltered.length < allSquads.length) {
         logger.info(
           `Filtered opponent squads by format: ${allSquads.length} total -> ${formatFiltered.length} matching ${format} (${allSquads.length - formatFiltered.length} wrong-format removed)`
