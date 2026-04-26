@@ -121,7 +121,9 @@ export interface ClaimDecision {
  * Algorithm:
  *   1. If `offenseLeaderToSlot` doesn't contain leaderId → claim (no offense conflict).
  *   2. Compute primaryOffenseV = offenseViability of the current offense pick.
- *   3. Compute bestAltV from primary's alternatives.
+ *   3. Compute bestAltV from primary's alternatives, EXCLUDING any alt that would
+ *      reuse the contested leader (defense is about to claim it, so an "alt"
+ *      led by the same character is a no-op that fails downstream).
  *   4. swapCost = max(0, primaryOffenseV - bestAltV).
  *   5. claim if defenseV >= swapCost; emit replacementCounter when bestAlt was found.
  */
@@ -136,7 +138,11 @@ export function shouldDefenseClaim(
   if (!primary) return { claim: true };
 
   const primaryV = offenseViability(primary, format);
-  const { alt, viability: altV } = bestAvailableAlt(primary, claimedChars, format);
+  // Defense is about to claim leaderId; treat it as already-used when scoring
+  // alternative offense counters so we never return an alt led by the same character.
+  const claimedWithLeader = new Set(claimedChars);
+  claimedWithLeader.add(leaderId);
+  const { alt, viability: altV } = bestAvailableAlt(primary, claimedWithLeader, format);
   const swapCost = Math.max(0, primaryV - altV);
 
   if (defenseV >= swapCost) {
