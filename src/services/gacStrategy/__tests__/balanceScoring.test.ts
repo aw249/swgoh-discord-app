@@ -169,3 +169,71 @@ describe('bestAvailableAlt', () => {
     expect(bestAvailableAlt(c, new Set(), '5v5')).toEqual({ alt: null, viability: 0 });
   });
 });
+
+import { shouldDefenseClaim } from '../balanceScoring';
+
+describe('shouldDefenseClaim', () => {
+  it('claims when no offense slot uses the leader', () => {
+    const result = shouldDefenseClaim('JABBA', 35, new Map(), new Set(), '5v5');
+    expect(result.claim).toBe(true);
+    expect(result.replacementCounter).toBeUndefined();
+  });
+
+  it('claims when defense viability >= offense swap cost', () => {
+    // Primary offense: win=80, banners=60, seen=1000 → ~57.4
+    // Alt: win=70, banners=55, seen=1000 → ~46.0
+    // Swap cost: 57.4 - 46.0 = 11.4
+    // Defense viability: 35 → claim wins
+    const primary = makeCounter({
+      offense: { leader: { baseId: 'JABBA', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 80, avgBanners: 60, seenCount: 1000,
+      alternatives: [
+        makeCounter({
+          offense: { leader: { baseId: 'BOBA', relicLevel: null, portraitUrl: null }, members: [] },
+          winPercentage: 70, avgBanners: 55, seenCount: 1000, alternatives: [],
+        }),
+      ],
+    });
+    const slotMap = new Map([['JABBA', primary]]);
+    const result = shouldDefenseClaim('JABBA', 35, slotMap, new Set(), '5v5');
+    expect(result.claim).toBe(true);
+    expect(result.replacementCounter?.offense.leader.baseId).toBe('BOBA');
+  });
+
+  it('declines when defense viability < offense swap cost', () => {
+    // Primary win=95, banners=65, seen=5000 → ~85
+    // No alt → swap cost ≈ 85
+    // Defense viability = 10 → decline
+    const primary = makeCounter({
+      offense: { leader: { baseId: 'JABBA', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 95, avgBanners: 65, seenCount: 5000, alternatives: [],
+    });
+    const slotMap = new Map([['JABBA', primary]]);
+    const result = shouldDefenseClaim('JABBA', 10, slotMap, new Set(), '5v5');
+    expect(result.claim).toBe(false);
+  });
+
+  it('claims when offense primary has null win (speculative)', () => {
+    // Primary win=null → primaryV=0 → swap cost=0; any positive defense V claims
+    const primary = makeCounter({
+      offense: { leader: { baseId: 'BOBA', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: null, avgBanners: 60, seenCount: 1000, alternatives: [],
+    });
+    const slotMap = new Map([['BOBA', primary]]);
+    const result = shouldDefenseClaim('BOBA', 5, slotMap, new Set(), '5v5');
+    expect(result.claim).toBe(true);
+  });
+
+  it('handles missing alt gracefully', () => {
+    const primary = makeCounter({
+      offense: { leader: { baseId: 'X', relicLevel: null, portraitUrl: null }, members: [] },
+      winPercentage: 50, avgBanners: 30, seenCount: 100, alternatives: [],
+    });
+    const slotMap = new Map([['X', primary]]);
+    // primary V = 50 × (30/69) × 0.65 ≈ 14.1; no alt → cost 14.1
+    // defense V 20 → claim
+    const result = shouldDefenseClaim('X', 20, slotMap, new Set(), '5v5');
+    expect(result.claim).toBe(true);
+    expect(result.replacementCounter).toBeUndefined();
+  });
+});

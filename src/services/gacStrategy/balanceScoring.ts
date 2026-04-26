@@ -108,3 +108,39 @@ export function bestAvailableAlt(
   }
   return best;
 }
+
+export interface ClaimDecision {
+  claim: boolean;
+  /** If claim is true and offense had this leader as primary, the alt to swap to. Undefined if no offense conflict or no alt found. */
+  replacementCounter?: MatchedCounterSquad;
+}
+
+/**
+ * Decide whether defense should claim `leaderId`, accounting for offense impact.
+ *
+ * Algorithm:
+ *   1. If `offenseLeaderToSlot` doesn't contain leaderId → claim (no offense conflict).
+ *   2. Compute primaryOffenseV = offenseViability of the current offense pick.
+ *   3. Compute bestAltV from primary's alternatives.
+ *   4. swapCost = max(0, primaryOffenseV - bestAltV).
+ *   5. claim if defenseV >= swapCost; emit replacementCounter when bestAlt was found.
+ */
+export function shouldDefenseClaim(
+  leaderId: string,
+  defenseV: number,
+  offenseLeaderToSlot: Map<string, MatchedCounterSquad>,
+  claimedChars: Set<string>,
+  format: string
+): ClaimDecision {
+  const primary = offenseLeaderToSlot.get(leaderId);
+  if (!primary) return { claim: true };
+
+  const primaryV = offenseViability(primary, format);
+  const { alt, viability: altV } = bestAvailableAlt(primary, claimedChars, format);
+  const swapCost = Math.max(0, primaryV - altV);
+
+  if (defenseV >= swapCost) {
+    return { claim: true, replacementCounter: alt ?? undefined };
+  }
+  return { claim: false };
+}
