@@ -8,6 +8,13 @@ import { logger } from '../../utils/logger';
 import { isGalacticLegend } from '../../config/gacConstants';
 import { counterCache } from '../../storage/counterCache';
 import { getDefenseStatsForSquad } from './defenseStats';
+import {
+  offenseViability,
+  defenseViability,
+  shouldDefenseClaim,
+} from './balanceScoring';
+
+const BALANCED_USE_VIABILITY = process.env.BALANCED_USE_VIABILITY !== 'false';
 
 interface DefenseClient {
   getTopDefenseSquads(sortBy: 'count' | 'percent', seasonId?: string, format?: string): Promise<any[]>;
@@ -122,6 +129,14 @@ export async function balanceOffenseAndDefense(
     // the contention rule applied per leader in Task 10). 'offensive' keeps
     // offense-first.
     const defenseFirst = strategyPreference === 'defensive' || strategyPreference === 'balanced';
+
+    // Map: offense leader baseId → its primary MatchedCounterSquad. Used by the
+    // contention rule to look up offense impact when defense wants a leader.
+    // Built lazily — only populated if balanced mode is using viability scoring.
+    const offenseLeaderToSlot = new Map<string, MatchedCounterSquad>();
+    // Map: offense MatchedCounterSquad → forced alternative the offense pass
+    // should use because defense claimed the primary's leader.
+    const forcedAlternatives = new Map<MatchedCounterSquad, MatchedCounterSquad>();
 
     // CRITICAL: Ensure ALL GLs are used (either offense or defense)
     // GLs are the strongest characters in the game and should NEVER be left unused
@@ -358,7 +373,16 @@ export async function balanceOffenseAndDefense(
       const bSeen = b.seenCount ?? 0;
       return bSeen - aSeen;
     });
-    
+
+    // Populate offenseLeaderToSlot now that sortedOffense is final.
+    if (BALANCED_USE_VIABILITY && strategyPreference === 'balanced') {
+      for (const c of sortedOffense) {
+        if (c.offense.leader.baseId) {
+          offenseLeaderToSlot.set(c.offense.leader.baseId, c);
+        }
+      }
+    }
+
     // Sort defense suggestions by score, but boost squads that are relatively better on defense
     // and penalize squads that should be avoided on defense (using data-driven thresholds)
     // For offensive strategy, we need to know which GLs were used on offense to prioritize unused GLs on defense
@@ -640,7 +664,35 @@ export async function balanceOffenseAndDefense(
           );
           continue;
         }
-        
+
+        // Contention rule (balanced mode only): before claiming this leader for
+        // defense, check whether offense would lose more value than defense gains.
+        // Defensive mode bypasses this — it always wants defense first regardless.
+        if (BALANCED_USE_VIABILITY && strategyPreference === 'balanced') {
+          const leaderId = defenseSuggestion.squad.leader.baseId;
+          const defenseV = defenseViability({
+            holdPercentage: defenseSuggestion.holdPercentage,
+            seenCount: defenseSuggestion.seenCount,
+          });
+          const decision = shouldDefenseClaim(leaderId, defenseV, offenseLeaderToSlot, usedCharacters, format);
+          if (!decision.claim) {
+            logger.debug(
+              `[Balanced] Defense skipping ${leaderId} — offense value of leaving them on offense exceeds defense gain ` +
+              `(defenseV=${defenseV.toFixed(1)})`
+            );
+            continue;
+          }
+          if (decision.replacementCounter) {
+            const primary = offenseLeaderToSlot.get(leaderId)!;
+            forcedAlternatives.set(primary, decision.replacementCounter);
+            logger.info(
+              `[Balanced] Offense slot vs ${primary.defense.leader.baseId} swapped: ` +
+              `${leaderId} → ${decision.replacementCounter.offense.leader.baseId}. ` +
+              `Leader ${leaderId} reserved for defense (hold ${defenseSuggestion.holdPercentage?.toFixed(1) ?? 'N/A'}%).`
+            );
+          }
+        }
+
         // Add this defense squad
         logger.debug(
           `Adding defense squad ${defenseSuggestion.squad.leader.baseId} ` +
@@ -667,11 +719,30 @@ export async function balanceOffenseAndDefense(
         if (strategyPreference === 'defensive' && balancedOffense.length >= maxOffenseNeeded) {
           break;
         }
-        
+
         if (!counter.offense.leader.baseId) {
           continue; // Skip empty offense squads
         }
-        
+
+        // If defense reserved this offense slot's primary leader, use the
+        // recorded alternative directly instead of walking [primary, ...alts].
+        const forcedAlt = forcedAlternatives.get(counter);
+        if (forcedAlt) {
+          const offenseUnits = [forcedAlt.offense.leader.baseId, ...forcedAlt.offense.members.map(m => m.baseId)];
+          const conflict = offenseUnits.some(u => usedCharacters.has(u)) || usedLeaders.has(forcedAlt.offense.leader.baseId);
+          if (!conflict) {
+            balancedOffense.push(forcedAlt);
+            for (const u of offenseUnits) usedCharacters.add(u);
+            usedLeaders.add(forcedAlt.offense.leader.baseId);
+            continue;
+          }
+          // If the recorded alt is no longer valid (a later defense claim took its leader),
+          // fall through to the standard walk.
+          logger.debug(
+            `[Balanced] Forced alt ${forcedAlt.offense.leader.baseId} no longer valid; falling back to alternative walk.`
+          );
+        }
+
         // Try primary counter first, then alternatives if it conflicts
         // For defensive strategy, try non-GL alternatives first, then GL alternatives if all non-GL conflict
         const countersToTry = [counter, ...(counter.alternatives || [])];
