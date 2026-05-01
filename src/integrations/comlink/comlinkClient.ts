@@ -95,22 +95,78 @@ export interface ComlinkModStat {
 
 export interface ComlinkGuildData {
   guild: {
-    profile: {
-      id: string;
-      name: string;
-      memberCount: number;
-      guildGalacticPower: string;
-    };
+    profile: ComlinkGuildProfile;
     member: ComlinkGuildMember[];
+    /** Present when includeRecentActivity=true. Empty if no TWs run. */
+    recentTerritoryWarResult?: ComlinkRecentTw[];
+    /** Present when includeRecentActivity=true. */
+    recentRaidResult?: ComlinkRecentRaid[];
   };
 }
 
+export interface ComlinkGuildProfile {
+  id: string;
+  name: string;
+  memberCount: number;
+  memberMax: number;
+  level: number;
+  /** Decimal string */
+  guildGalacticPower: string;
+  bannerColorId?: string;
+  bannerLogoId?: string;
+  externalMessageKey?: string;
+  enrollmentStatus?: number;
+}
+
+/**
+ * Without HMAC auth, these per-member fields come back blank/zero except for
+ * `playerId` and `memberLevel`. Use `getPlayerById(playerId)` for real per-member data.
+ */
 export interface ComlinkGuildMember {
   playerId: string;
   playerName: string;
+  /** In-game player level (blank without HMAC) */
+  playerLevel: number;
+  /** Guild role: 2 = member, 3 = officer, 4 = leader (populated even without HMAC) */
   memberLevel: number;
-  galacticPower: number;
+  /** Decimal string; "0" without HMAC */
+  galacticPower: string;
+  /** Decimal string */
+  characterGalacticPower: string;
+  shipGalacticPower: string;
   guildJoinTime: string;
+  lastActivityTime: string;
+}
+
+export interface ComlinkRecentTw {
+  territoryWarId: string;
+  /** Our score, decimal string */
+  score: string;
+  /** Their score, decimal string */
+  opponentScore: string;
+  /** Total guild GP at the time, number */
+  power: number;
+  /** Unix timestamp in seconds, decimal string */
+  endTimeSeconds: string;
+  startTime: string;
+  opponentGuildProfile: {
+    id: string;
+    name: string;
+    guildGalacticPower: string;
+    bannerColorId?: string;
+    bannerLogoId?: string;
+  };
+}
+
+export interface ComlinkRecentRaid {
+  raidId?: string;
+  identifier?: string;
+  raidMember: Array<{
+    playerId: string;
+    memberProgress: string;
+    memberRank: number;
+    memberAttempt: number;
+  }>;
 }
 
 export interface ComlinkGacEvent {
