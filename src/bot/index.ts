@@ -6,8 +6,10 @@ import { registerCommands } from './commandRegistry';
 import { registerCommand } from '../commands/register';
 import { helpCommand } from '../commands/help';
 import { gacCommand } from '../commands/gac';
+import { playerCommand } from '../commands/player';
 import { PlayerService } from '../services/playerService';
 import { GacService } from '../services/gacService';
+import { PlayerInsightsService } from '../services/playerInsightsService';
 import { BracketCacheWarmer } from '../services/bracketCacheWarmer';
 import { filePlayerStore as playerStore } from '../storage/fileStore';
 
@@ -33,6 +35,7 @@ async function main(): Promise<void> {
     
     // GacService uses combined client for real-time bracket data (Comlink + swgoh.gg hybrid)
     const gacService = new GacService(combinedClient);
+    const playerInsightsService = new PlayerInsightsService(combinedClient);
 
     // Wait for Comlink to be ready (it may be starting up concurrently)
     // Comlink needs time to: discover public IP, generate guest accounts, start server
@@ -90,6 +93,8 @@ async function main(): Promise<void> {
         try {
           if (commandName === 'gac') {
             await gacCommand.autocomplete(interaction, playerService, gacService);
+          } else if (commandName === 'player') {
+            await playerCommand.autocomplete(interaction);
           }
         } catch (error) {
           logger.error(`Error handling autocomplete for command ${commandName}:`, error);
@@ -110,6 +115,8 @@ async function main(): Promise<void> {
         } else if (commandName === 'gac') {
           // Use combined client for player data (Comlink first, swgoh.gg fallback)
           await gacCommand.execute(interaction, playerService, gacService, combinedClient);
+        } else if (commandName === 'player') {
+          await playerCommand.execute(interaction, playerService, playerInsightsService);
         } else if (commandName === 'help') {
           await helpCommand.execute(interaction);
         }

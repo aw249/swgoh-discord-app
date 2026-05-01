@@ -141,6 +141,15 @@ Generates two images:
 1. **Defense recommendations** — Suggested squads to place on defense based on hold percentages
 2. **Offense recommendations** — Counter squads to beat opponent's expected defense
 
+### `/player journey-ready`
+Show your readiness for a specific unit — stars, gear, relic, zetas, omicrons, plus a "next step" hint.
+
+**Usage**:
+- `/player journey-ready unit:<name>` — Check a unit on your own roster (autocompletes from live unit data)
+- `/player journey-ready unit:<name> allycode:123456789` — Check a unit on a different player's roster
+
+Outputs an embed with the unit's current state and a one-line hint pointing at the next progression step (gear up to G13, push relic to R10, or "fully geared").
+
 ### `/archetype` (Admin)
 Manage squad archetype configurations for ability validation.
 
