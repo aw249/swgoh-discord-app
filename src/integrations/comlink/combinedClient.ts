@@ -5,7 +5,7 @@
  * This provides a seamless transition path from swgoh.gg to Comlink.
  */
 import { SwgohGgApiClient, SwgohGgFullPlayerResponse, SwgohGgPlayerData, GacDefensiveSquad, GacCounterSquad, GacTopDefenseSquad, GacBracketData, GacBracketPlayer } from '../swgohGgApi';
-import { ComlinkClient, ComlinkBracketPlayer } from './comlinkClient';
+import { ComlinkClient, ComlinkBracketPlayer, ComlinkGuildData } from './comlinkClient';
 import { adaptComlinkPlayerToSwgohGg, adaptComlinkPlayerDataOnly } from './dataAdapter';
 import { logger } from '../../utils/logger';
 import { bracketCache } from '../../storage/bracketCache';
@@ -707,6 +707,26 @@ export class CombinedApiClient {
       return this.comlinkClient.getPlayerArena(normalizedAllyCode);
     }
     throw new Error('Comlink is not available for arena profile');
+  }
+
+  async getGuild(guildId: string, includeRecentActivity = false): Promise<ComlinkGuildData | null> {
+    if (!(await this.isComlinkAvailable())) return null;
+    try {
+      return await this.comlinkClient.getGuild(guildId, includeRecentActivity);
+    } catch (error) {
+      logger.warn(`Comlink getGuild failed for ${guildId}:`, error);
+      return null;
+    }
+  }
+
+  async searchGuildsByName(name: string, count = 10): Promise<unknown | null> {
+    if (!(await this.isComlinkAvailable())) return null;
+    try {
+      return await this.comlinkClient.searchGuilds(name, 0, count);
+    } catch (error) {
+      logger.warn(`Comlink searchGuilds failed for "${name}":`, error);
+      return null;
+    }
   }
 
   /**

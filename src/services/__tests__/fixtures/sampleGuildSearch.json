@@ -1,0 +1,121 @@
+{
+  "guild": [
+    {
+      "messageCriteriaKey": [],
+      "raidLaunchConfig": [],
+      "guildEventTracker": [],
+      "id": "EzxHsY1ATaS-46Q6eP7xYA",
+      "name": "The power of the",
+      "externalMessageKey": " My  team will attacked everything",
+      "logoBackground": "",
+      "enrollmentStatus": 1,
+      "trophy": 0,
+      "memberCount": 50,
+      "memberMax": 50,
+      "level": 1,
+      "rank": 0,
+      "levelRequirement": 34,
+      "raidWin": 0,
+      "leaderboardScore": "0",
+      "bannerColorId": "bright_orange_brown",
+      "bannerLogoId": "guild_icon_mandalorian",
+      "guildGalacticPower": "6933520",
+      "chatChannelId": "guild-{EzxHsY1ATaS-46Q6eP7xYA}",
+      "guildType": "",
+      "guildGalacticPowerForRequirement": "6933520",
+      "singleLaunchConfig": null,
+      "autoLaunchConfig": null
+    },
+    {
+      "messageCriteriaKey": [],
+      "raidLaunchConfig": [],
+      "guildEventTracker": [
+        {
+          "definitionId": "t05D",
+          "completedStars": "41",
+          "endTime": "1776618000000"
+        }
+      ],
+      "id": "sPCq9Av-SomlEW6IKOgGGw",
+      "name": "Future of the Order",
+      "externalMessageKey": "10+ mil, 5 GLs minimum. ZEFFO and MANDALORE ready. Discord REQUIRED: https://discord.gg/93znvJV",
+      "logoBackground": "",
+      "enrollmentStatus": 2,
+      "trophy": 0,
+      "memberCount": 50,
+      "memberMax": 50,
+      "level": 1,
+      "rank": 0,
+      "levelRequirement": 85,
+      "raidWin": 0,
+      "leaderboardScore": "0",
+      "bannerColorId": "green_dark_green",
+      "bannerLogoId": "guild_icon_mandalorian",
+      "guildGalacticPower": "662987381",
+      "chatChannelId": "guild-{sPCq9Av-SomlEW6IKOgGGw}",
+      "guildType": "",
+      "guildGalacticPowerForRequirement": "662987381",
+      "singleLaunchConfig": {
+        "raidId": "order66",
+        "campaignMissionIdentifier": {
+          "campaignId": "GUILD",
+          "campaignMapId": "RAIDS",
+          "campaignNodeId": "ORDER66",
+          "campaignNodeDifficulty": 4,
+          "campaignMissionId": "DIFF01"
+        },
+        "autoLaunch": false,
+        "autoLaunchImmediately": false,
+        "autoLaunchTime": "0",
+        "joinPeriodDuration": "0",
+        "autoSimEnabled": false,
+        "immediate": true,
+        "scheduledUtcOffsetSeconds": "0"
+      },
+      "autoLaunchConfig": {
+        "raidId": "order66",
+        "campaignMissionIdentifier": {
+          "campaignId": "GUILD",
+          "campaignMapId": "RAIDS",
+          "campaignNodeId": "ORDER66",
+          "campaignNodeDifficulty": 4,
+          "campaignMissionId": "DIFF01"
+        },
+        "autoLaunch": true,
+        "autoLaunchImmediately": false,
+        "autoLaunchTime": "0",
+        "joinPeriodDuration": "0",
+        "autoSimEnabled": false,
+        "immediate": true,
+        "scheduledUtcOffsetSeconds": "0"
+      }
+    },
+    {
+      "messageCriteriaKey": [],
+      "raidLaunchConfig": [],
+      "guildEventTracker": [],
+      "id": "qlY2jDswQS-YVFtIl8zCXw",
+      "name": "The order of the rebels ",
+      "externalMessageKey": "U.S.A only keep guild chat VERY CLEAN. Play safe. Have fun.",
+      "logoBackground": "",
+      "enrollmentStatus": 2,
+      "trophy": 0,
+      "memberCount": 1,
+      "memberMax": 50,
+      "level": 1,
+      "rank": 0,
+      "levelRequirement": 1,
+      "raidWin": 0,
+      "leaderboardScore": "0",
+      "bannerColorId": "green_blue",
+      "bannerLogoId": "guild_icon_Rebel",
+      "guildGalacticPower": "227724",
+      "chatChannelId": "guild-{qlY2jDswQS-YVFtIl8zCXw}",
+      "guildType": "",
+      "guildGalacticPowerForRequirement": "227724",
+      "singleLaunchConfig": null,
+      "autoLaunchConfig": null
+    }
+  ],
+  "totalRecords": 0
+}

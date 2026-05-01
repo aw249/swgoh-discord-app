@@ -1,0 +1,1877 @@
+{
+  "guild": {
+    "profile": {
+      "messageCriteriaKey": [],
+      "raidLaunchConfig": [],
+      "guildEventTracker": [
+        {
+          "definitionId": "t05D",
+          "completedStars": "41",
+          "endTime": "1776618000000"
+        }
+      ],
+      "id": "sPCq9Av-SomlEW6IKOgGGw",
+      "name": "Future of the Order",
+      "externalMessageKey": "10+ mil, 5 GLs minimum. ZEFFO and MANDALORE ready. Discord REQUIRED: https://discord.gg/93znvJV",
+      "logoBackground": "",
+      "enrollmentStatus": 2,
+      "trophy": 0,
+      "memberCount": 50,
+      "memberMax": 50,
+      "level": 1,
+      "rank": 0,
+      "levelRequirement": 85,
+      "raidWin": 0,
+      "leaderboardScore": "0",
+      "bannerColorId": "green_dark_green",
+      "bannerLogoId": "guild_icon_mandalorian",
+      "guildGalacticPower": "662987381",
+      "chatChannelId": "guild-{sPCq9Av-SomlEW6IKOgGGw}",
+      "guildType": "",
+      "guildGalacticPowerForRequirement": "662987381",
+      "singleLaunchConfig": {
+        "raidId": "order66",
+        "campaignMissionIdentifier": {
+          "campaignId": "GUILD",
+          "campaignMapId": "RAIDS",
+          "campaignNodeId": "ORDER66",
+          "campaignNodeDifficulty": 4,
+          "campaignMissionId": "DIFF01"
+        },
+        "autoLaunch": false,
+        "autoLaunchImmediately": false,
+        "autoLaunchTime": "0",
+        "joinPeriodDuration": "0",
+        "autoSimEnabled": false,
+        "immediate": true,
+        "scheduledUtcOffsetSeconds": "0"
+      },
+      "autoLaunchConfig": {
+        "raidId": "order66",
+        "campaignMissionIdentifier": {
+          "campaignId": "GUILD",
+          "campaignMapId": "RAIDS",
+          "campaignNodeId": "ORDER66",
+          "campaignNodeDifficulty": 4,
+          "campaignMissionId": "DIFF01"
+        },
+        "autoLaunch": true,
+        "autoLaunchImmediately": false,
+        "autoLaunchTime": "0",
+        "joinPeriodDuration": "0",
+        "autoSimEnabled": false,
+        "immediate": true,
+        "scheduledUtcOffsetSeconds": "0"
+      }
+    },
+    "member": [
+      {
+        "memberContribution": [
+          {
+            "type": 2,
+            "currentValue": "600",
+            "lifetimeValue": "1712838"
+          },
+          {
+            "type": 1,
+            "currentValue": "214",
+            "lifetimeValue": "3682857"
+          },
+          {
+            "type": 3,
+            "currentValue": "0",
+            "lifetimeValue": "16126"
+          }
+        ],
+        "seasonStatus": [
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_76a",
+            "eventInstanceId": "GA2_SEASON_76A:O1771884000000",
+            "league": "AURODIUM",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 407,
+            "division": 10,
+            "joinTime": "1771893659000",
+            "endTime": "1774216800000",
+            "remove": false,
+            "rank": 4077
+          },
+          {
+            "seasonId": "4zone_3v3_ga2_c3s1_77a",
+            "eventInstanceId": "GA2_SEASON_77A:O1774299600000",
+            "league": "AURODIUM",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 392,
+            "division": 5,
+            "joinTime": "1774312211000",
+            "endTime": "1776632400000",
+            "remove": false,
+            "rank": 8247
+          },
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_78a",
+            "eventInstanceId": "GA2_SEASON_78A:O1776718800000",
+            "league": "CHROMIUM",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 365,
+            "division": 15,
+            "joinTime": "1776730473000",
+            "endTime": "1779051600000",
+            "remove": false,
+            "rank": 0
+          }
+        ],
+        "playerId": "uzFWDWyGQgurxPr91-7eOQ",
+        "playerName": "Moon Ski",
+        "playerLevel": 85,
+        "memberLevel": 2,
+        "guildXp": 0,
+        "lastActivityTime": "1777660137000",
+        "squadPower": 187093,
+        "guildJoinTime": "1530218565",
+        "galacticPower": "13973997",
+        "playerTitle": "PLAYERTITLE_EXILED",
+        "playerPortrait": "PLAYERPORTRAIT_TU18_ALL_PLAYERS",
+        "lifetimeSeasonScore": "404160",
+        "leagueId": "CHROMIUM",
+        "shipGalacticPower": "5095286",
+        "characterGalacticPower": "8878711",
+        "nucleusId": "1002866126561"
+      },
+      {
+        "memberContribution": [
+          {
+            "type": 2,
+            "currentValue": "320",
+            "lifetimeValue": "1563724"
+          },
+          {
+            "type": 1,
+            "currentValue": "768",
+            "lifetimeValue": "2761524"
+          },
+          {
+            "type": 3,
+            "currentValue": "0",
+            "lifetimeValue": "1905"
+          }
+        ],
+        "seasonStatus": [
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_76a",
+            "eventInstanceId": "GA2_SEASON_76A:O1771884000000",
+            "league": "AURODIUM",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 4640,
+            "division": 10,
+            "joinTime": "1771889966000",
+            "endTime": "1774216800000",
+            "remove": false,
+            "rank": 2418
+          },
+          {
+            "seasonId": "4zone_3v3_ga2_c3s1_77a",
+            "eventInstanceId": "GA2_SEASON_77A:O1774299600000",
+            "league": "AURODIUM",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 10008,
+            "division": 10,
+            "joinTime": "1774303393000",
+            "endTime": "1776632400000",
+            "remove": false,
+            "rank": 10484
+          },
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_78a",
+            "eventInstanceId": "GA2_SEASON_78A:O1776718800000",
+            "league": "AURODIUM",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 2654,
+            "division": 10,
+            "joinTime": "1776738032000",
+            "endTime": "1779051600000",
+            "remove": false,
+            "rank": 0
+          }
+        ],
+        "playerId": "nHKsqQjtQ2aQd2YYS7mjiA",
+        "playerName": "Jabroni35",
+        "playerLevel": 85,
+        "memberLevel": 3,
+        "guildXp": 0,
+        "lastActivityTime": "1777655064000",
+        "squadPower": 198745,
+        "guildJoinTime": "1541433660",
+        "galacticPower": "11120294",
+        "playerTitle": "PLAYERTITLE_GLJMK_QUEST_002",
+        "playerPortrait": "PLAYERPORTRAIT_ESB2",
+        "lifetimeSeasonScore": "660929",
+        "leagueId": "AURODIUM",
+        "shipGalacticPower": "4225192",
+        "characterGalacticPower": "6895102",
+        "nucleusId": "1000346721481"
+      },
+      {
+        "memberContribution": [
+          {
+            "type": 2,
+            "currentValue": "380",
+            "lifetimeValue": "1328768"
+          },
+          {
+            "type": 1,
+            "currentValue": "163",
+            "lifetimeValue": "2519765"
+          },
+          {
+            "type": 3,
+            "currentValue": "0",
+            "lifetimeValue": "1065"
+          }
+        ],
+        "seasonStatus": [
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_76a",
+            "eventInstanceId": "GA2_SEASON_76A:O1771884000000",
+            "league": "KYBER",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 5146,
+            "division": 5,
+            "joinTime": "1771908806000",
+            "endTime": "1774216800000",
+            "remove": false,
+            "rank": 6474
+          },
+          {
+            "seasonId": "4zone_3v3_ga2_c3s1_77a",
+            "eventInstanceId": "GA2_SEASON_77A:O1774299600000",
+            "league": "AURODIUM",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 7215,
+            "division": 15,
+            "joinTime": "1774370876000",
+            "endTime": "1776632400000",
+            "remove": false,
+            "rank": 5999
+          },
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_78a",
+            "eventInstanceId": "GA2_SEASON_78A:O1776718800000",
+            "league": "AURODIUM",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 4673,
+            "division": 20,
+            "joinTime": "1776735889000",
+            "endTime": "1779051600000",
+            "remove": false,
+            "rank": 0
+          }
+        ],
+        "playerId": "JflX3CxlTvyF3Us97Qj80w",
+        "playerName": "Jope Egg",
+        "playerLevel": 85,
+        "memberLevel": 2,
+        "guildXp": 0,
+        "lastActivityTime": "1777658151000",
+        "squadPower": 191046,
+        "guildJoinTime": "1559930539",
+        "galacticPower": "14226759",
+        "playerTitle": "PLAYERTITLE_JARJARBINKS",
+        "playerPortrait": "PLAYERPORTRAIT_CAPTAINTARPALS",
+        "lifetimeSeasonScore": "452443",
+        "leagueId": "AURODIUM",
+        "shipGalacticPower": "4960665",
+        "characterGalacticPower": "9266094",
+        "nucleusId": "2312566037"
+      },
+      {
+        "memberContribution": [
+          {
+            "type": 2,
+            "currentValue": "440",
+            "lifetimeValue": "1230648"
+          },
+          {
+            "type": 1,
+            "currentValue": "208",
+            "lifetimeValue": "2313241"
+          },
+          {
+            "type": 3,
+            "currentValue": "0",
+            "lifetimeValue": "2658"
+          }
+        ],
+        "seasonStatus": [
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_76a",
+            "eventInstanceId": "GA2_SEASON_76A:O1771884000000",
+            "league": "KYBER",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 5230,
+            "division": 15,
+            "joinTime": "1771893205000",
+            "endTime": "1774216800000",
+            "remove": false,
+            "rank": 6138
+          },
+          {
+            "seasonId": "4zone_3v3_ga2_c3s1_77a",
+            "eventInstanceId": "GA2_SEASON_77A:O1774299600000",
+            "league": "KYBER",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 3139,
+            "division": 10,
+            "joinTime": "1774311004000",
+            "endTime": "1776632400000",
+            "remove": false,
+            "rank": 12005
+          },
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_78a",
+            "eventInstanceId": "GA2_SEASON_78A:O1776718800000",
+            "league": "KYBER",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 1038,
+            "division": 10,
+            "joinTime": "1776725722000",
+            "endTime": "1779051600000",
+            "remove": false,
+            "rank": 0
+          }
+        ],
+        "playerId": "RlbBHT-kQiCFbLNurOjLSA",
+        "playerName": "Sean",
+        "playerLevel": 85,
+        "memberLevel": 2,
+        "guildXp": 0,
+        "lastActivityTime": "1777641360000",
+        "squadPower": 194371,
+        "guildJoinTime": "1599055874",
+        "galacticPower": "13027096",
+        "playerTitle": "PLAYERTITLE_501STLEGION",
+        "playerPortrait": "PLAYERPORTRAIT_SHATTERED_LEGACY",
+        "lifetimeSeasonScore": "339837",
+        "leagueId": "KYBER",
+        "shipGalacticPower": "4710838",
+        "characterGalacticPower": "8316258",
+        "nucleusId": "1010999417341"
+      },
+      {
+        "memberContribution": [
+          {
+            "type": 2,
+            "currentValue": "600",
+            "lifetimeValue": "1158428"
+          },
+          {
+            "type": 1,
+            "currentValue": "168",
+            "lifetimeValue": "2086950"
+          },
+          {
+            "type": 3,
+            "currentValue": "0",
+            "lifetimeValue": "2821"
+          }
+        ],
+        "seasonStatus": [
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_76a",
+            "eventInstanceId": "GA2_SEASON_76A:O1771884000000",
+            "league": "KYBER",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 6934,
+            "division": 20,
+            "joinTime": "1771886788000",
+            "endTime": "1774216800000",
+            "remove": false,
+            "rank": 7605
+          },
+          {
+            "seasonId": "4zone_3v3_ga2_c3s1_77a",
+            "eventInstanceId": "GA2_SEASON_77A:O1774299600000",
+            "league": "KYBER",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 6331,
+            "division": 20,
+            "joinTime": "1774300139000",
+            "endTime": "1776632400000",
+            "remove": false,
+            "rank": 11533
+          },
+          {
+            "seasonId": "4zone_5v5_ga2_c3s1_78a",
+            "eventInstanceId": "GA2_SEASON_78A:O1776718800000",
+            "league": "KYBER",
+            "wins": 0,
+            "losses": 0,
+            "seasonPoints": 2266,
+            "division": 20,
+            "joinTime": "1776718840000",
+            "endTime": "1779051600000",
+            "remove": false,
+            "rank": 0
+          }
+        ],
+        "playerId": "bOMIRnikSumLfd6NDkIwQQ",
+        "playerName": "Kylver",
+        "playerLevel": 85,
+        "memberLevel": 2,
+        "guildXp": 0,
+        "lastActivityTime": "1777663145000",
+        "squadPower": 189146,
+        "guildJoinTime": "1610919724",
+        "galacticPower": "14108002",
+        "playerTitle": "PLAYERTITLE_GRANDARENA_CHALLENGE_HANSOLO",
+        "playerPortrait": "PLAYERPORTRAIT_REEK",
+        "lifetimeSeasonScore": "775855",
+        "leagueId": "KYBER",
+        "shipGalacticPower": "4986710",
+        "characterGalacticPower": "9121292",
+        "nucleusId": "2461803426"
+      }
+    ],
+    "recentRaidResult": [
+      {
+        "raidMember": [
+          {
+            "playerId": "WfNoXeI_RX-VkE5x5u4mew",
+            "memberProgress": "5880000",
+            "memberRank": 22,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "o8o5jxLoRre0No9rLvYFhw",
+            "memberProgress": "8100000",
+            "memberRank": 14,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "rvPi7BRFRdKa_mCFMc9e_w",
+            "memberProgress": "7800000",
+            "memberRank": 15,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "GHcATz5sSXu4lK2Ew8QINQ",
+            "memberProgress": "6900000",
+            "memberRank": 18,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "7MAA0NUBSJWWiZtfsRe5QQ",
+            "memberProgress": "3275000",
+            "memberRank": 33,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "RlbBHT-kQiCFbLNurOjLSA",
+            "memberProgress": "4800000",
+            "memberRank": 28,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "uzFWDWyGQgurxPr91-7eOQ",
+            "memberProgress": "7200000",
+            "memberRank": 17,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "1GUyIneCSsugtWzmtWH_SA",
+            "memberProgress": "12600000",
+            "memberRank": 5,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "bOMIRnikSumLfd6NDkIwQQ",
+            "memberProgress": "3600000",
+            "memberRank": 32,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "hIKNMYmCSa-CnCUZJVkQcg",
+            "memberProgress": "2080000",
+            "memberRank": 43,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "znDqs0gNQJ6Bz0U6xlZ1Pw",
+            "memberProgress": "5400000",
+            "memberRank": 27,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "S2Jdr2-8TN6chDQHvA4Evw",
+            "memberProgress": "4800000",
+            "memberRank": 29,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "HmWcrhx-QbqUNRSld6CLIg",
+            "memberProgress": "15600000",
+            "memberRank": 1,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "Tq9iiE5OQtSSIsXzVUFDCw",
+            "memberProgress": "6430000",
+            "memberRank": 20,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "szIklMlrRyydVv323Kv5lA",
+            "memberProgress": "2242500",
+            "memberRank": 41,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "AYUR7NhRQH-4NA0SdDpIsQ",
+            "memberProgress": "11400000",
+            "memberRank": 8,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "ZJHFuLSqRGO86bdYmEaP9A",
+            "memberProgress": "3182500",
+            "memberRank": 35,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "zylx_wPNRtefqo0wY90pxQ",
+            "memberProgress": "2340000",
+            "memberRank": 39,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "IcphkxCgREynPScnqH2ICw",
+            "memberProgress": "1200000",
+            "memberRank": 48,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "edtWLNy4QhuLz43G8vBr7Q",
+            "memberProgress": "8560000",
+            "memberRank": 13,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "cny-AjItQLGg6pIWyv0ikw",
+            "memberProgress": "6750000",
+            "memberRank": 19,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "gmBodp66T1WTODFL50xdpQ",
+            "memberProgress": "5812500",
+            "memberRank": 24,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "khlM3xO7T72zMMi0CMjnEA",
+            "memberProgress": "2210000",
+            "memberRank": 42,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "_XJYIMPYT6CP-5d8jglxRA",
+            "memberProgress": "11040000",
+            "memberRank": 10,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "t9vtrl4LQWOzYcDfceq-LA",
+            "memberProgress": "12600000",
+            "memberRank": 6,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "_siZVVz-RTCCHX8KEmTxLw",
+            "memberProgress": "13620000",
+            "memberRank": 2,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "EiYXApdEReaXGmL_Kt-lQg",
+            "memberProgress": "3187500",
+            "memberRank": 34,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "PBoCTkG8T-Ckd9cxqN-4hw",
+            "memberProgress": "3000000",
+            "memberRank": 36,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "8ATMLBRRS1uYhmPBT-mp9A",
+            "memberProgress": "3600000",
+            "memberRank": 31,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "H7D4UqDsReizvfmPTSTybw",
+            "memberProgress": "4200000",
+            "memberRank": 30,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "1VS-cTs0SRGTHvoNJV5yOQ",
+            "memberProgress": "1687500",
+            "memberRank": 46,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "JqVCKuW-TDG9NDx5Uhp2MA",
+            "memberProgress": "11115000",
+            "memberRank": 9,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "PvWzDbXCQc-A10bZdjl8Vw",
+            "memberProgress": "7785000",
+            "memberRank": 16,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "z_Mj3RQISTqXoBXB2jUKxg",
+            "memberProgress": "1985000",
+            "memberRank": 44,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "Hh267cHdTouziG1wz2HdNw",
+            "memberProgress": "10185000",
+            "memberRank": 11,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "-HhQP3QFTjWSsUclF_MQhg",
+            "memberProgress": "8580000",
+            "memberRank": 12,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "ooGPXCgCQHaxh_UdBt5Jug",
+            "memberProgress": "0",
+            "memberRank": 49,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "EjZ3t2G6Sn2LKRIGSxx0dA",
+            "memberProgress": "5870000",
+            "memberRank": 23,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "UUIhPw4uQj6Uh0aBqWGXAw",
+            "memberProgress": "2700000",
+            "memberRank": 37,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "Rk1rBcopQGSoW6VMuE6FYw",
+            "memberProgress": "6290000",
+            "memberRank": 21,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "bfZHNsRZS4-OPOHXtvgTEw",
+            "memberProgress": "5575000",
+            "memberRank": 25,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "T2L4Y9p9TqOxInRzZUgK2g",
+            "memberProgress": "2280000",
+            "memberRank": 40,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "JSsiRl-CSP6NWspBTy6ToQ",
+            "memberProgress": "12600000",
+            "memberRank": 4,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "nHKsqQjtQ2aQd2YYS7mjiA",
+            "memberProgress": "1875000",
+            "memberRank": 45,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "fo6w5YIkRYKd3axyHxB63g",
+            "memberProgress": "12600000",
+            "memberRank": 3,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "HvD-vwUtQPO9g0AtjVoTpA",
+            "memberProgress": "5550000",
+            "memberRank": 26,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "72_EKmAqSDyUZ-wXYZPOdQ",
+            "memberProgress": "2345000",
+            "memberRank": 38,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "YC9_RnyYQRuC_x2lSjVkTg",
+            "memberProgress": "1320000",
+            "memberRank": 47,
+            "memberAttempt": 0
+          },
+          {
+            "playerId": "JflX3CxlTvyF3Us97Qj80w",
+            "memberProgress": "11700000",
+            "memberRank": 7,
+            "memberAttempt": 0
+          }
+        ],
+        "encounterProgress": [],
+        "raidId": "order66",
+        "identifier": {
+          "campaignId": "GUILD",
+          "campaignMapId": "RAIDS",
+          "campaignNodeId": "ORDER66",
+          "campaignNodeDifficulty": 4,
+          "campaignMissionId": "DIFF01"
+        },
+        "duration": "255613",
+        "progress": 1,
+        "endTime": "1777167175",
+        "outcome": 1,
+        "guildRewardScore": "301452500",
+        "cachedRewards": {
+          "rankRewardPreview": [
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_1",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_1",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 10000000,
+              "rankEnd": 14499999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_2",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_2",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 14500000,
+              "rankEnd": 20499999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_3",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_3",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 20500000,
+              "rankEnd": 28499999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_4",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_4",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 28500000,
+              "rankEnd": 41499999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_5",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_5",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 41500000,
+              "rankEnd": 63499999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_6",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_6",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 63500000,
+              "rankEnd": 98499999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_7",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_7",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 98500000,
+              "rankEnd": 147499999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_8",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_8",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 147500000,
+              "rankEnd": 244999999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_9",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_9",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 245000000,
+              "rankEnd": 374999999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_10",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_10",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 375000000,
+              "rankEnd": 519999999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_11",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "mysterybox_guildraid_order66_guild_11",
+                  "type": 14,
+                  "minQuantity": 1,
+                  "maxQuantity": 1,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 520000000,
+              "rankEnd": 0
+            }
+          ],
+          "immediateRegularRankRewardPreview": [
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_01",
+                  "type": 3,
+                  "minQuantity": 450,
+                  "maxQuantity": 450,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_01",
+                  "type": 3,
+                  "minQuantity": 450,
+                  "maxQuantity": 450,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 65000,
+              "rankEnd": 84999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 40,
+                  "maxQuantity": 40,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 40,
+                  "maxQuantity": 40,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 85000,
+              "rankEnd": 169999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 40,
+                  "maxQuantity": 40,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 40,
+                  "maxQuantity": 40,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 170000,
+              "rankEnd": 254999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 40,
+                  "maxQuantity": 40,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 40,
+                  "maxQuantity": 40,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 255000,
+              "rankEnd": 339999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 340000,
+              "rankEnd": 499999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 500000,
+              "rankEnd": 999999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 1000000,
+              "rankEnd": 1699999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 1700000,
+              "rankEnd": 2199999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_02",
+                  "type": 3,
+                  "minQuantity": 200,
+                  "maxQuantity": 200,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                },
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 80,
+                  "maxQuantity": 80,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 2200000,
+              "rankEnd": 2999999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 3000000,
+              "rankEnd": 4249999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 4250000,
+              "rankEnd": 5469999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 5470000,
+              "rankEnd": 6199999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 6200000,
+              "rankEnd": 8509999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 8510000,
+              "rankEnd": 9719999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 100,
+                  "maxQuantity": 100,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 9720000,
+              "rankEnd": 12149999
+            },
+            {
+              "primaryReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 110,
+                  "maxQuantity": 110,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "detailedReward": [
+                {
+                  "id": "RAID_REWARD_CURRENCY_03",
+                  "type": 3,
+                  "minQuantity": 110,
+                  "maxQuantity": 110,
+                  "rarity": 8,
+                  "statMod": null,
+                  "previewPriority": 0,
+                  "unitLevel": 0,
+                  "unitTier": 0,
+                  "primaryReward": true
+                }
+              ],
+              "rankStart": 12150000,
+              "rankEnd": 0
+            }
+          ]
+        },
+        "participationLockoutTime": "1776907925"
+      }
+    ],
+    "recentTerritoryWarResult": [
+      {
+        "territoryWarId": "tw01A",
+        "score": "15333",
+        "power": 510004647,
+        "opponentScore": "29121",
+        "endTimeSeconds": "1774803602",
+        "opponentGuildProfile": {
+          "id": "pQdW9a0fRnW0TLzohI9jWA",
+          "name": "OAKLAND REPUBLIC RAIDERS",
+          "logoBackground": "",
+          "bannerColorId": "red_white",
+          "bannerLogoId": "guild_icon_sithempire",
+          "guildGalacticPower": "628304574"
+        },
+        "startTime": "1774717200"
+      },
+      {
+        "territoryWarId": "tw01C",
+        "score": "23214",
+        "power": 463860081,
+        "opponentScore": "21369",
+        "endTimeSeconds": "1773594000",
+        "opponentGuildProfile": {
+          "id": "3lwvXpzBSiuCt1HPWSsfWQ",
+          "name": "SK Survivors",
+          "logoBackground": "",
+          "bannerColorId": "bright_blue_dark_blue",
+          "bannerLogoId": "guild_icon_jedi",
+          "guildGalacticPower": "534945574"
+        },
+        "startTime": "0"
+      },
+      {
+        "territoryWarId": "tw01B",
+        "score": "21233",
+        "power": 485865605,
+        "opponentScore": "23296",
+        "endTimeSeconds": "1774461606",
+        "opponentGuildProfile": {
+          "id": "lmRmx2tqQaSAKBI4t4g-Yg",
+          "name": "Imperial Rebellion 940",
+          "logoBackground": "",
+          "bannerColorId": "bright_blue_dark_blue",
+          "bannerLogoId": "guild_icon_seventhfleet",
+          "guildGalacticPower": "647690907"
+        },
+        "startTime": "1774375200"
+      }
+    ]
+  }
+}

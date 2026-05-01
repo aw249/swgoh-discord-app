@@ -150,6 +150,23 @@ Show your readiness for a specific unit — stars, gear, relic, zetas, omicrons,
 
 Outputs an embed with the unit's current state and a one-line hint pointing at the next progression step (gear up to G13, push relic to R10, or "fully geared").
 
+### `/guild compare`
+Side-by-side image comparing two guilds — GP, member count, GL count, top GLs, top 10 members per side.
+
+**Usage**: `/guild compare guild_a:<name-or-22-char-id> guild_b:<name-or-22-char-id>`
+
+If a guild name has multiple matches, the bot returns the candidate list with IDs — re-run with the ID for a unique match. Per-guild GL counts come from per-member roster fan-out (cached for 30 minutes), so cold runs take a few seconds while subsequent calls are instant.
+
+### `/guild ready-check`
+Image table of guild members who own a given unit at relic tier ≥ N, with a "below threshold" list at the bottom.
+
+**Usage**:
+- `/guild ready-check unit:<name>` — Check your own guild (autocomplete on the unit field)
+- `/guild ready-check unit:<name> guild_id:<id>` — Check a different guild
+- `/guild ready-check unit:<name> min_relic:7` — Raise the threshold (default 5)
+
+Same caching as `/guild compare` — 30-minute LRU keyed by `(guildId, allyCode)`.
+
 ### `/archetype` (Admin)
 Manage squad archetype configurations for ability validation.
 

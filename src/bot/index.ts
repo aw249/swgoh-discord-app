@@ -7,9 +7,13 @@ import { registerCommand } from '../commands/register';
 import { helpCommand } from '../commands/help';
 import { gacCommand } from '../commands/gac';
 import { playerCommand } from '../commands/player';
+import { guildCommand } from '../commands/guild';
 import { PlayerService } from '../services/playerService';
 import { GacService } from '../services/gacService';
 import { PlayerInsightsService } from '../services/playerInsightsService';
+import { GuildService } from '../services/guildService';
+import { GuildImageService } from '../services/guildImages';
+import { GuildRosterCache } from '../services/guildRosterCache';
 import { BracketCacheWarmer } from '../services/bracketCacheWarmer';
 import { filePlayerStore as playerStore } from '../storage/fileStore';
 
@@ -36,6 +40,9 @@ async function main(): Promise<void> {
     // GacService uses combined client for real-time bracket data (Comlink + swgoh.gg hybrid)
     const gacService = new GacService(combinedClient);
     const playerInsightsService = new PlayerInsightsService(combinedClient);
+    const guildRosterCache = new GuildRosterCache();
+    const guildService = new GuildService(combinedClient, guildRosterCache);
+    const guildImageService = new GuildImageService();
 
     // Wait for Comlink to be ready (it may be starting up concurrently)
     // Comlink needs time to: discover public IP, generate guest accounts, start server
@@ -95,6 +102,8 @@ async function main(): Promise<void> {
             await gacCommand.autocomplete(interaction, playerService, gacService);
           } else if (commandName === 'player') {
             await playerCommand.autocomplete(interaction);
+          } else if (commandName === 'guild') {
+            await guildCommand.autocomplete(interaction);
           }
         } catch (error) {
           logger.error(`Error handling autocomplete for command ${commandName}:`, error);
@@ -117,6 +126,8 @@ async function main(): Promise<void> {
           await gacCommand.execute(interaction, playerService, gacService, combinedClient);
         } else if (commandName === 'player') {
           await playerCommand.execute(interaction, playerService, playerInsightsService);
+        } else if (commandName === 'guild') {
+          await guildCommand.execute(interaction, playerService, guildService, guildImageService);
         } else if (commandName === 'help') {
           await helpCommand.execute(interaction);
         }
@@ -151,6 +162,7 @@ async function main(): Promise<void> {
       logger.info('Shutting down gracefully...');
       bracketWarmer.stop();
       await flushCharacterPortraits();
+      await guildImageService.close();
       await combinedClient.close();
       await client.destroy();
       process.exit(0);
@@ -160,6 +172,7 @@ async function main(): Promise<void> {
       logger.info('Shutting down gracefully...');
       bracketWarmer.stop();
       await flushCharacterPortraits();
+      await guildImageService.close();
       await combinedClient.close();
       await client.destroy();
       process.exit(0);
