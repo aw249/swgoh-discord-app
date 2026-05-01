@@ -19,7 +19,7 @@
         "gear_level": 13, "level": 85, "power": 32000, "rarity": 7,
         "stats": { "1": 80000, "5": 350, "28": 60000 },
         "stat_diffs": { "5": 120 },
-        "relic_tier": 9, "is_galactic_legend": true, "combat_type": 1,
+        "relic_tier": 12, "is_galactic_legend": true, "combat_type": 1,
         "mod_set_ids": [], "zeta_abilities": ["a","b","c"], "omicron_abilities": ["x"]
       }
     },
@@ -28,7 +28,7 @@
         "base_id": "JEDIMASTERKENOBI", "name": "Jedi Master Kenobi",
         "gear_level": 13, "level": 85, "power": 30000, "rarity": 7,
         "stats": { "1": 75000, "5": 320, "28": 55000 },
-        "relic_tier": 8, "is_galactic_legend": true, "combat_type": 1,
+        "relic_tier": 11, "is_galactic_legend": true, "combat_type": 1,
         "mod_set_ids": [], "zeta_abilities": ["a","b"], "omicron_abilities": []
       }
     },
@@ -37,7 +37,7 @@
         "base_id": "BASTILASHAN", "name": "Bastila Shan",
         "gear_level": 12, "level": 85, "power": 24000, "rarity": 7,
         "stats": { "1": 50000, "5": 280, "28": 40000 },
-        "relic_tier": 7, "is_galactic_legend": false, "combat_type": 1,
+        "relic_tier": 0, "is_galactic_legend": false, "combat_type": 1,
         "mod_set_ids": [], "zeta_abilities": ["z"], "omicron_abilities": []
       }
     },
