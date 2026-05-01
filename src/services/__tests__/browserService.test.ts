@@ -151,4 +151,57 @@ describe('BrowserService', () => {
 
     expect(page.close).toHaveBeenCalled();
   });
+
+  it('reduces deviceScaleFactor when width × DSF would exceed Chromium 16384 device-px limit', async () => {
+    // 10000 CSS wide × DSF=2 = 20000 device px, above Chromium's 16384 ceiling.
+    // The service should drop DSF to ~1.6384 so the surface fits.
+    await service.renderHtml('<html></html>', {
+      width: 10000,
+      height: 600,
+      deviceScaleFactor: 2,
+    });
+
+    const browser = await (puppeteer.launch as jest.Mock).mock.results[0].value;
+    const page = await browser.newPage.mock.results[0].value;
+
+    // Final (second) setViewport call is the one before screenshot.
+    const finalViewport = (page.setViewport as jest.Mock).mock.calls[1][0];
+    expect(finalViewport.deviceScaleFactor).toBeCloseTo(16384 / 10000, 3);
+    expect(finalViewport.deviceScaleFactor).toBeLessThan(2);
+    expect(finalViewport.deviceScaleFactor).toBeGreaterThanOrEqual(1);
+  });
+
+  it('reduces deviceScaleFactor when measured content height × DSF would overflow', async () => {
+    // Warm up so we can reach the page mock and override evaluate for the
+    // next render. Default mock height (1800) fits, so the warm-up render
+    // doesn't trigger downscale.
+    await service.renderHtml('<html></html>', { width: 800, height: 600 });
+    const browser = await (puppeteer.launch as jest.Mock).mock.results[0].value;
+    const page = await browser.newPage.mock.results[0].value;
+
+    // For the next render, evaluate is called twice: once to wait for
+    // images/fonts (return value ignored) and once to measure content
+    // height. Override both with mockImplementationOnce so we don't leak
+    // implementation state into sibling tests.
+    (page.evaluate as jest.Mock)
+      .mockImplementationOnce(async () => 10000)
+      .mockImplementationOnce(async () => 10000);
+
+    (page.setViewport as jest.Mock).mockClear();
+
+    await service.renderHtml('<html></html>', {
+      width: 800,
+      height: 600,
+      deviceScaleFactor: 2,
+    });
+
+    const finalViewport = (page.setViewport as jest.Mock).mock.calls[1][0];
+    expect(finalViewport.deviceScaleFactor).toBeCloseTo(16384 / 10000, 3);
+    expect(finalViewport.deviceScaleFactor).toBeLessThan(2);
+    expect(finalViewport.deviceScaleFactor).toBeGreaterThanOrEqual(1);
+
+    // Full content height should be preserved in the clip — no truncation,
+    // because the DSF drop buys enough surface headroom.
+    expect(finalViewport.height).toBe(10000);
+  });
 });

@@ -5,10 +5,12 @@ const DEFAULT_DEVICE_SCALE_FACTOR = parseFloat(process.env.DEVICE_SCALE_FACTOR |
 const BROWSER_IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 const PAGE_TIMEOUT_MS = 30 * 1000; // 30 seconds per page operation
 
-// Chromium's hard cap on a single screenshot surface is 16384px per dimension;
-// well before that, tiled capture kicks in and the page can desync between
-// tiles if layout reflows mid-capture. Keep well under that.
-const MAX_SCREENSHOT_HEIGHT = 12000;
+// Chromium's hard cap on a single screenshot surface is 16384px per dimension,
+// measured in *device* pixels (CSS px × deviceScaleFactor). A request larger
+// than this is silently truncated — you get a PNG cut off mid-content with no
+// error. Before this constant is compared against anything, make sure you're
+// in the right pixel space.
+const CHROMIUM_MAX_DEVICE_PX = 16384;
 
 export class BrowserService {
   private browser: Browser | null = null;
@@ -141,10 +143,34 @@ export class BrowserService {
         );
       });
 
-      const clampedHeight = Math.min(contentHeight, MAX_SCREENSHOT_HEIGHT);
-      if (contentHeight > MAX_SCREENSHOT_HEIGHT) {
+      // Pick the largest deviceScaleFactor that keeps both dimensions under
+      // Chromium's 16384 device-px ceiling. If the caller asked for DSF=2 but
+      // the content is tall enough that width×2 or height×2 would overflow,
+      // drop DSF just enough to fit. Fractional DSFs are accepted by
+      // Puppeteer. Clamp to ≥1 so we never upscale beyond what was requested.
+      const headroomForHeight = CHROMIUM_MAX_DEVICE_PX / Math.max(contentHeight, 1);
+      const headroomForWidth = CHROMIUM_MAX_DEVICE_PX / Math.max(viewport.width, 1);
+      const effectiveDSF = Math.max(
+        1,
+        Math.min(deviceScaleFactor, headroomForHeight, headroomForWidth)
+      );
+
+      if (effectiveDSF < deviceScaleFactor) {
         logger.warn(
-          `Rendered content height (${contentHeight}px) exceeds cap (${MAX_SCREENSHOT_HEIGHT}px); ` +
+          `Reducing deviceScaleFactor from ${deviceScaleFactor} to ${effectiveDSF.toFixed(2)} ` +
+          `to keep ${viewport.width}x${contentHeight} CSS px under Chromium's ` +
+          `${CHROMIUM_MAX_DEVICE_PX}px device-pixel surface limit.`
+        );
+      }
+
+      // Even at DSF=1, content taller than 16384 CSS px can't fit on a single
+      // surface. Clip height to what's renderable and warn.
+      const maxHeightAtEffectiveDSF = Math.floor(CHROMIUM_MAX_DEVICE_PX / effectiveDSF);
+      const clampedHeight = Math.min(contentHeight, maxHeightAtEffectiveDSF);
+      if (clampedHeight < contentHeight) {
+        logger.warn(
+          `Content height (${contentHeight}px) exceeds renderable max ` +
+          `(${maxHeightAtEffectiveDSF}px at DSF ${effectiveDSF.toFixed(2)}); ` +
           `screenshot will be clipped.`
         );
       }
@@ -154,7 +180,7 @@ export class BrowserService {
       await page.setViewport({
         width: viewport.width,
         height: clampedHeight,
-        deviceScaleFactor
+        deviceScaleFactor: effectiveDSF
       });
 
       // Clip-based screenshot rather than fullPage. This is the single most
