@@ -4,11 +4,13 @@ import { logger } from '../utils/logger';
 import { registerCommand } from '../commands/register';
 import { helpCommand } from '../commands/help';
 import { gacCommand } from '../commands/gac';
+import { playerCommand } from '../commands/player';
 
 const commands = [
   registerCommand.data,
   helpCommand.data,
-  gacCommand.data
+  gacCommand.data,
+  playerCommand.data
 ];
 
 export async function registerCommands(): Promise<void> {
