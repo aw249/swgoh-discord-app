@@ -5,12 +5,14 @@ import { registerCommand } from '../commands/register';
 import { helpCommand } from '../commands/help';
 import { gacCommand } from '../commands/gac';
 import { playerCommand } from '../commands/player';
+import { guildCommand } from '../commands/guild';
 
 const commands = [
   registerCommand.data,
   helpCommand.data,
   gacCommand.data,
-  playerCommand.data
+  playerCommand.data,
+  guildCommand.data
 ];
 
 export async function registerCommands(): Promise<void> {
