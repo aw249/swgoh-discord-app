@@ -31,6 +31,11 @@ export const helpCommand = {
           inline: false
         },
         {
+          name: '/player journey-ready',
+          value: 'Show your readiness for a specific unit — stars, gear, relic, zetas/omicrons, plus a one-line "next step" hint.\nUsage: `/player journey-ready unit:<name>` or add `allycode:123456789` to check another player.',
+          inline: false
+        },
+        {
           name: '/help',
           value: 'Display this help message.',
           inline: false
