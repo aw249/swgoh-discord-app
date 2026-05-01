@@ -24,3 +24,6 @@ gac-strategy-diagnostic.log
 # Comlink binary and assets
 bin/
 
+# Plan documents (kept locally, not tracked)
+docs/superpowers/plans/
+
