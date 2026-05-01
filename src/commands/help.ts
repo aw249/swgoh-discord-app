@@ -36,6 +36,16 @@ export const helpCommand = {
           inline: false
         },
         {
+          name: '/guild compare',
+          value: 'Side-by-side image comparing two guilds: GP, member count, GL count + top GLs, top 10 members.\nUsage: `/guild compare guild_a:<name-or-id> guild_b:<name-or-id>`',
+          inline: false
+        },
+        {
+          name: '/guild ready-check',
+          value: 'Image table of guild members with a unit at relic ≥ N (defaults to 5).\nUsage: `/guild ready-check unit:<name>` (autocomplete) — defaults to your own guild.',
+          inline: false
+        },
+        {
           name: '/help',
           value: 'Display this help message.',
           inline: false
