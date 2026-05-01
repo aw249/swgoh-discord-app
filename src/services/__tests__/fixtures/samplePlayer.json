@@ -1,0 +1,55 @@
+{
+  "data": {
+    "ally_code": 123456789,
+    "name": "Test Player",
+    "level": 85,
+    "galactic_power": 9500000,
+    "character_galactic_power": 7200000,
+    "ship_galactic_power": 2300000,
+    "skill_rating": 5400,
+    "league_name": "Aurodium",
+    "guild_name": "Test Guild",
+    "guild_id": "test-guild-id",
+    "last_updated": "2026-05-01T12:00:00Z"
+  },
+  "units": [
+    {
+      "data": {
+        "base_id": "GLREY", "name": "Rey",
+        "gear_level": 13, "level": 85, "power": 32000, "rarity": 7,
+        "stats": { "1": 80000, "5": 350, "28": 60000 },
+        "stat_diffs": { "5": 120 },
+        "relic_tier": 9, "is_galactic_legend": true, "combat_type": 1,
+        "mod_set_ids": [], "zeta_abilities": ["a","b","c"], "omicron_abilities": ["x"]
+      }
+    },
+    {
+      "data": {
+        "base_id": "JEDIMASTERKENOBI", "name": "Jedi Master Kenobi",
+        "gear_level": 13, "level": 85, "power": 30000, "rarity": 7,
+        "stats": { "1": 75000, "5": 320, "28": 55000 },
+        "relic_tier": 8, "is_galactic_legend": true, "combat_type": 1,
+        "mod_set_ids": [], "zeta_abilities": ["a","b"], "omicron_abilities": []
+      }
+    },
+    {
+      "data": {
+        "base_id": "BASTILASHAN", "name": "Bastila Shan",
+        "gear_level": 12, "level": 85, "power": 24000, "rarity": 7,
+        "stats": { "1": 50000, "5": 280, "28": 40000 },
+        "relic_tier": 7, "is_galactic_legend": false, "combat_type": 1,
+        "mod_set_ids": [], "zeta_abilities": ["z"], "omicron_abilities": []
+      }
+    },
+    {
+      "data": {
+        "base_id": "FINN", "name": "Finn",
+        "gear_level": 11, "level": 85, "power": 16000, "rarity": 6,
+        "stats": { "1": 30000, "5": 180, "28": 25000 },
+        "relic_tier": 0, "is_galactic_legend": false, "combat_type": 1,
+        "mod_set_ids": [], "zeta_abilities": [], "omicron_abilities": []
+      }
+    }
+  ],
+  "mods": []
+}
