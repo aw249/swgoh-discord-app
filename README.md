@@ -167,6 +167,13 @@ Image table of guild members who own a given unit at relic tier ≥ N, with a "b
 
 Same caching as `/guild compare` — 30-minute LRU keyed by `(guildId, allyCode)`.
 
+### `/tw scout`
+Snapshot image of an opposing guild — GP, member count, GL count, top GLs, top 10 members, and a recent TW W/L pattern as a row of 🟢🔴⚪ markers.
+
+**Usage**: `/tw scout guild:<name-or-22-char-id>`
+
+If a guild name has multiple matches, the bot returns the candidate list with IDs — re-run with the ID for a unique match. Reuses the same `(guildId, allyCode)` LRU cache as `/guild compare`, so a recent scout of the same guild is near-instant.
+
 ### `/archetype` (Admin)
 Manage squad archetype configurations for ability validation.
 

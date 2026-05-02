@@ -46,6 +46,11 @@ export const helpCommand = {
           inline: false
         },
         {
+          name: '/tw scout',
+          value: 'Snapshot image of an opposing guild — GP, GLs, top 10 members, recent TW W/L pattern.\nUsage: `/tw scout guild:<name-or-22-char-id>`',
+          inline: false
+        },
+        {
           name: '/help',
           value: 'Display this help message.',
           inline: false
