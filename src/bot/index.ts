@@ -8,12 +8,14 @@ import { helpCommand } from '../commands/help';
 import { gacCommand } from '../commands/gac';
 import { playerCommand } from '../commands/player';
 import { guildCommand } from '../commands/guild';
+import { twCommand } from '../commands/tw';
 import { PlayerService } from '../services/playerService';
 import { GacService } from '../services/gacService';
 import { PlayerInsightsService } from '../services/playerInsightsService';
 import { GuildService } from '../services/guildService';
 import { GuildImageService } from '../services/guildImages';
 import { GuildRosterCache } from '../services/guildRosterCache';
+import { TwImageService } from '../services/twImages';
 import { BracketCacheWarmer } from '../services/bracketCacheWarmer';
 import { filePlayerStore as playerStore } from '../storage/fileStore';
 
@@ -43,6 +45,7 @@ async function main(): Promise<void> {
     const guildRosterCache = new GuildRosterCache();
     const guildService = new GuildService(combinedClient, guildRosterCache);
     const guildImageService = new GuildImageService();
+    const twImageService = new TwImageService();
 
     // Wait for Comlink to be ready (it may be starting up concurrently)
     // Comlink needs time to: discover public IP, generate guest accounts, start server
@@ -128,6 +131,8 @@ async function main(): Promise<void> {
           await playerCommand.execute(interaction, playerService, playerInsightsService);
         } else if (commandName === 'guild') {
           await guildCommand.execute(interaction, playerService, guildService, guildImageService);
+        } else if (commandName === 'tw') {
+          await twCommand.execute(interaction, guildService, twImageService);
         } else if (commandName === 'help') {
           await helpCommand.execute(interaction);
         }
@@ -163,6 +168,7 @@ async function main(): Promise<void> {
       bracketWarmer.stop();
       await flushCharacterPortraits();
       await guildImageService.close();
+      await twImageService.close();
       await combinedClient.close();
       await client.destroy();
       process.exit(0);
@@ -173,6 +179,7 @@ async function main(): Promise<void> {
       bracketWarmer.stop();
       await flushCharacterPortraits();
       await guildImageService.close();
+      await twImageService.close();
       await combinedClient.close();
       await client.destroy();
       process.exit(0);
