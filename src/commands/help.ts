@@ -32,7 +32,7 @@ export const helpCommand = {
         },
         {
           name: '/player journey-ready',
-          value: 'Show your readiness for a specific unit — stars, gear, relic, zetas/omicrons, plus a one-line "next step" hint.\nUsage: `/player journey-ready unit:<name>` or add `allycode:123456789` to check another player.',
+          value: 'Show your progress towards unlocking a Galactic Legend — every prerequisite unit with required vs current ★/G/R, plus a `ready/total` summary.\nUsage: `/player journey-ready gl:<GL name>` (autocomplete restricted to GLs); add `allycode:123456789` to check another player.',
           inline: false
         },
         {

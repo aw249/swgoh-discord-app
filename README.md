@@ -142,13 +142,21 @@ Generates two images:
 2. **Offense recommendations** — Counter squads to beat opponent's expected defense
 
 ### `/player journey-ready`
-Show your readiness for a specific unit — stars, gear, relic, zetas, omicrons, plus a "next step" hint.
+Show your progress towards unlocking a Galactic Legend. The embed lists every prerequisite unit needed by the GL's journey, with the required vs your current state per row and an overall `ready/total` summary.
 
 **Usage**:
-- `/player journey-ready unit:<name>` — Check a unit on your own roster (autocompletes from live unit data)
-- `/player journey-ready unit:<name> allycode:123456789` — Check a unit on a different player's roster
+- `/player journey-ready gl:<GL name>` — Autocomplete restricted to GLs that have a journey requirement.
+- `/player journey-ready gl:<GL name> allycode:123456789` — Check another player.
 
-Outputs an embed with the unit's current state and a one-line hint pointing at the next progression step (gear up to G13, push relic to R10, or "fully geared").
+Each prerequisite shows one of:
+- ✅ **ready** — meets the journey threshold
+- ⚠️ **short** — owned but below the required relic / star (e.g. `R5/8`, `G12/13`)
+- ⚠️ **understarred** — owned but below ★7 (`★5/7`)
+- ❌ **locked** — not in roster yet
+
+If the GL is already unlocked, the embed simply confirms that and reports how many prerequisites still meet the journey thresholds.
+
+Journey requirements are sourced live from CG game data via Comlink (the `unitGuideDefinition` → `requirement` → `challenge` chain), so the command stays accurate as new GLs are added.
 
 ### `/guild compare`
 Side-by-side image comparing two guilds — GP, member count, GL count, top GLs, top 10 members per side.

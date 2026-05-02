@@ -36,6 +36,83 @@ export interface UnitDefinition {
   obtainableTime: number;
 }
 
+/**
+ * One prerequisite unit needed to unlock a Galactic Legend.
+ *
+ * Sourced from the chain:
+ *   unitGuideDefinition → requirement → challenge → task
+ *
+ * Each task encodes the prerequisite kind via its descKey:
+ * - `GLEVENT_PREREQ_RELIC_NN` → kind='relic', value=NN, implies 7★ + G13
+ * - `GLEVENT_PREREQ_STAR_NN`  → kind='star',  value=NN, no relic requirement
+ *
+ * The unit identity is parsed from `actionLinkDef.link`
+ * (e.g. "UNIT_DETAILS?unit_meta=BASE_ID&base_id=BADBATCHHUNTER").
+ */
+export interface JourneyPrerequisite {
+  baseId: string;
+  /** 'relic' = needs ★7 + G13 + relic >= value; 'star' = needs stars >= value */
+  kind: 'relic' | 'star';
+  value: number;
+}
+
+export interface JourneyRequirement {
+  /** The GL unit being unlocked, e.g. 'LORDVADER' */
+  glBaseId: string;
+  prerequisites: JourneyPrerequisite[];
+}
+
+interface ComlinkChallengeTask {
+  id: string;
+  descKey: string;
+  actionLinkDef?: { link?: string; type?: number };
+}
+
+interface ComlinkChallenge {
+  id: string;
+  task?: ComlinkChallengeTask[];
+}
+
+interface ComlinkRequirementItem {
+  type: number;
+  id: string;
+}
+
+interface ComlinkRequirement {
+  id: string;
+  requirementItem?: ComlinkRequirementItem[];
+}
+
+interface ComlinkUnitGuideDefinition {
+  unitBaseId: string;
+  galacticLegend?: boolean;
+  additionalActivationRequirementId?: string;
+}
+
+const TYPE_CHALLENGE_COMPLETION = 105;
+const PREREQ_BASE_ID_RE = /base_id=([A-Z0-9_]+)/;
+const PREREQ_DESC_RE = /^GLEVENT_PREREQ_(RELIC|STAR)_0?(\d+)$/;
+
+/**
+ * Parse a single challenge task into a prerequisite entry.
+ * Returns null when the task isn't a unit-prerequisite (e.g. some tasks are
+ * meta tasks like "complete the previous challenge" that don't carry a
+ * base_id link or don't match the relic/star descKey shape).
+ */
+export function parsePrerequisiteFromTask(task: ComlinkChallengeTask): JourneyPrerequisite | null {
+  const descMatch = PREREQ_DESC_RE.exec(task.descKey);
+  if (!descMatch) return null;
+  const kind = descMatch[1] === 'RELIC' ? 'relic' : 'star';
+  const value = parseInt(descMatch[2], 10);
+  if (!Number.isFinite(value)) return null;
+
+  const link = task.actionLinkDef?.link ?? '';
+  const linkMatch = PREREQ_BASE_ID_RE.exec(link);
+  if (!linkMatch) return null;
+
+  return { baseId: linkMatch[1], kind, value };
+}
+
 export interface GameDataMetadata {
   latestGamedataVersion: string;
   latestLocalizationBundleVersion: string;
@@ -61,6 +138,7 @@ export class GameDataService {
   
   private units: Map<string, UnitDefinition> = new Map();
   private localization: Map<string, string> = new Map();
+  private journeyRequirements: Map<string, JourneyRequirement> = new Map();
   private comlinkUrl: string;
   private initialized = false;
   private lastUpdate: Date | null = null;
@@ -214,7 +292,12 @@ export class GameDataService {
         throw new Error(`Failed to fetch game data: ${response.status}`);
       }
 
-      const data = await response.json() as { units: ComlinkUnitData[] };
+      const data = await response.json() as {
+        units: ComlinkUnitData[];
+        unitGuideDefinition?: ComlinkUnitGuideDefinition[];
+        requirement?: ComlinkRequirement[];
+        challenge?: ComlinkChallenge[];
+      };
 
       this.units.clear();
       for (const unit of data.units) {
@@ -229,7 +312,58 @@ export class GameDataService {
           obtainableTime: unit.obtainableTime || 0,
         });
       }
+
+      this.journeyRequirements.clear();
+      if (data.unitGuideDefinition && data.requirement && data.challenge) {
+        this.extractJourneyRequirements(
+          data.unitGuideDefinition,
+          data.requirement,
+          data.challenge
+        );
+      }
     });
+  }
+
+  /**
+   * Walk the chain unitGuideDefinition → requirement → challenge → task
+   * to build a per-GL list of prerequisite units. Sets in journeyRequirements.
+   */
+  private extractJourneyRequirements(
+    guides: ComlinkUnitGuideDefinition[],
+    requirements: ComlinkRequirement[],
+    challenges: ComlinkChallenge[]
+  ): void {
+    const reqById = new Map(requirements.map(r => [r.id, r]));
+    const challengeById = new Map(challenges.map(c => [c.id, c]));
+
+    for (const guide of guides) {
+      if (!guide.galacticLegend) continue;
+      if (!guide.additionalActivationRequirementId) continue;
+
+      const topReq = reqById.get(guide.additionalActivationRequirementId);
+      if (!topReq?.requirementItem) continue;
+
+      const prerequisites: JourneyPrerequisite[] = [];
+      for (const item of topReq.requirementItem) {
+        if (item.type !== TYPE_CHALLENGE_COMPLETION) continue;
+        const challenge = challengeById.get(item.id);
+        if (!challenge?.task) continue;
+
+        for (const task of challenge.task) {
+          const prereq = parsePrerequisiteFromTask(task);
+          if (prereq) prerequisites.push(prereq);
+        }
+      }
+
+      if (prerequisites.length > 0) {
+        this.journeyRequirements.set(guide.unitBaseId, {
+          glBaseId: guide.unitBaseId,
+          prerequisites,
+        });
+      }
+    }
+
+    logger.info(`Loaded journey requirements for ${this.journeyRequirements.size} GLs`);
   }
 
   /**
@@ -344,6 +478,19 @@ export class GameDataService {
       .filter(u => u.categoryId.includes('galactic_legend'))
       .filter(u => this.isBasePlayableUnit(u.baseId))
       .map(u => u.baseId);
+  }
+
+  /**
+   * Returns the parsed journey requirement for a GL, or null if not found.
+   * Available after `initialize()` completes.
+   */
+  getJourneyRequirement(glBaseId: string): JourneyRequirement | null {
+    return this.journeyRequirements.get(glBaseId) ?? null;
+  }
+
+  /** GL base IDs that have an extracted journey requirement available. */
+  getJourneyReadyGLs(): string[] {
+    return Array.from(this.journeyRequirements.keys());
   }
 
   /**

@@ -5,7 +5,7 @@ import {
 } from 'discord.js';
 import { PlayerService } from '../services/playerService';
 import { PlayerInsightsService } from '../services/playerInsightsService';
-import { searchUnits } from '../services/unitAutocomplete';
+import { GameDataService } from '../services/gameDataService';
 import { logger } from '../utils/logger';
 import { RequestQueue } from '../utils/requestQueue';
 import { normaliseAllyCode } from '../utils/allyCodeUtils';
@@ -17,6 +17,23 @@ import {
 import { handleJourneyReadyCommand } from './player/journeyReadyHandler';
 
 const apiOnlyQueue = new RequestQueue({ maxConcurrency: 2 });
+const MAX_AUTOCOMPLETE = 25;
+
+function searchJourneyGLs(query: string): Array<{ name: string; value: string }> {
+  const svc = GameDataService.getInstance();
+  if (!svc.isReady()) return [];
+
+  const q = query.toLowerCase().trim();
+  return svc.getJourneyReadyGLs()
+    .map(id => ({ id, name: svc.getUnitName(id) }))
+    .filter(({ id, name }) => !q || id.toLowerCase().includes(q) || name.toLowerCase().includes(q))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, MAX_AUTOCOMPLETE)
+    .map(({ id, name }) => ({
+      name: name.length > 100 ? name.slice(0, 100) : name,
+      value: id,
+    }));
+}
 
 export const playerCommand = {
   data: new SlashCommandBuilder()
@@ -24,8 +41,8 @@ export const playerCommand = {
     .setDescription('Player roster utilities')
     .addSubcommand(s =>
       s.setName('journey-ready')
-        .setDescription('Show your readiness for a specific unit')
-        .addStringOption(o => o.setName('unit').setDescription('Unit name').setAutocomplete(true).setRequired(true))
+        .setDescription('Show your progress towards unlocking a Galactic Legend')
+        .addStringOption(o => o.setName('gl').setDescription('Galactic Legend').setAutocomplete(true).setRequired(true))
         .addStringOption(o => o.setName('allycode').setDescription('Ally code (defaults to yours)').setRequired(false))
     ),
 
@@ -66,8 +83,8 @@ export const playerCommand = {
 
       const { promise } = apiOnlyQueue.addWithPosition(
         async () => {
-          const unit = interaction.options.getString('unit', true);
-          await handleJourneyReadyCommand(interaction, allyCode, unit, insightsService);
+          const gl = interaction.options.getString('gl', true);
+          await handleJourneyReadyCommand(interaction, allyCode, gl, insightsService);
         },
         {
           onStart: () => {
@@ -92,10 +109,10 @@ export const playerCommand = {
   async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
     if (interaction.options.getSubcommand() !== 'journey-ready') return;
     const focused = interaction.options.getFocused(true);
-    if (focused.name !== 'unit') return;
+    if (focused.name !== 'gl') return;
 
     try {
-      const choices = searchUnits(String(focused.value ?? ''), { combatType: 'all' });
+      const choices = searchJourneyGLs(String(focused.value ?? ''));
       await interaction.respond(choices);
     } catch (e) {
       logger.debug('player autocomplete failed:', e);
