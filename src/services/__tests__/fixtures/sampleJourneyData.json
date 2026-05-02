@@ -1,0 +1,361 @@
+{
+  "unitGuideDefinition": [
+    {
+      "unitBaseId": "LORDVADER",
+      "type": 1,
+      "activityId": "EVENT_LORDVADER_GALACTICLEGEND",
+      "descriptionKey": "LV_GUIDE_DESCRIPTION",
+      "recommendationRequirementId": "",
+      "overrideTexture": "tex.jg_charui_anakin_fallen",
+      "titleKey": "GLV_JOURNEY_GUIDE_EVENT_TITLE",
+      "subtitleKey": "GALACTIC_LEGEND_EVENT_GUIDE_DETAILS_TITLE_V2",
+      "additionalActivationRequirementId": "GLV_JOURNEY_GUIDE_REQUIREMENT",
+      "displayEnabled": true,
+      "actionLinkImage": "",
+      "actionLink": "",
+      "inPreview": false,
+      "hiddenUnitCount": 0,
+      "previewArtImage": "tex.jg_charui_anakin_fallen",
+      "upcomingEventKey": "",
+      "featured": false,
+      "campaignElementIdentifier": {
+        "campaignId": "EVENTS",
+        "campaignMapId": "GALACTIC",
+        "campaignNodeId": "CAMPAIGN_EVENT_VADER_GALACTICLEGEND",
+        "campaignNodeDifficulty": 4,
+        "campaignMissionId": ""
+      },
+      "characterRecommendedEntryCategory": null,
+      "shipRecommendedEntryCategory": null,
+      "galacticLegend": true,
+      "bannerImage": "",
+      "bannerImageSubtextKey": "",
+      "unitStagePrefab": "prefab.unitguide_stage_character_gl"
+    }
+  ],
+  "requirement": [
+    {
+      "requirementItem": [
+        {
+          "type": 105,
+          "id": "player-level-up85",
+          "value": 1,
+          "locKey": "",
+          "negate": false,
+          "rosterUnitType": 0
+        },
+        {
+          "type": 105,
+          "id": "GLEvent_Unlock_LV_001",
+          "value": 1,
+          "locKey": "",
+          "negate": false,
+          "rosterUnitType": 0
+        },
+        {
+          "type": 105,
+          "id": "GLEvent_Unlock_LV_002",
+          "value": 1,
+          "locKey": "",
+          "negate": false,
+          "rosterUnitType": 0
+        },
+        {
+          "type": 105,
+          "id": "GLEvent_Unlock_LV_003",
+          "value": 1,
+          "locKey": "",
+          "negate": false,
+          "rosterUnitType": 0
+        }
+      ],
+      "evalType": 1,
+      "id": "GLV_JOURNEY_GUIDE_REQUIREMENT",
+      "descKey": ""
+    }
+  ],
+  "challenge": [
+    {
+      "reward": [
+        {
+          "id": "PLAYERTITLE_GLLV_QUEST_001",
+          "type": 17,
+          "minQuantity": 1,
+          "maxQuantity": 1,
+          "rarity": 8,
+          "statMod": null,
+          "previewPriority": 0,
+          "unitLevel": 0,
+          "unitTier": 0,
+          "primaryReward": false
+        }
+      ],
+      "task": [
+        {
+          "id": "GLEvent_Unlock_LV_01",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_01",
+          "descKey": "GLEVENT_PREREQ_RELIC_05",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=BADBATCHHUNTER",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_02",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_02",
+          "descKey": "GLEVENT_PREREQ_RELIC_05",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=BADBATCHTECH",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_03",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_03",
+          "descKey": "GLEVENT_PREREQ_RELIC_05",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=BADBATCHWRECKER",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_04",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_04",
+          "descKey": "GLEVENT_PREREQ_RELIC_05",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=TUSKENRAIDER",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_05",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_05",
+          "descKey": "GLEVENT_PREREQ_RELIC_08",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=PADMEAMIDALA",
+            "type": 1
+          },
+          "hideToast": false
+        }
+      ],
+      "descParameterKey": [],
+      "id": "GLEvent_Unlock_LV_001",
+      "type": 3,
+      "nameKey": "GLEvent_Unlock_LV_QUEST_NAME_01",
+      "descKey": "GLEvent_Unlock_LV_QUEST_DESC",
+      "viewRequirement": null,
+      "platformAchievementId": "",
+      "actionLinkDef": null,
+      "claimType": 1,
+      "rewardType": 1,
+      "rewardRatio": 0,
+      "messageGroup": null,
+      "styleId": "GALACTICLEGEND_1",
+      "priority": 9001,
+      "nextChallengeId": "",
+      "rewardDialogKey": "GLEvent_Unlock_GENERIC_LOC_QUEST_REWARDS",
+      "rewardRedirectToHome": false,
+      "rewardDescKey": "",
+      "starterGuildGraduation": false,
+      "rewardPoints": 0,
+      "detailsKey": "",
+      "hiddenInMainQuests": true,
+      "claimRequirement": null,
+      "rewardPopupEnabled": true,
+      "claimDisabled": false,
+      "claimDisabledMessageKey": ""
+    },
+    {
+      "reward": [
+        {
+          "id": "PLAYERTITLE_GLLV_QUEST_002",
+          "type": 17,
+          "minQuantity": 1,
+          "maxQuantity": 1,
+          "rarity": 8,
+          "statMod": null,
+          "previewPriority": 0,
+          "unitLevel": 0,
+          "unitTier": 0,
+          "primaryReward": false
+        }
+      ],
+      "task": [
+        {
+          "id": "GLEvent_Unlock_LV_06",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_06",
+          "descKey": "GLEVENT_PREREQ_RELIC_05",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=EMBO",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_07",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_07",
+          "descKey": "GLEVENT_PREREQ_RELIC_07",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=CT210408",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_08",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_08",
+          "descKey": "GLEVENT_PREREQ_RELIC_05",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=BADBATCHECHO",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_09",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_09",
+          "descKey": "GLEVENT_PREREQ_RELIC_08",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=COUNTDOOKU",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_10",
+          "nameKey": "GLEvent_Unlock_LV_TASK_NAME_10",
+          "descKey": "GLEVENT_PREREQ_RELIC_07",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=ZAMWESELL",
+            "type": 1
+          },
+          "hideToast": false
+        }
+      ],
+      "descParameterKey": [],
+      "id": "GLEvent_Unlock_LV_002",
+      "type": 3,
+      "nameKey": "GLEvent_Unlock_LV_QUEST_NAME_02",
+      "descKey": "GLEvent_Unlock_LV_QUEST_DESC",
+      "viewRequirement": null,
+      "platformAchievementId": "",
+      "actionLinkDef": null,
+      "claimType": 1,
+      "rewardType": 1,
+      "rewardRatio": 0,
+      "messageGroup": null,
+      "styleId": "GALACTICLEGEND_1",
+      "priority": 9005,
+      "nextChallengeId": "",
+      "rewardDialogKey": "GLEvent_Unlock_GENERIC_LOC_QUEST_REWARDS",
+      "rewardRedirectToHome": false,
+      "rewardDescKey": "",
+      "starterGuildGraduation": false,
+      "rewardPoints": 0,
+      "detailsKey": "",
+      "hiddenInMainQuests": true,
+      "claimRequirement": null,
+      "rewardPopupEnabled": true,
+      "claimDisabled": false,
+      "claimDisabledMessageKey": ""
+    },
+    {
+      "reward": [
+        {
+          "id": "PLAYERTITLE_GLLV_QUEST_003",
+          "type": 17,
+          "minQuantity": 1,
+          "maxQuantity": 1,
+          "rarity": 8,
+          "statMod": null,
+          "previewPriority": 0,
+          "unitLevel": 0,
+          "unitTier": 0,
+          "primaryReward": false
+        }
+      ],
+      "task": [
+        {
+          "id": "GLEvent_Unlock_LV_11",
+          "nameKey": "UNIT_YWINGCLONEWARS_NAME",
+          "descKey": "GLEVENT_PREREQ_STAR_07",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=YWINGCLONEWARS",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_12",
+          "nameKey": "UNIT_GRANDMOFFTARKIN_NAME",
+          "descKey": "GLEVENT_PREREQ_RELIC_07",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=GRANDMOFFTARKIN",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_13",
+          "nameKey": "UNIT_ARCTROOPER501ST_NAME",
+          "descKey": "GLEVENT_PREREQ_RELIC_08",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=ARCTROOPER501ST",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_14",
+          "nameKey": "UNIT_GENERALSKYWALKER_NAME",
+          "descKey": "GLEVENT_PREREQ_RELIC_08",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=GENERALSKYWALKER",
+            "type": 1
+          },
+          "hideToast": false
+        },
+        {
+          "id": "GLEvent_Unlock_LV_15",
+          "nameKey": "UNIT_NUTEGUNRAY_NAME",
+          "descKey": "GLEVENT_PREREQ_RELIC_07",
+          "actionLinkDef": {
+            "link": "UNIT_DETAILS?unit_meta=BASE_ID&base_id=NUTEGUNRAY",
+            "type": 1
+          },
+          "hideToast": false
+        }
+      ],
+      "descParameterKey": [],
+      "id": "GLEvent_Unlock_LV_003",
+      "type": 3,
+      "nameKey": "GLEvent_Unlock_LV_QUEST_NAME_03",
+      "descKey": "GLEvent_Unlock_LV_QUEST_DESC",
+      "viewRequirement": null,
+      "platformAchievementId": "",
+      "actionLinkDef": null,
+      "claimType": 1,
+      "rewardType": 1,
+      "rewardRatio": 0,
+      "messageGroup": null,
+      "styleId": "GALACTICLEGEND_1",
+      "priority": 9006,
+      "nextChallengeId": "",
+      "rewardDialogKey": "GLEvent_Unlock_GENERIC_LOC_QUEST_REWARDS",
+      "rewardRedirectToHome": false,
+      "rewardDescKey": "",
+      "starterGuildGraduation": false,
+      "rewardPoints": 0,
+      "detailsKey": "",
+      "hiddenInMainQuests": true,
+      "claimRequirement": null,
+      "rewardPopupEnabled": true,
+      "claimDisabled": false,
+      "claimDisabledMessageKey": ""
+    }
+  ]
+}
