@@ -1,7 +1,7 @@
 import { ComlinkDatacron } from '../../integrations/comlink/comlinkClient';
 import { GameDataService } from '../gameDataService';
 import { DatacronCandidate, DatacronTier, AccumulatedStat } from './types';
-import { accumulateComlinkAffixStats } from './cronStats';
+import { accumulateComlinkAffixStats, shortenStatLabel } from './cronStats';
 
 const ASSET_BASE = 'https://game-assets.swgoh.gg/textures/';
 
@@ -53,7 +53,7 @@ export function fromScraped(scraped: ScrapedCronJson): DatacronCandidate {
     });
   }
   const accumulatedStats: AccumulatedStat[] = (d.accumulated_stats ?? []).map(s => ({
-    name: s.stat_name,
+    name: shortenStatLabel(s.stat_name),
     displayValue: s.display_stat_value.startsWith('+') || s.display_stat_value.startsWith('-')
       ? s.display_stat_value
       : `+${s.display_stat_value}`,

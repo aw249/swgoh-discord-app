@@ -125,9 +125,7 @@ describe('renderCronCell', () => {
 });
 
 describe('renderEmptyCronCell', () => {
-  it('renders a placeholder div with consistent dimensions', () => {
-    const html = renderEmptyCronCell();
-    expect(html).toContain('cron-cell--empty');
-    expect(html.toLowerCase()).toContain('no cron');
+  it('returns an empty string so unassigned cron columns collapse silently', () => {
+    expect(renderEmptyCronCell()).toBe('');
   });
 });

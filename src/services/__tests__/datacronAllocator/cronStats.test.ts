@@ -10,7 +10,7 @@ describe('accumulateComlinkAffixStats', () => {
       ],
       2
     );
-    expect(result).toEqual([{ name: 'Critical Damage', displayValue: '+25.00%' }]);
+    expect(result).toEqual([{ name: 'Crit Dam', displayValue: '+25.00%' }]);
   });
 
   it('skips ability tiers (statValue=0 with a targetRule)', () => {
@@ -24,8 +24,8 @@ describe('accumulateComlinkAffixStats', () => {
     );
     // Only the two stat tiers contribute. Order preserved.
     expect(result).toEqual([
-      { name: 'Critical Damage', displayValue: '+20.00%' },
-      { name: 'Potency',         displayValue: '+50.00%' },
+      { name: 'Crit Dam', displayValue: '+20.00%' },
+      { name: 'Potency',  displayValue: '+50.00%' },
     ]);
   });
 
@@ -39,8 +39,8 @@ describe('accumulateComlinkAffixStats', () => {
       2
     );
     expect(result).toEqual([
-      { name: 'Critical Damage', displayValue: '+20.00%' },
-      { name: 'Potency',         displayValue: '+50.00%' },
+      { name: 'Crit Dam', displayValue: '+20.00%' },
+      { name: 'Potency',  displayValue: '+50.00%' },
     ]);
   });
 

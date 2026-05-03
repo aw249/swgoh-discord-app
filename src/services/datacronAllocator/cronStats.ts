@@ -23,33 +23,62 @@ interface StatTypeMeta {
 /** statType → display metadata. Subset focused on stats actually appearing on
  *  modern datacrons. Unknown stat types fall back to "Stat <id>". */
 const STAT_TYPE_META: ReadonlyMap<number, StatTypeMeta> = new Map([
-  [1,  { label: 'Health',                    format: 'flat' }],
-  [5,  { label: 'Speed',                     format: 'flat' }],
-  [6,  { label: 'Physical Damage',           format: 'flat' }],
-  [7,  { label: 'Special Damage',            format: 'flat' }],
-  [8,  { label: 'Armor',                     format: 'percent' }],
-  [9,  { label: 'Resistance',                format: 'percent' }],
-  [10, { label: 'Armor Penetration',         format: 'flat' }],
-  [11, { label: 'Resistance Penetration',    format: 'flat' }],
-  [14, { label: 'Physical Crit Chance',      format: 'percent' }],
-  [15, { label: 'Special Crit Chance',       format: 'percent' }],
-  [16, { label: 'Critical Damage',           format: 'percent' }],
-  [17, { label: 'Potency',                   format: 'percent' }],
-  [18, { label: 'Tenacity',                  format: 'percent' }],
-  [25, { label: 'Armor Penetration %',       format: 'percent' }],
-  [27, { label: 'Health Steal',              format: 'percent' }],
-  [28, { label: 'Protection',                format: 'flat' }],
-  [41, { label: 'Offense',                   format: 'flat' }],
-  [42, { label: 'Defense',                   format: 'flat' }],
-  [48, { label: 'Offense %',                 format: 'percent' }],
-  [49, { label: 'Defense %',                 format: 'percent' }],
-  [53, { label: 'Crit Avoidance',            format: 'percent' }],
-  [55, { label: 'Health %',                  format: 'percent' }],
-  [56, { label: 'Protection %',              format: 'percent' }],
+  [1,  { label: 'Health',     format: 'flat' }],
+  [5,  { label: 'Speed',      format: 'flat' }],
+  [6,  { label: 'Phys Dam',   format: 'flat' }],
+  [7,  { label: 'Spec Dam',   format: 'flat' }],
+  [8,  { label: 'Armor',      format: 'percent' }],
+  [9,  { label: 'Resist',     format: 'percent' }],
+  [10, { label: 'Armor Pen',  format: 'flat' }],
+  [11, { label: 'Resist Pen', format: 'flat' }],
+  [14, { label: 'Phys CC',    format: 'percent' }],
+  [15, { label: 'Spec CC',    format: 'percent' }],
+  [16, { label: 'Crit Dam',   format: 'percent' }],
+  [17, { label: 'Potency',    format: 'percent' }],
+  [18, { label: 'Tenacity',   format: 'percent' }],
+  [25, { label: 'Armor Pen %', format: 'percent' }],
+  [27, { label: 'HP Steal',   format: 'percent' }],
+  [28, { label: 'Prot',       format: 'flat' }],
+  [41, { label: 'Offense',    format: 'flat' }],
+  [42, { label: 'Defense',    format: 'flat' }],
+  [48, { label: 'Off %',      format: 'percent' }],
+  [49, { label: 'Def %',      format: 'percent' }],
+  [53, { label: 'Crit Avoid', format: 'percent' }],
+  [55, { label: 'HP %',       format: 'percent' }],
+  [56, { label: 'Prot %',     format: 'percent' }],
 ]);
 
 const PERCENT_DIVISOR = 100_000_000;
 const FLAT_DIVISOR    = 1_000_000;
+
+/** swgoh.gg's tooltip JSON uses CG's full English stat labels — match them
+ *  to the short forms used here so opponent (scraped) crons render with the
+ *  same compact labels as the user's own (Comlink) crons. */
+const LONG_TO_SHORT_LABEL: ReadonlyMap<string, string> = new Map([
+  ['Physical Damage',        'Phys Dam'],
+  ['Special Damage',         'Spec Dam'],
+  ['Resistance',             'Resist'],
+  ['Armor Penetration',      'Armor Pen'],
+  ['Resistance Penetration', 'Resist Pen'],
+  ['Physical Crit Chance',   'Phys CC'],
+  ['Special Crit Chance',    'Spec CC'],
+  ['Critical Damage',        'Crit Dam'],
+  ['Health Steal',           'HP Steal'],
+  ['Protection',             'Prot'],
+  ['Offense %',              'Off %'],
+  ['Defense %',              'Def %'],
+  ['Crit Avoidance',         'Crit Avoid'],
+  ['Health %',               'HP %'],
+  ['Protection %',           'Prot %'],
+  ['Armor Penetration %',    'Armor Pen %'],
+]);
+
+/** Convert any long-form stat label to its compact display form. Returns the
+ *  input unchanged if no mapping exists (so non-stat labels and already-short
+ *  names pass through untouched). */
+export function shortenStatLabel(label: string): string {
+  return LONG_TO_SHORT_LABEL.get(label) ?? label;
+}
 
 interface ComlinkAffixLike {
   statType: number;
