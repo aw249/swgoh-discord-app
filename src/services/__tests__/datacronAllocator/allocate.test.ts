@@ -16,7 +16,7 @@ function cron(id: string, tier9: { targetRuleId?: string; scopeTargetName?: stri
   }
   return {
     source: 'scraped', id, setId: 28, focused: true, currentTier: 9, name: id,
-    tiers, boxImageUrl: '', calloutImageUrl: '',
+    tiers, boxImageUrl: '', calloutImageUrl: '', accumulatedStats: [],
   };
 }
 

@@ -1,6 +1,7 @@
 import { ComlinkDatacron } from '../../integrations/comlink/comlinkClient';
 import { GameDataService } from '../gameDataService';
-import { DatacronCandidate, DatacronTier } from './types';
+import { DatacronCandidate, DatacronTier, AccumulatedStat } from './types';
+import { accumulateComlinkAffixStats } from './cronStats';
 
 const ASSET_BASE = 'https://game-assets.swgoh.gg/textures/';
 
@@ -14,6 +15,10 @@ interface ScrapedCronJson {
   derived: {
     name: string;
     tier: number;
+    accumulated_stats?: Array<{
+      stat_name: string;
+      display_stat_value: string;
+    }>;
     tiers: Array<{
       target_rule_id: string;
       ability_id: string;
@@ -47,6 +52,13 @@ export function fromScraped(scraped: ScrapedCronJson): DatacronCandidate {
       index: tiers.length + 1, targetRuleId: '', abilityId: '', scopeTargetName: '', hasData: false,
     });
   }
+  const accumulatedStats: AccumulatedStat[] = (d.accumulated_stats ?? []).map(s => ({
+    name: s.stat_name,
+    displayValue: s.display_stat_value.startsWith('+') || s.display_stat_value.startsWith('-')
+      ? s.display_stat_value
+      : `+${s.display_stat_value}`,
+  }));
+
   return {
     source: 'scraped',
     id: scraped.id,
@@ -57,6 +69,7 @@ export function fromScraped(scraped: ScrapedCronJson): DatacronCandidate {
     tiers,
     boxImageUrl: d.box_image_url ?? '',
     calloutImageUrl: d.callout_image_url ?? '',
+    accumulatedStats,
   };
 }
 
@@ -149,6 +162,20 @@ export function fromComlink(d: ComlinkDatacron): DatacronCandidate {
     derivedName = `Set ${d.setId} ${focused ? 'focused' : 'unfocused'}`;
   }
 
+  // Comlink affix entries carry numeric statType + decimal-string statValue
+  // alongside the targetRule we already extract. The type on ComlinkDatacron.affix
+  // is `unknown[]`, so we re-shape per-entry for the stat aggregator.
+  const affixForStats = (d.affix as Array<Partial<{
+    statType: number;
+    statValue: string;
+    targetRule: string;
+  }>> ?? []).map(a => ({
+    statType: typeof a.statType === 'number' ? a.statType : -1,
+    statValue: a.statValue ?? '0',
+    targetRule: a.targetRule ?? '',
+  }));
+  const accumulatedStats = accumulateComlinkAffixStats(affixForStats, currentTier);
+
   return {
     source: 'comlink',
     id: d.id,
@@ -159,5 +186,6 @@ export function fromComlink(d: ComlinkDatacron): DatacronCandidate {
     tiers,
     boxImageUrl,
     calloutImageUrl,
+    accumulatedStats,
   };
 }

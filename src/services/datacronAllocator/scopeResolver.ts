@@ -48,9 +48,9 @@ export class ScopeResolver {
       // Localised display form: "Dark Side" / "Light Side" / "Bounty Hunter"
       const localised = svc.getLocString(`CATEGORY_${cat}_NAME`);
       if (localised) categoryIdx.set(norm(localised), cat);
-      // Without the alignment_/role_/faction_/profession_ prefix:
-      // alignment_dark → "dark", role_attacker → "attacker"
-      const stripped = cat.replace(/^(alignment|role|faction|profession)_/, '');
+      // Without the common category prefix:
+      // alignment_dark → "dark", affiliation_imperialremnant → "imperialremnant"
+      const stripped = cat.replace(/^(alignment|role|faction|profession|affiliation|selftag|territory|teamup)_/, '');
       if (stripped !== cat) categoryIdx.set(norm(stripped), cat);
       // The "<x>side" form Comlink uses for alignments (lightside / darkside)
       if (cat.startsWith('alignment_')) {

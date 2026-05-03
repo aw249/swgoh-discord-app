@@ -11,6 +11,7 @@ const sampleCron: DatacronCandidate = {
   tiers: Array.from({ length: 9 }, (_, i) => tier(i + 1)),
   boxImageUrl: 'https://example/cron.png',
   calloutImageUrl: 'https://example/callout.png',
+  accumulatedStats: [],
 };
 
 describe('renderCronCell', () => {
@@ -56,6 +57,70 @@ describe('renderCronCell', () => {
     const html = renderCronCell({ candidate: evil, score: 10, filler: false }, 'friendly');
     expect(html).not.toContain('<script>');
     expect(html).toContain('&lt;script&gt;');
+  });
+
+  it('renders the accumulated stats list when stats are present', () => {
+    const withStats: DatacronCandidate = {
+      ...sampleCron,
+      accumulatedStats: [
+        { name: 'Critical Damage', displayValue: '+25.00%' },
+        { name: 'Potency', displayValue: '+50.00%' },
+      ],
+    };
+    const html = renderCronCell({ candidate: withStats, score: 30, filler: false }, 'friendly');
+    expect(html).toContain('cron-cell__stats');
+    expect(html).toContain('Critical Damage');
+    expect(html).toContain('+25.00%');
+    expect(html).toContain('Potency');
+    expect(html).toContain('+50.00%');
+  });
+
+  it('omits the stats block when there are no accumulated stats', () => {
+    const html = renderCronCell({ candidate: sampleCron, score: 30, filler: false }, 'friendly');
+    expect(html).not.toContain('cron-cell__stats');
+  });
+
+  it('renders primary-tier targets up to current tier', () => {
+    const withTiers: DatacronCandidate = {
+      ...sampleCron,
+      currentTier: 9,
+      tiers: [
+        tier(1), tier(2),
+        { index: 3, targetRuleId: 'target_datacron_darkside', abilityId: '', scopeTargetName: 'Dark Side', hasData: true },
+        tier(4), tier(5),
+        { index: 6, targetRuleId: 'target_datacron_scoundrel', abilityId: '', scopeTargetName: 'Scoundrel', hasData: true },
+        tier(7), tier(8),
+        { index: 9, targetRuleId: 'target_datacron_krrsantan', abilityId: '', scopeTargetName: 'Krrsantan', hasData: true },
+      ],
+    };
+    const html = renderCronCell({ candidate: withTiers, score: 50, filler: false }, 'friendly');
+    expect(html).toContain('cron-cell__tiers');
+    expect(html).toContain('T3');
+    expect(html).toContain('Dark Side');
+    expect(html).toContain('T6');
+    expect(html).toContain('Scoundrel');
+    expect(html).toContain('T9');
+    expect(html).toContain('Krrsantan');
+  });
+
+  it('omits primary tiers above the cron currentTier', () => {
+    const partial: DatacronCandidate = {
+      ...sampleCron,
+      currentTier: 6,
+      focused: false,
+      tiers: [
+        tier(1), tier(2),
+        { index: 3, targetRuleId: 'target_datacron_darkside', abilityId: '', scopeTargetName: 'Dark Side', hasData: true },
+        tier(4), tier(5),
+        { index: 6, targetRuleId: 'target_datacron_scoundrel', abilityId: '', scopeTargetName: 'Scoundrel', hasData: true },
+        tier(7), tier(8),
+        { index: 9, targetRuleId: 'target_datacron_krrsantan', abilityId: '', scopeTargetName: 'Krrsantan', hasData: true },
+      ],
+    };
+    const html = renderCronCell({ candidate: partial, score: 16, filler: false }, 'friendly');
+    expect(html).toContain('Dark Side');
+    expect(html).toContain('Scoundrel');
+    expect(html).not.toContain('Krrsantan');
   });
 });
 

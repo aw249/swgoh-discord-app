@@ -1,4 +1,4 @@
-import { AssignedCron } from './types';
+import { AssignedCron, DatacronCandidate } from './types';
 
 const PRIMARY_TIERS = [3, 6, 9] as const;
 
@@ -9,6 +9,38 @@ function escape(s: string): string {
 }
 
 export type CronSide = 'friendly' | 'opponent';
+
+/** Render the accumulated stats list (one short row per stat). Empty string
+ *  when the cron carries no aggregated stats. */
+function renderStatsList(c: DatacronCandidate): string {
+  if (c.accumulatedStats.length === 0) return '';
+  const rows = c.accumulatedStats.map(s => `
+    <div class="cron-cell__stat-row">
+      <span class="cron-cell__stat-name">${escape(s.name)}</span>
+      <span class="cron-cell__stat-value">${escape(s.displayValue)}</span>
+    </div>
+  `).join('');
+  return `<div class="cron-cell__stats">${rows}</div>`;
+}
+
+/** Render the primary-tier ability summary (T3 / T6 / T9 with scope target).
+ *  Skips tiers above currentTier and tiers without a meaningful target. */
+function renderTierSummary(c: DatacronCandidate): string {
+  const lines: string[] = [];
+  for (const tierIndex of PRIMARY_TIERS) {
+    if (c.currentTier < tierIndex) continue;
+    const tier = c.tiers[tierIndex - 1];
+    if (!tier?.hasData || !tier.scopeTargetName) continue;
+    lines.push(
+      `<div class="cron-cell__tier-row">` +
+      `<span class="cron-cell__tier-label">T${tier.index}</span>` +
+      `<span class="cron-cell__tier-target">${escape(tier.scopeTargetName)}</span>` +
+      `</div>`
+    );
+  }
+  if (lines.length === 0) return '';
+  return `<div class="cron-cell__tiers">${lines.join('')}</div>`;
+}
 
 export function renderCronCell(assigned: AssignedCron, side: CronSide): string {
   const c = assigned.candidate;
@@ -37,6 +69,8 @@ export function renderCronCell(assigned: AssignedCron, side: CronSide): string {
       <div class="cron-cell__name">${escape(c.name || `Set ${c.setId}`)}</div>
       <div class="cron-cell__dots">${dots}</div>
       ${fillerNote}
+      ${renderStatsList(c)}
+      ${renderTierSummary(c)}
     </div>
   `;
 }

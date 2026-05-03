@@ -21,6 +21,13 @@ export interface DatacronTier {
   hasData: boolean;
 }
 
+export interface AccumulatedStat {
+  /** Display name, e.g. "Critical Damage", "Potency", "Offense %". */
+  name: string;
+  /** Pre-formatted display string, e.g. "+23.78%" or "+150". */
+  displayValue: string;
+}
+
 export interface DatacronCandidate {
   source: CronSource;
   /** Stable identifier — opaque string used for snapshot lookup and tie-breaking. */
@@ -38,6 +45,8 @@ export interface DatacronCandidate {
   boxImageUrl: string;
   /** CDN URL for the empowered character / faction icon. Empty when unavailable. */
   calloutImageUrl: string;
+  /** Aggregated stat boosts across all populated tiers, ready for display. */
+  accumulatedStats: AccumulatedStat[];
 }
 
 export interface SquadInput {

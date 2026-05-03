@@ -346,6 +346,17 @@ export function generateDefenseStrategyHtml(
     .cron-cell__dot--lit { background:#c4a35a; }
     .cron-cell__filler-note { font-size:10px; opacity:0.7; margin-top:2px; color:#1a1a1a; }
     .cron-cell__placeholder { font-size:11px; color:#888; padding:28px 4px; text-align:center; }
+    .cron-cell__stats { width:100%; margin-top:6px; padding-top:4px; border-top:1px solid #d8c79a;
+      display:flex; flex-direction:column; gap:1px; }
+    .cron-cell__stat-row { display:flex; justify-content:space-between; gap:4px; font-size:9px;
+      color:#1a1a1a; line-height:1.2; }
+    .cron-cell__stat-name { opacity:0.75; }
+    .cron-cell__stat-value { font-weight:600; }
+    .cron-cell__tiers { width:100%; margin-top:4px; padding-top:4px; border-top:1px solid #d8c79a;
+      display:flex; flex-direction:column; gap:1px; }
+    .cron-cell__tier-row { display:flex; gap:4px; font-size:9px; color:#1a1a1a; line-height:1.2; }
+    .cron-cell__tier-label { font-weight:700; color:#7a5a1f; min-width:18px; }
+    .cron-cell__tier-target { flex:1; word-break:break-word; }
     /* Character cell + portrait sizing matches offenseStrategyHtml.ts so defense
        and offense images render with consistent visual density and so the cron
        column fits inside singleSquadWidth without canvas growth. */

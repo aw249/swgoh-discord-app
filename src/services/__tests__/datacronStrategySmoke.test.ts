@@ -11,6 +11,7 @@ const sampleCron: DatacronCandidate = {
   })),
   boxImageUrl: 'https://game-assets.swgoh.gg/textures/tex.datacron_d_max.png',
   calloutImageUrl: 'https://game-assets.swgoh.gg/textures/tex.charui_krrsantan.png',
+  accumulatedStats: [],
 };
 
 describe('datacron cron-cell smoke render', () => {

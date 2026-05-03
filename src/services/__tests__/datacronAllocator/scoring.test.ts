@@ -1,4 +1,4 @@
-import { scoreCronOnSquad, TIER_WEIGHTS, LEADER_BONUS_MULTIPLIER } from '../../datacronAllocator/scoring';
+import { scoreCronOnSquad, TIER_WEIGHTS, LEADER_BONUS_MULTIPLIER, T9_CHARACTER_ANCHOR_BONUS } from '../../datacronAllocator/scoring';
 import { DatacronCandidate, DatacronTier, SquadInput } from '../../datacronAllocator/types';
 import { ScopeResolver } from '../../datacronAllocator/scopeResolver';
 
@@ -16,7 +16,7 @@ function cron(opts: Partial<DatacronCandidate> = {}): DatacronCandidate {
   return {
     source: 'scraped', id: 'c1', setId: 28, focused: true, currentTier: 9, name: 'Test Cron',
     tiers: opts.tiers ?? Array.from({ length: 9 }, (_, i) => tier(i + 1)),
-    boxImageUrl: '', calloutImageUrl: '', ...opts,
+    boxImageUrl: '', calloutImageUrl: '', accumulatedStats: [], ...opts,
   };
 }
 
@@ -73,9 +73,9 @@ describe('scoreCronOnSquad', () => {
     });
     const s = squad(['KRRSANTAN', 'CADBANE'], 'KRRSANTAN');
     const r = fakeResolver({ krrsantan: 'KRRSANTAN' }, {});
-    // 6 stat tiers + tier-9 × leader-bonus
+    // 6 stat tiers + tier-9 × leader-bonus + character-anchor bonus
     expect(scoreCronOnSquad(c, s, r)).toBe(
-      6 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary9 * LEADER_BONUS_MULTIPLIER
+      6 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary9 * LEADER_BONUS_MULTIPLIER + T9_CHARACTER_ANCHOR_BONUS
     );
   });
 
@@ -88,9 +88,44 @@ describe('scoreCronOnSquad', () => {
     });
     const s = squad(['CADBANE', 'KRRSANTAN'], 'CADBANE');
     const r = fakeResolver({ krrsantan: 'KRRSANTAN' }, {});
+    // T9 anchor bonus applies whenever the targeted character is in the squad,
+    // regardless of leader slot.
     expect(scoreCronOnSquad(c, s, r)).toBe(
-      6 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary9
+      6 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary9 + T9_CHARACTER_ANCHOR_BONUS
     );
+  });
+
+  it('strongly prefers a tier-9 character cron to the squad with that character', () => {
+    // Two squads, both dark-side scoundrels. Squad A has KRRSANTAN; squad B does not.
+    // A T9 Krrsantan cron must beat the partial-category contributions on squad B
+    // by a clear margin so Hungarian assigns it to squad A every time.
+    const c = cron({
+      tiers: [
+        tier(1), tier(2),
+        tier(3, { targetRuleId: 'target_datacron_darkside', scopeTargetName: 'Dark Side' }),
+        tier(4), tier(5),
+        tier(6, { targetRuleId: 'target_datacron_scoundrel', scopeTargetName: 'Scoundrel' }),
+        tier(7), tier(8),
+        tier(9, { targetRuleId: 'target_datacron_krrsantan', scopeTargetName: 'Krrsantan' }),
+      ],
+    });
+    const sWith = squad(['KRRSANTAN', 'CADBANE'], 'CADBANE', {
+      KRRSANTAN: ['alignment_dark', 'role_scoundrel'],
+      CADBANE: ['alignment_dark', 'role_scoundrel'],
+    });
+    const sWithout = squad(['BOBAFETT', 'EMBO'], 'BOBAFETT', {
+      BOBAFETT: ['alignment_dark', 'role_scoundrel'],
+      EMBO: ['alignment_dark', 'role_scoundrel'],
+    });
+    const r = fakeResolver(
+      { krrsantan: 'KRRSANTAN' },
+      { 'dark side': 'alignment_dark', scoundrel: 'role_scoundrel' }
+    );
+    const scoreWith = scoreCronOnSquad(c, sWith, r);
+    const scoreWithout = scoreCronOnSquad(c, sWithout, r);
+    expect(scoreWith).toBeGreaterThan(scoreWithout);
+    // Margin must exceed any plausible swap pressure from another fully-rolled cron.
+    expect(scoreWith - scoreWithout).toBeGreaterThanOrEqual(T9_CHARACTER_ANCHOR_BONUS);
   });
 
   it('does not add tier-9 weight when the targeted character is not on the squad', () => {

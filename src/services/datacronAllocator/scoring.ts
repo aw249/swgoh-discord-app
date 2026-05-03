@@ -14,6 +14,15 @@ export const TIER_WEIGHTS = {
 
 export const LEADER_BONUS_MULTIPLIER = 1.5;
 
+/** Extra weight added when a tier-9 primary specifically targets a character
+ *  who is in the squad. The tier-9 ability only fires for that exact unit, so
+ *  a focused tier-9 cron is essentially wasted unless the named character is
+ *  present — pushing this above the sum of all lower-tier contributions
+ *  (≈22) makes the assignment unambiguous: a T9-Vane cron lands on the squad
+ *  containing Vane, a T9-Grand-Inquisitor cron lands on the squad containing
+ *  Grand Inquisitor, etc. */
+export const T9_CHARACTER_ANCHOR_BONUS = 30;
+
 const STAT_TIER_INDEXES = new Set([1, 2, 4, 5, 7, 8]);
 
 function weightForTier(index: number): number {
@@ -65,6 +74,9 @@ export function scoreCronOnSquad(
         const isLeader = squad.leaderBaseId === target.baseId;
         const multiplier = isLeader && tier.index === 9 ? LEADER_BONUS_MULTIPLIER : 1;
         total += baseWeight * multiplier;
+        // T9 abilities only fire for the named character — anchor the cron
+        // to that squad strongly enough to dominate other partial matches.
+        if (tier.index === 9) total += T9_CHARACTER_ANCHOR_BONUS;
       }
       continue;
     }
