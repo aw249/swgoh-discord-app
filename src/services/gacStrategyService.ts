@@ -121,13 +121,16 @@ export class GacStrategyService {
         const stored = await this.snapshotStore.get(allyCode, seasonId);
         if (stored) {
           eligibleIds = new Set(stored);
+          logger.info(`[Datacron snapshot] Applied snapshot for season ${seasonId}: ${stored.length} eligible cron IDs (live pool: ${datacrons.length})`);
         } else {
           await this.snapshotStore.set(allyCode, seasonId, datacrons.map(c => c.id));
-          // First observation — fall through with no filter.
+          logger.info(`[Datacron snapshot] First observation for season ${seasonId} — saved ${datacrons.length} cron IDs as the lock-in snapshot. Subsequent calls in this season will filter to this set.`);
         }
       } catch (err) {
         logger.warn('Datacron snapshot lookup failed; using full live pool:', err);
       }
+    } else {
+      logger.info(`[Datacron snapshot] No snapshot applied (seasonId=${seasonId ? 'present' : 'null'}, store=${this.snapshotStore ? 'present' : 'null'}). Using full live pool of ${datacrons.length}.`);
     }
 
     const filtered = eligibleIds
@@ -184,10 +187,12 @@ export class GacStrategyService {
         portraitUrl: u.portraitUrl || (u.baseId ? getCharacterPortraitUrl(u.baseId) : null)
       });
 
-      // Convert to unique squads
+      // Convert to unique squads, preserving the scraped datacron so the
+      // offense image can render the opponent's actual cron later.
       const allSquads = defensiveSquads.map(squad => ({
         leader: toUniqueUnit(squad.leader),
-        members: squad.members.map(toUniqueUnit)
+        members: squad.members.map(toUniqueUnit),
+        ...(squad.datacron ? { datacron: squad.datacron } : {}),
       }));
 
       // Filter by format: allow up to expectedMembers (5v5: 4, 3v3: 2). Undersized
@@ -472,9 +477,11 @@ export class GacStrategyService {
 
     // Generate defense image (2-column layout requires wider viewport)
     // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 620*2+40=1280)
-    // Cron column adds ~120px per squad row when assignedCrons is provided.
+    // Cron column grows singleSquadWidth by 140 in the template when assignedCrons is
+    // supplied → containerWidth grows by 280 (140 × 2 cols). Canvas adds 320 to give
+    // the surrounding layout (header + footer) some breathing room.
     const baseDefenseWidth = format === '3v3' ? 1330 : 1950;
-    const defenseWidth = baseDefenseWidth + (assignedCrons ? 240 : 0);
+    const defenseWidth = baseDefenseWidth + (assignedCrons ? 320 : 0);
     const defenseHtml = generateDefenseStrategyHtml(
       opponentLabel,
       balancedDefense,

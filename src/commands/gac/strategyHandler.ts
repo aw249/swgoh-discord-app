@@ -372,12 +372,17 @@ export async function handleStrategyCommand(
       }
 
       // Opponent crons — map by the same offense battle index so the offense
-      // template can match its YOUR-cron and OPP-cron on each row.
+      // template can match its YOUR-cron and OPP-cron on each row. Reads from
+      // m.defense.datacron, which the scraper attaches in gacHistoryClient and
+      // getOpponentDefensiveSquads preserves through the UniqueDefensiveSquad
+      // conversion.
       opponentCronsByDefenseKey = new Map<string, AssignedCron | null>();
+      let oppFound = 0;
       for (let idx = 0; idx < counteredOffenseList.length; idx++) {
         const m = counteredOffenseList[idx];
-        const oppCron = (m.defense as { datacron?: unknown }).datacron;
+        const oppCron = m.defense.datacron;
         if (oppCron) {
+          oppFound += 1;
           opponentCronsByDefenseKey.set(`opp-def-${idx}`, {
             candidate: fromScraped(oppCron as never),
             score: 0,
@@ -387,6 +392,7 @@ export async function handleStrategyCommand(
           opponentCronsByDefenseKey.set(`opp-def-${idx}`, null);
         }
       }
+      logger.info(`Opponent crons: ${oppFound}/${counteredOffenseList.length} battles have a scraped opponent cron`);
     } catch (err) {
       logger.warn('Datacron allocation failed; rendering without cron columns:', err);
       assignedCrons = undefined;

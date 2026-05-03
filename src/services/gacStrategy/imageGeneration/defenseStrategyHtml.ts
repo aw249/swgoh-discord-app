@@ -232,7 +232,9 @@ export function generateDefenseStrategyHtml(
 
   // Calculate width based on format - doubled for 2-column layout
   // Single squad width: 5v5 = 950px, 3v3 = 700px → doubled for 2 columns + gap
-  const singleSquadWidth = format === '3v3' ? 620 : 920;
+  // Cron column adds ~120px (cell + margin) per squad row when assignedCrons is supplied.
+  const cronColumnPadding = assignedCrons ? 140 : 0;
+  const singleSquadWidth = (format === '3v3' ? 620 : 920) + cronColumnPadding;
   const containerWidth = singleSquadWidth * 2 + 40; // 2 columns + 40px gap
 
   const html = `<!DOCTYPE html>

@@ -1,4 +1,5 @@
 import { RelicDeltaModifiers, KeyMatchups } from '../utils/relicDeltaService';
+import { ScrapedCron } from './swgohGgTypes';
 
 export interface UniqueDefensiveSquadUnit {
   baseId: string;
@@ -12,6 +13,13 @@ export interface UniqueDefensiveSquadUnit {
 export interface UniqueDefensiveSquad {
   leader: UniqueDefensiveSquadUnit;
   members: UniqueDefensiveSquadUnit[];
+  /**
+   * Datacron the opponent used on this defense squad, scraped verbatim from
+   * swgoh.gg's GAC battle summary. Forwarded through the strategy pipeline so
+   * the offense image can render the opponent's actual cron alongside the
+   * counter recommendation.
+   */
+  datacron?: ScrapedCron;
 }
 
 export interface MissingAbilityInfo {

@@ -1,4 +1,5 @@
 import { ComlinkDatacron } from '../../integrations/comlink/comlinkClient';
+import { GameDataService } from '../gameDataService';
 import { DatacronCandidate, DatacronTier } from './types';
 
 const ASSET_BASE = 'https://game-assets.swgoh.gg/textures/';
@@ -114,13 +115,40 @@ export function fromComlink(d: ComlinkDatacron): DatacronCandidate {
     }
   }
 
+  // Derive a friendly cron name from the focused-tier tag when available.
+  // templateId: 'datacron_set_27_focused_maulhatefueled' → final segment 'maulhatefueled'
+  // tag[]: ['maulhatefueled'] also works as a fallback.
+  // We resolve the tag against gameDataService unit names where possible
+  // ("Maul Hate-Fueled" → "Sith Eternal Maul"), otherwise fall back to a
+  // titlecased tag string. As a last resort, "Set N (focused/unfocused)".
+  let derivedName = '';
+  const focusedTag = (d.tag ?? [])[0]
+    ?? (d.templateId.startsWith('datacron_set_') ? d.templateId.split('_').slice(4).join('_') : '');
+  if (focusedTag) {
+    const gd = GameDataService.getInstance();
+    if (gd.isReady()) {
+      const allBaseIds = [...gd.getAllCharacters(), ...gd.getAllShips()];
+      const lc = focusedTag.toLowerCase();
+      const matchByBaseId = allBaseIds.find(id => id.toLowerCase() === lc);
+      if (matchByBaseId) {
+        derivedName = gd.getUnitName(matchByBaseId);
+      }
+    }
+    if (!derivedName) {
+      derivedName = focusedTag.replace(/[_-]/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
+    }
+  }
+  if (!derivedName) {
+    derivedName = `Set ${d.setId} ${focused ? 'focused' : 'unfocused'}`;
+  }
+
   return {
     source: 'comlink',
     id: d.id,
     setId: d.setId,
     focused,
     currentTier,
-    name: '',
+    name: derivedName,
     tiers,
     boxImageUrl,
     calloutImageUrl,
