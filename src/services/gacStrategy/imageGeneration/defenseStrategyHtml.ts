@@ -333,7 +333,7 @@ export function generateDefenseStrategyHtml(
       margin-left:8px; }
     .cron-cell--friendly { border-color:#c4a35a; }
     .cron-cell--opponent { border-color:#b13c3c; }
-    .cron-cell--filler { opacity:0.55; }
+    .cron-cell--filler { opacity:0.85; }
     .cron-cell--empty { opacity:0.3; }
     .cron-cell__art { position:relative; width:80px; height:80px; }
     .cron-cell__box { width:100%; height:100%; object-fit:contain; }
