@@ -10,6 +10,16 @@ import { getCharacterPortraitUrl } from '../../../config/characterPortraits';
 import { logger } from '../../../utils/logger';
 import { buildCharacterStatsMap } from '../utils/rosterUtils';
 import { SPEED_ICON, HEALTH_ICON, PROTECTION_ICON } from '../../../config/imageConstants';
+import { AssignedCron, renderCronCell, renderEmptyCronCell } from '../../datacronAllocator';
+
+/** Squad-key conventions for offense rows (used by /gac strategy datacron allocator).
+ *  `idx` is the absolute battle index across all chunks (caller passes idx + startBattleIndex). */
+export function offenseSquadKey(idx: number): string {
+  return `off-${idx}`;
+}
+export function opponentDefenseKey(idx: number): string {
+  return `opp-def-${idx}`;
+}
 
 export function generateOffenseStrategyHtml(
   opponentName: string,
@@ -21,7 +31,9 @@ export function generateOffenseStrategyHtml(
   unusedGLs?: string[],
   startBattleIndex: number = 0,
   chunkInfo?: { current: number; total: number },
-  uncounteredDefenses?: MatchedCounterSquad[]
+  uncounteredDefenses?: MatchedCounterSquad[],
+  assignedCrons?: Map<string, AssignedCron | null>,
+  opponentCronsByDefenseKey?: Map<string, AssignedCron | null>
 ): string {
   logger.info(`[Offense Image] Starting HTML generation vs ${opponentName} (${format} format)`);
   logger.info(`[Offense Image] Input data: ${offenseSquads.length} offense squad(s)`);
@@ -263,6 +275,21 @@ export function generateOffenseStrategyHtml(
     const datacronBadge = match.datacronWarning
       ? `<span class="battle-datacron-warning">⚠ ${match.datacronWarning}</span>`
       : '';
+
+    const battleAbsIndex = index + startBattleIndex;
+    const yourCronHtml = (() => {
+      if (!assignedCrons) return '';
+      const a = assignedCrons.get(offenseSquadKey(battleAbsIndex));
+      if (a === undefined) return '';
+      return a ? renderCronCell(a, 'friendly') : renderEmptyCronCell();
+    })();
+    const oppCronHtml = (() => {
+      if (!opponentCronsByDefenseKey) return '';
+      const a = opponentCronsByDefenseKey.get(opponentDefenseKey(battleAbsIndex));
+      if (a === undefined) return '';
+      return a ? renderCronCell(a, 'opponent') : renderEmptyCronCell();
+    })();
+
     return `
       <div class="battle-row">
         <div class="battle-header">
@@ -278,6 +305,7 @@ export function generateOffenseStrategyHtml(
               <div class="section-label offense-label">YOUR OFFENSE</div>
               <div class="squad-characters">
                 ${renderSquad(match.offense, true)}
+                ${yourCronHtml}
               </div>
             </div>
             <div class="vs-divider">VS</div>
@@ -285,6 +313,7 @@ export function generateOffenseStrategyHtml(
               <div class="section-label defense-label">OPPONENT DEFENSE</div>
               <div class="squad-characters">
                 ${renderSquad(match.defense, false)}
+                ${oppCronHtml}
               </div>
             </div>
           </div>
@@ -614,7 +643,27 @@ export function generateOffenseStrategyHtml(
       display: flex;
       gap: 6px;
       justify-content: center;
+      align-items: center;
     }
+    /* Datacron cell — appended to squad-characters by /gac strategy datacron allocator */
+    .cron-cell { display:flex; flex-direction:column; align-items:center; width:100px;
+      padding:4px; border:2px solid transparent; border-radius:4px; background:rgba(0,0,0,0.18);
+      margin-left:8px; }
+    .cron-cell--friendly { border-color:#c4a35a; }
+    .cron-cell--opponent { border-color:#b13c3c; }
+    .cron-cell--filler { opacity:0.55; }
+    .cron-cell--empty { opacity:0.3; }
+    .cron-cell__art { position:relative; width:80px; height:80px; }
+    .cron-cell__box { width:100%; height:100%; object-fit:contain; }
+    .cron-cell__callout { position:absolute; bottom:-6px; right:-6px; width:36px; height:36px;
+      border-radius:50%; border:2px solid #1a1a1a; }
+    .cron-cell__name { font-size:11px; font-weight:600; margin-top:6px; text-align:center;
+      max-width:96px; word-break:break-word; }
+    .cron-cell__dots { display:flex; gap:4px; margin-top:4px; }
+    .cron-cell__dot { width:6px; height:6px; border-radius:50%; background:#444; }
+    .cron-cell__dot--lit { background:#c4a35a; }
+    .cron-cell__filler-note { font-size:10px; opacity:0.7; margin-top:2px; }
+    .cron-cell__placeholder { font-size:11px; color:#888; padding:28px 4px; text-align:center; }
     .character-cell {
       display: flex;
       flex-direction: column;

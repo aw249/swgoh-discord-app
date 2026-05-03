@@ -408,7 +408,11 @@ export class GacStrategyService {
     maxSquads: number = 11,
     userRoster?: SwgohGgFullPlayerResponse,
     strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
-    opponentAllyCode?: string
+    opponentAllyCode?: string,
+    /** Per-squad cron assignments. Keys: 'def-{idx}' for defense, 'off-{idx}' for offense. */
+    assignedCrons?: Map<string, import('./datacronAllocator').AssignedCron | null>,
+    /** Opponent's actual cron per offense battle (scraped from swgoh.gg). Keys: 'opp-def-{idx}'. */
+    opponentCronsByDefenseKey?: Map<string, import('./datacronAllocator').AssignedCron | null>
   ): Promise<{ defenseImage: Buffer; offenseImages: Buffer[] }> {
     // Fetch opponent roster if ally code provided
     // Must use getFullPlayerWithStats to get calculated stats (Speed, Health, Protection)
@@ -468,7 +472,9 @@ export class GacStrategyService {
 
     // Generate defense image (2-column layout requires wider viewport)
     // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 620*2+40=1280)
-    const defenseWidth = format === '3v3' ? 1330 : 1950;
+    // Cron column adds ~120px per squad row when assignedCrons is provided.
+    const baseDefenseWidth = format === '3v3' ? 1330 : 1950;
+    const defenseWidth = baseDefenseWidth + (assignedCrons ? 240 : 0);
     const defenseHtml = generateDefenseStrategyHtml(
       opponentLabel,
       balancedDefense,
@@ -476,7 +482,8 @@ export class GacStrategyService {
       maxSquads,
       userRoster,
       strategyPreference,
-      unusedGLs
+      unusedGLs,
+      assignedCrons
     );
     const defenseImage = await this.browserService.renderHtml(defenseHtml, { width: defenseWidth, height: 2400 });
 
@@ -488,7 +495,9 @@ export class GacStrategyService {
     //   - countered: entries with a real offense leader, become battle rows
     //   - uncountered: entries with empty offense.leader.baseId, rendered in
     //     a separate "Uncountered Defenses" section on the LAST chunk only
-    const offenseWidth = format === '3v3' ? 1100 : 1650;
+    // Cron columns add ~240px (your cron + opponent cron) when crons are provided.
+    const baseOffenseWidth = format === '3v3' ? 1100 : 1650;
+    const offenseWidth = baseOffenseWidth + (assignedCrons || opponentCronsByDefenseKey ? 240 : 0);
     const visible = balancedOffense.slice(0, maxSquads);
     const counteredBattles = visible.filter(c => !!c.offense.leader.baseId);
     const uncounteredDefenses = visible.filter(c => !c.offense.leader.baseId);
@@ -516,7 +525,9 @@ export class GacStrategyService {
         isLast ? unusedGLs : undefined,
         cursor,
         chunkInfo,
-        isLast ? uncounteredDefenses : undefined
+        isLast ? uncounteredDefenses : undefined,
+        assignedCrons,
+        opponentCronsByDefenseKey
       );
       const offenseImage = await this.browserService.renderHtml(offenseHtml, { width: offenseWidth, height: 2400 });
       offenseImages.push(offenseImage);

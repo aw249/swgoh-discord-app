@@ -4,12 +4,13 @@ import { GacStrategyService } from '../../services/gacStrategyService';
 import { GacApiClient } from './commandUtils';
 import { logger } from '../../utils/logger';
 import { getMaxSquadsForLeague, FALLBACK_SEASON_IDS } from '../../config/gacConstants';
-import { comlinkClient } from '../../integrations/comlink/comlinkClient';
+import { comlinkClient, ComlinkDatacron } from '../../integrations/comlink/comlinkClient';
 import {
   extractDatacronLeveragedCharacters,
   extractMetaActivatedCharacters,
 } from '../../services/gacStrategy/utils/datacronUtils';
 import { getMetaCronTags } from '../../services/gacStrategy/utils/datacronMetaService';
+import { fromScraped, AssignedCron } from '../../services/datacronAllocator';
 
 export async function handleStrategyCommand(
   interaction: ChatInputCommandInteraction,
@@ -127,6 +128,7 @@ export async function handleStrategyCommand(
   // than to drop everything because comlink hiccupped).
   let userDatacronLeveragedChars: Set<string> | undefined;
   let metaDatacronActivatedChars: Set<string> | undefined;
+  let userDatacrons: ComlinkDatacron[] | undefined;
   try {
     const rosterBaseIds = new Set<string>(
       (userRoster.units ?? []).map(u => u.data.base_id)
@@ -135,6 +137,7 @@ export async function handleStrategyCommand(
       comlinkClient.getPlayer(yourAllyCode),
       getMetaCronTags(),
     ]);
+    userDatacrons = playerData.datacron;
     userDatacronLeveragedChars = extractDatacronLeveragedCharacters(
       playerData.datacron,
       rosterBaseIds
@@ -142,7 +145,8 @@ export async function handleStrategyCommand(
     metaDatacronActivatedChars = extractMetaActivatedCharacters(metaTags, rosterBaseIds);
     logger.info(
       `Datacron lookup: user owns ${userDatacronLeveragedChars.size} cron-leveraged character(s); ` +
-      `meta has ${metaDatacronActivatedChars.size} cron-leverageable character(s) in your roster`
+      `meta has ${metaDatacronActivatedChars.size} cron-leverageable character(s) in your roster; ` +
+      `${userDatacrons?.length ?? 0} total cron(s) in inventory`
     );
   } catch (error) {
     logger.warn('Could not fetch datacrons from comlink, cron filter disabled for this run:', error);
@@ -320,6 +324,76 @@ export async function handleStrategyCommand(
   // Use opponent's name if available, otherwise fall back to ally code
   const opponentName = targetName || targetAllyCode;
 
+  // Datacron allocation: build SquadInput[] from balanced lists, run the allocator
+  // (snapshot-aware), and assemble the opponent-cron map from scraped defense data.
+  let assignedCrons: Map<string, AssignedCron | null> | undefined;
+  let opponentCronsByDefenseKey: Map<string, AssignedCron | null> | undefined;
+  if (userDatacrons && userDatacrons.length > 0) {
+    try {
+      const defenseInputs = balancedDefense.map((def, idx) =>
+        gacStrategyService.buildSquadInput(
+          `def-${idx}`,
+          def.squad.leader.baseId,
+          def.squad.members.map(m => m.baseId),
+          'defense'
+        )
+      );
+      const counteredOffenseList = balancedOffense
+        .filter(m => !!m.offense.leader.baseId)
+        .slice(0, maxDefenseSquads);
+      const offenseInputs = counteredOffenseList.map((m, idx) =>
+        gacStrategyService.buildSquadInput(
+          `off-${idx}`,
+          m.offense.leader.baseId,
+          m.offense.members.map(u => u.baseId),
+          'offense'
+        )
+      );
+
+      // Best-effort season ID — Comlink exposes the current GAC event instance.
+      let seasonId: string | null = null;
+      try {
+        const live = await comlinkClient.getCurrentGacInstance();
+        seasonId = live?.eventInstanceId ?? null;
+      } catch (err) {
+        logger.warn('Could not fetch GAC season ID for snapshot keying; allocation runs without lock-in:', err);
+      }
+
+      const result = await gacStrategyService.allocateDatacrons(
+        yourAllyCode,
+        userDatacrons,
+        seasonId,
+        defenseInputs,
+        offenseInputs
+      );
+      if (result) {
+        assignedCrons = result.assignments;
+        logger.info(`Datacron allocation: assigned ${[...result.assignments.values()].filter(Boolean).length} crons across ${result.assignments.size} squads`);
+      }
+
+      // Opponent crons — map by the same offense battle index so the offense
+      // template can match its YOUR-cron and OPP-cron on each row.
+      opponentCronsByDefenseKey = new Map<string, AssignedCron | null>();
+      for (let idx = 0; idx < counteredOffenseList.length; idx++) {
+        const m = counteredOffenseList[idx];
+        const oppCron = (m.defense as { datacron?: unknown }).datacron;
+        if (oppCron) {
+          opponentCronsByDefenseKey.set(`opp-def-${idx}`, {
+            candidate: fromScraped(oppCron as never),
+            score: 0,
+            filler: false,
+          });
+        } else {
+          opponentCronsByDefenseKey.set(`opp-def-${idx}`, null);
+        }
+      }
+    } catch (err) {
+      logger.warn('Datacron allocation failed; rendering without cron columns:', err);
+      assignedCrons = undefined;
+      opponentCronsByDefenseKey = undefined;
+    }
+  }
+
   // Generate split images: one for defense, one or more for offense (chunked)
   const { defenseImage, offenseImages } = await gacStrategyService.generateSplitStrategyImages(
     opponentName,
@@ -329,7 +403,9 @@ export async function handleStrategyCommand(
     maxDefenseSquads,
     userRoster,
     strategyPreference,
-    targetAllyCode
+    targetAllyCode,
+    assignedCrons,
+    opponentCronsByDefenseKey
   );
 
   const defenseAttachment = new AttachmentBuilder(defenseImage, { name: 'gac-defense.png' });
