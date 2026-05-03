@@ -60,6 +60,15 @@ export function renderCronCell(assigned: AssignedCron, side: CronSide): string {
     ? `<div class="cron-cell__filler-note">(filler)</div>`
     : '';
 
+  // Tiers + stats sit side-by-side in a single details panel (tier list on
+  // the left, stats list on the right) — better use of horizontal space than
+  // stacking them vertically below the art.
+  const tiersHtml = renderTierSummary(c);
+  const statsHtml = renderStatsList(c);
+  const detailsHtml = (tiersHtml || statsHtml)
+    ? `<div class="cron-cell__details">${tiersHtml}${statsHtml}</div>`
+    : '';
+
   return `
     <div class="cron-cell ${sideClass} ${fillerClass}">
       <div class="cron-cell__art">
@@ -69,8 +78,7 @@ export function renderCronCell(assigned: AssignedCron, side: CronSide): string {
       <div class="cron-cell__name">${escape(c.name || `Set ${c.setId}`)}</div>
       <div class="cron-cell__dots">${dots}</div>
       ${fillerNote}
-      ${renderStatsList(c)}
-      ${renderTierSummary(c)}
+      ${detailsHtml}
     </div>
   `;
 }

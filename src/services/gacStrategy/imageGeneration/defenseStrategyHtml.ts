@@ -328,7 +328,7 @@ export function generateDefenseStrategyHtml(
       align-items: center;
     }
     /* Datacron cell — appended to squad-characters by /gac strategy datacron allocator */
-    .cron-cell { display:flex; flex-direction:column; align-items:center; width:100px;
+    .cron-cell { display:flex; flex-direction:column; align-items:center; width:170px;
       padding:4px; border:2px solid transparent; border-radius:4px; background:rgba(0,0,0,0.18);
       margin-left:8px; }
     .cron-cell--friendly { border-color:#c4a35a; }
@@ -340,23 +340,27 @@ export function generateDefenseStrategyHtml(
     .cron-cell__callout { position:absolute; bottom:-6px; right:-6px; width:36px; height:36px;
       border-radius:50%; border:2px solid #1a1a1a; }
     .cron-cell__name { font-size:11px; font-weight:600; margin-top:6px; text-align:center;
-      max-width:96px; word-break:break-word; color:#1a1a1a; }
+      max-width:160px; word-break:break-word; color:#1a1a1a; }
     .cron-cell__dots { display:flex; gap:4px; margin-top:4px; }
     .cron-cell__dot { width:6px; height:6px; border-radius:50%; background:#444; }
     .cron-cell__dot--lit { background:#c4a35a; }
     .cron-cell__filler-note { font-size:10px; opacity:0.7; margin-top:2px; color:#1a1a1a; }
     .cron-cell__placeholder { font-size:11px; color:#888; padding:28px 4px; text-align:center; }
-    .cron-cell__stats { width:100%; margin-top:6px; padding-top:4px; border-top:1px solid #d8c79a;
-      display:flex; flex-direction:column; gap:1px; }
+    .cron-cell__details { width:100%; margin-top:6px; padding-top:4px; border-top:1px solid #d8c79a;
+      display:flex; flex-direction:row; gap:8px; align-items:flex-start; }
+    .cron-cell__tiers { flex:0 0 auto; min-width:60px; display:flex; flex-direction:column; gap:1px; }
+    .cron-cell__tier-row { display:flex; gap:3px; font-size:9px; color:#1a1a1a; line-height:1.2; }
+    .cron-cell__tier-label { font-weight:700; color:#7a5a1f; min-width:18px; }
+    .cron-cell__tier-target { flex:1; word-break:break-word; }
+    .cron-cell__stats { flex:1 1 auto; display:flex; flex-direction:column; gap:1px;
+      border-left:1px solid #d8c79a; padding-left:6px; }
     .cron-cell__stat-row { display:flex; justify-content:space-between; gap:4px; font-size:9px;
       color:#1a1a1a; line-height:1.2; }
     .cron-cell__stat-name { opacity:0.75; }
     .cron-cell__stat-value { font-weight:600; }
-    .cron-cell__tiers { width:100%; margin-top:4px; padding-top:4px; border-top:1px solid #d8c79a;
-      display:flex; flex-direction:column; gap:1px; }
-    .cron-cell__tier-row { display:flex; gap:4px; font-size:9px; color:#1a1a1a; line-height:1.2; }
-    .cron-cell__tier-label { font-weight:700; color:#7a5a1f; min-width:18px; }
-    .cron-cell__tier-target { flex:1; word-break:break-word; }
+    /* When only one of the two columns is present, stats has no tiers to its
+       left — drop the divider so it doesn't render orphaned. */
+    .cron-cell__details > .cron-cell__stats:first-child { border-left:none; padding-left:0; }
     /* Character cell + portrait sizing matches offenseStrategyHtml.ts so defense
        and offense images render with consistent visual density and so the cron
        column fits inside singleSquadWidth without canvas growth. */
