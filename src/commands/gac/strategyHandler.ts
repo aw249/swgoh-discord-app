@@ -338,9 +338,13 @@ export async function handleStrategyCommand(
           'defense'
         )
       );
+      // IMPORTANT: order matches generateSplitStrategyImages (slice-then-filter).
+      // If we filter-then-slice here, the keys we put into assignedCrons drift
+      // off the keys the offense template looks up by, and many assignments
+      // never reach the rendered image.
       const counteredOffenseList = balancedOffense
-        .filter(m => !!m.offense.leader.baseId)
-        .slice(0, maxDefenseSquads);
+        .slice(0, maxDefenseSquads)
+        .filter(m => !!m.offense.leader.baseId);
       const offenseInputs = counteredOffenseList.map((m, idx) =>
         gacStrategyService.buildSquadInput(
           `off-${idx}`,
@@ -368,7 +372,14 @@ export async function handleStrategyCommand(
       );
       if (result) {
         assignedCrons = result.assignments;
-        logger.info(`Datacron allocation: assigned ${[...result.assignments.values()].filter(Boolean).length} crons across ${result.assignments.size} squads`);
+        const nonNull = [...result.assignments.values()].filter(Boolean).length;
+        const nullCount = [...result.assignments.values()].filter(a => a === null).length;
+        const fillerCount = [...result.assignments.values()].filter(a => !!a && a.filler).length;
+        logger.info(
+          `Datacron allocation: ${nonNull} crons placed across ${result.assignments.size} squads ` +
+          `(${nullCount} squads got no cron, ${fillerCount} got filler). ` +
+          `Defense squads in: ${defenseInputs.length}, offense squads in: ${offenseInputs.length}.`
+        );
       }
 
       // Opponent crons — map by the same offense battle index so the offense

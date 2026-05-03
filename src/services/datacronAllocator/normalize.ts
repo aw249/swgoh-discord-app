@@ -72,10 +72,17 @@ function comlinkScopeNameFromTargetRule(targetRule: string): string {
   return targetRule.startsWith(prefix) ? targetRule.slice(prefix.length) : targetRule;
 }
 
-/** Convert a Comlink datacron (from /player.datacron[]) to DatacronCandidate. */
+/** Convert a Comlink datacron (from /player.datacron[]) to DatacronCandidate.
+ *
+ *  Comlink represents the cron's current tier implicitly via the `affix[]` array
+ *  length — a tier-5 cron has exactly 5 affix entries; a fully-rolled focused
+ *  tier-9 cron has 9. `rerollIndex` is the reroll counter, NOT the tier.
+ *  Unfocused crons cap at tier 6 (the focusing decision unlocks tiers 7-9). */
 export function fromComlink(d: ComlinkDatacron): DatacronCandidate {
   const focused = !!d.focused;
-  const currentTier = focused ? 9 : Math.min(6, d.rerollIndex + 1);
+  const affixCount = d.affix?.length ?? 0;
+  const tierCap = focused ? 9 : 6;
+  const currentTier = Math.min(tierCap, affixCount);
 
   type ComlinkAffix = {
     targetRule?: string;
