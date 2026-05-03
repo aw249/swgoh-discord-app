@@ -16,6 +16,18 @@ import { generateDefenseStrategyHtml } from './gacStrategy/imageGeneration/defen
 import { generateOffenseStrategyHtml } from './gacStrategy/imageGeneration/offenseStrategyHtml';
 import { getTop80CharactersRoster } from './gacStrategy/utils/rosterUtils';
 
+// Datacron allocation
+import { ComlinkDatacron } from '../integrations/comlink/comlinkClient';
+import { DatacronSnapshotStore } from '../storage/datacronSnapshotStore';
+import {
+  fromComlink,
+  ScopeResolver,
+  allocateDatacrons,
+  AllocationResult,
+  SquadInput,
+} from './datacronAllocator';
+import { GameDataService } from './gameDataService';
+
 // Re-export types for backward compatibility
 export { UniqueDefensiveSquad, UniqueDefensiveSquadUnit, MatchedCounterSquad } from '../types/gacStrategyTypes';
 
@@ -41,6 +53,8 @@ export interface GacStrategyServiceOptions {
   counterClient?: CounterClient;
   defenseClient?: DefenseClient;
   playerClient?: PlayerClient;
+  /** Optional. When provided, enables datacron lock-in via per-season snapshots. */
+  snapshotStore?: DatacronSnapshotStore;
 }
 
 export class GacStrategyService {
@@ -52,12 +66,14 @@ export class GacStrategyService {
   private readonly counterClient?: CounterClient;
   private readonly defenseClient?: DefenseClient;
   private readonly playerClient?: PlayerClient;
+  private readonly snapshotStore?: DatacronSnapshotStore;
 
   constructor(options: GacStrategyServiceOptions) {
     this.apiClient = options.historyClient;
     this.counterClient = options.counterClient;
     this.defenseClient = options.defenseClient;
     this.playerClient = options.playerClient;
+    this.snapshotStore = options.snapshotStore;
   }
 
   /**
@@ -77,6 +93,78 @@ export class GacStrategyService {
 
   async closeBrowser(): Promise<void> {
     await this.browserService.close();
+  }
+
+  /**
+   * Run the datacron allocator over a player's eligible cron pool against the
+   * defense + offense squads chosen for this GAC.
+   *
+   * `seasonId` (from `combinedClient.getCurrentGacInstance().eventInstanceId`)
+   * keys the lock-in snapshot. The first call within a season writes a snapshot
+   * of the player's current cron IDs; subsequent calls within the same season
+   * filter the live pool to that snapshot — mid-season acquisitions are excluded.
+   *
+   * Returns `null` when no crons are passed (no allocation possible).
+   */
+  async allocateDatacrons(
+    allyCode: string,
+    datacrons: ComlinkDatacron[] | undefined,
+    seasonId: string | null,
+    defenseSquads: SquadInput[],
+    offenseSquads: SquadInput[]
+  ): Promise<AllocationResult | null> {
+    if (!datacrons || datacrons.length === 0) return null;
+
+    let eligibleIds: Set<string> | null = null;
+    if (seasonId && this.snapshotStore) {
+      try {
+        const stored = await this.snapshotStore.get(allyCode, seasonId);
+        if (stored) {
+          eligibleIds = new Set(stored);
+        } else {
+          await this.snapshotStore.set(allyCode, seasonId, datacrons.map(c => c.id));
+          // First observation — fall through with no filter.
+        }
+      } catch (err) {
+        logger.warn('Datacron snapshot lookup failed; using full live pool:', err);
+      }
+    }
+
+    const filtered = eligibleIds
+      ? datacrons.filter(c => eligibleIds!.has(c.id))
+      : datacrons;
+
+    if (filtered.length === 0) return null;
+
+    const candidates = filtered.map(fromComlink);
+    const resolver = new ScopeResolver();
+    const allSquads = [...defenseSquads, ...offenseSquads];
+    return allocateDatacrons(allSquads, candidates, resolver);
+  }
+
+  /**
+   * Helper for callers building SquadInput[] from the existing UniqueDefensiveSquad
+   * shape. Looks up each member's categories via gameDataService for use by the
+   * allocator's faction-target scoring.
+   */
+  buildSquadInput(
+    squadKey: string,
+    leaderBaseId: string,
+    memberBaseIds: string[],
+    side: 'defense' | 'offense'
+  ): SquadInput {
+    const gd = GameDataService.getInstance();
+    const memberCategories = new Map<string, string[]>();
+    for (const id of [leaderBaseId, ...memberBaseIds]) {
+      memberCategories.set(id, gd.isReady() ? gd.getUnitCategories(id) : []);
+    }
+    return {
+      squadKey,
+      leaderBaseId,
+      memberBaseIds: [leaderBaseId, ...memberBaseIds],
+      memberCategories,
+      side,
+    };
   }
 
   /**
