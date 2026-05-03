@@ -63,8 +63,8 @@ describe('renderCronCell', () => {
     const withStats: DatacronCandidate = {
       ...sampleCron,
       accumulatedStats: [
-        { name: 'Critical Damage', displayValue: '+25.00%' },
-        { name: 'Potency', displayValue: '+50.00%' },
+        { name: 'Critical Damage', displayValue: '+25.00%', value: 25 },
+        { name: 'Potency', displayValue: '+50.00%', value: 50 },
       ],
     };
     const html = renderCronCell({ candidate: withStats, score: 30, filler: false }, 'friendly');
@@ -125,7 +125,11 @@ describe('renderCronCell', () => {
 });
 
 describe('renderEmptyCronCell', () => {
-  it('returns an empty string so unassigned cron columns collapse silently', () => {
-    expect(renderEmptyCronCell()).toBe('');
+  it('renders a hidden cell that preserves layout width without showing a placeholder', () => {
+    const html = renderEmptyCronCell();
+    expect(html).toContain('cron-cell--empty');
+    // No placeholder text or "No cron" badge — the cell is purely a spacer.
+    expect(html.toLowerCase()).not.toContain('no cron');
+    expect(html.toLowerCase()).not.toContain('placeholder');
   });
 });

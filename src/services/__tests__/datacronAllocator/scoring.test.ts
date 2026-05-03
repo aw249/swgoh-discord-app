@@ -1,4 +1,11 @@
-import { scoreCronOnSquad, TIER_WEIGHTS, LEADER_BONUS_MULTIPLIER, T9_CHARACTER_ANCHOR_BONUS } from '../../datacronAllocator/scoring';
+import {
+  scoreCronOnSquad,
+  TIER_WEIGHTS,
+  LEADER_BONUS_MULTIPLIER,
+  T9_CHARACTER_ANCHOR_BONUS,
+  STAT_MAGNITUDE_SCALE,
+  MAX_STAT_MAGNITUDE_BONUS,
+} from '../../datacronAllocator/scoring';
 import { DatacronCandidate, DatacronTier, SquadInput } from '../../datacronAllocator/types';
 import { ScopeResolver } from '../../datacronAllocator/scopeResolver';
 
@@ -174,5 +181,55 @@ describe('scoreCronOnSquad', () => {
     const r = fakeResolver({}, {});
     // 5 stat tiers (skipped tier 1)
     expect(scoreCronOnSquad(c, s, r)).toBe(5 * TIER_WEIGHTS.stat);
+  });
+
+  it('uses cumulative stat magnitude as a tie-breaker between otherwise-equal crons', () => {
+    // Same primaries on both crons; only the rolled stat magnitudes differ.
+    // Higher-rolled cron wins by a small margin proportional to the gap.
+    const sharedTiers = [
+      tier(1), tier(2),
+      tier(3, { targetRuleId: 'target_datacron_darkside', scopeTargetName: 'Dark Side' }),
+      tier(4), tier(5),
+      tier(6, { targetRuleId: 'target_datacron_scoundrel', scopeTargetName: 'Scoundrel' }),
+      tier(7), tier(8),
+      tier(9, { targetRuleId: 'target_datacron_krrsantan', scopeTargetName: 'Krrsantan' }),
+    ];
+    const highRolled = cron({
+      id: 'high', tiers: sharedTiers,
+      accumulatedStats: [
+        { name: 'Crit Dam',  displayValue: '+50.00%', value: 50 },
+        { name: 'Armor Pen', displayValue: '+30.00%', value: 30 },
+      ],
+    });
+    const lowRolled = cron({
+      id: 'low', tiers: sharedTiers,
+      accumulatedStats: [
+        { name: 'Crit Dam',  displayValue: '+25.00%', value: 25 },
+        { name: 'Armor Pen', displayValue: '+15.00%', value: 15 },
+      ],
+    });
+    const s = squad(['KRRSANTAN'], 'KRRSANTAN', { KRRSANTAN: ['alignment_dark', 'role_scoundrel'] });
+    const r = fakeResolver(
+      { krrsantan: 'KRRSANTAN' },
+      { 'dark side': 'alignment_dark', scoundrel: 'role_scoundrel' }
+    );
+    const high = scoreCronOnSquad(highRolled, s, r);
+    const low = scoreCronOnSquad(lowRolled, s, r);
+    expect(high).toBeGreaterThan(low);
+    // Margin reflects the magnitude gap (80 vs 40 = 40 magnitude points).
+    expect(high - low).toBeCloseTo(40 * STAT_MAGNITUDE_SCALE, 5);
+  });
+
+  it('caps the magnitude bonus so it can never override a primary-tier match', () => {
+    // A wildly inflated stat list still contributes only MAX_STAT_MAGNITUDE_BONUS.
+    const c = cron({
+      accumulatedStats: [
+        { name: 'Crit Dam', displayValue: '+9999.00%', value: 9999 },
+      ],
+    });
+    const s = squad(['REY']);
+    const r = fakeResolver({}, {});
+    // 6 stat tiers (no primaries match) + capped magnitude bonus.
+    expect(scoreCronOnSquad(c, s, r)).toBe(6 * TIER_WEIGHTS.stat + MAX_STAT_MAGNITUDE_BONUS);
   });
 });

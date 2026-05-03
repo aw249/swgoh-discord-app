@@ -334,7 +334,8 @@ export function generateDefenseStrategyHtml(
     .cron-cell--friendly { border-color:#c4a35a; }
     .cron-cell--opponent { border-color:#b13c3c; }
     .cron-cell--filler { opacity:0.85; }
-    .cron-cell--empty { opacity:0.3; }
+    /* Empty cell: invisible but preserves layout width so rows stay aligned. */
+    .cron-cell--empty { visibility:hidden; border-color:transparent; background:transparent; }
     .cron-cell__art { position:relative; width:80px; height:80px; }
     .cron-cell__box { width:100%; height:100%; object-fit:contain; }
     .cron-cell__callout { position:absolute; bottom:-6px; right:-6px; width:36px; height:36px;

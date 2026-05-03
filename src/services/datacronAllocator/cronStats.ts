@@ -125,16 +125,36 @@ export function accumulateComlinkAffixStats(
     const meta = STAT_TYPE_META.get(statType);
     if (!meta) {
       // Unknown — show the raw type id so we notice and can extend the map.
-      out.push({ name: `Stat ${statType}`, displayValue: `+${total.toLocaleString('en-GB')}` });
+      // Use the raw integer as the magnitude — caller can still rank crons by
+      // total even when the type isn't recognised.
+      out.push({ name: `Stat ${statType}`, displayValue: `+${total.toLocaleString('en-GB')}`, value: total });
       continue;
     }
     if (meta.format === 'percent') {
       const pct = (total / PERCENT_DIVISOR) * 100;
-      out.push({ name: meta.label, displayValue: `+${pct.toFixed(2)}%` });
+      out.push({ name: meta.label, displayValue: `+${pct.toFixed(2)}%`, value: pct });
     } else {
       const flat = total / FLAT_DIVISOR;
-      out.push({ name: meta.label, displayValue: `+${Math.round(flat).toLocaleString('en-GB')}` });
+      const rounded = Math.round(flat);
+      out.push({ name: meta.label, displayValue: `+${rounded.toLocaleString('en-GB')}`, value: rounded });
     }
   }
   return out;
+}
+
+/**
+ * Sum of |value| across a cron's accumulated stats. Used by the scorer as a
+ * neutral tie-breaker — two crons with identical primary tiers will differ
+ * here by the cumulative magnitude of their stat rolls, so a +50% Crit Dam
+ * cron beats a +30% Crit Dam cron, a +50% Armor Pen beats a +30% Armor Pen,
+ * etc. Stays neutral on which stats matter — only rewards higher rolls.
+ *
+ * Percent stats contribute their percent value directly (25 for "+25%").
+ * Flat stats contribute their displayed flat number (20 for "+20" speed).
+ * Both are roughly comparable in raw magnitude on real datacrons.
+ */
+export function computeStatMagnitude(stats: AccumulatedStat[]): number {
+  let total = 0;
+  for (const s of stats) total += Math.abs(s.value);
+  return total;
 }

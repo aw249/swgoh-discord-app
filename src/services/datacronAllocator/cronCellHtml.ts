@@ -83,9 +83,10 @@ export function renderCronCell(assigned: AssignedCron, side: CronSide): string {
   `;
 }
 
-/** When a squad has no cron assigned, render nothing rather than a placeholder
- *  cell — a "No cron" badge next to a squad reads as if a cron is missing,
- *  which is misleading. The grid column simply collapses to empty. */
+/** When a squad has no cron assigned, render an invisible cell that still
+ *  occupies the column's reserved width so neighbouring rows stay aligned.
+ *  The cell carries no inner content and is hidden via CSS (visibility) — no
+ *  "No cron" placeholder, no border, but the spacing is preserved. */
 export function renderEmptyCronCell(): string {
-  return '';
+  return `<div class="cron-cell cron-cell--empty"></div>`;
 }

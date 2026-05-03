@@ -52,12 +52,16 @@ export function fromScraped(scraped: ScrapedCronJson): DatacronCandidate {
       index: tiers.length + 1, targetRuleId: '', abilityId: '', scopeTargetName: '', hasData: false,
     });
   }
-  const accumulatedStats: AccumulatedStat[] = (d.accumulated_stats ?? []).map(s => ({
-    name: shortenStatLabel(s.stat_name),
-    displayValue: s.display_stat_value.startsWith('+') || s.display_stat_value.startsWith('-')
+  const accumulatedStats: AccumulatedStat[] = (d.accumulated_stats ?? []).map(s => {
+    const display = s.display_stat_value.startsWith('+') || s.display_stat_value.startsWith('-')
       ? s.display_stat_value
-      : `+${s.display_stat_value}`,
-  }));
+      : `+${s.display_stat_value}`;
+    return {
+      name: shortenStatLabel(s.stat_name),
+      displayValue: display,
+      value: parseScrapedStatValue(display),
+    };
+  });
 
   return {
     source: 'scraped',
@@ -77,6 +81,15 @@ export function fromScraped(scraped: ScrapedCronJson): DatacronCandidate {
 function setIdToTextureLetter(setId: number): 'a' | 'b' | 'c' | 'd' {
   const idx = (setId - 21) % 4;
   return (['a', 'b', 'c', 'd'] as const)[(idx + 4) % 4];
+}
+
+/** Parse an scrape-formatted stat string ("+23.78%", "+1,234", "-5.5") back
+ *  to its numeric magnitude. Returns 0 when the value isn't a finite number
+ *  so corrupt entries don't poison the magnitude tie-breaker. */
+function parseScrapedStatValue(s: string): number {
+  const cleaned = s.replace(/[+,%\s]/g, '');
+  const n = parseFloat(cleaned);
+  return Number.isFinite(n) ? n : 0;
 }
 
 function comlinkScopeNameFromTargetRule(targetRule: string): string {

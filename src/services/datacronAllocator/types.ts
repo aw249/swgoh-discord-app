@@ -26,6 +26,10 @@ export interface AccumulatedStat {
   name: string;
   /** Pre-formatted display string, e.g. "+23.78%" or "+150". */
   displayValue: string;
+  /** Numeric magnitude in raw display units — 23.78 for "+23.78%", 150 for
+   *  "+150". Used by the scorer as a tie-breaker so a higher-rolled cron
+   *  beats a lower-rolled one when their primary tiers are otherwise equal. */
+  value: number;
 }
 
 export interface DatacronCandidate {
