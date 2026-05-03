@@ -651,8 +651,9 @@ export function generateOffenseStrategyHtml(
       margin-left:8px; }
     .cron-cell--friendly { border-color:#c4a35a; }
     .cron-cell--opponent { border-color:#b13c3c; }
-    .cron-cell--filler { opacity:0.85; }
-    /* Empty cell: invisible but preserves layout width so rows stay aligned. */
+    /* Empty cell: occupies the cron column's reserved width so rows stay
+       aligned, but renders nothing visible — no border, no background, no
+       inner content. The cell is purely a layout spacer. */
     .cron-cell--empty { visibility:hidden; border-color:transparent; background:transparent; }
     .cron-cell__art { position:relative; width:80px; height:80px; }
     .cron-cell__box { width:100%; height:100%; object-fit:contain; }
@@ -663,8 +664,6 @@ export function generateOffenseStrategyHtml(
     .cron-cell__dots { display:flex; gap:4px; margin-top:4px; }
     .cron-cell__dot { width:6px; height:6px; border-radius:50%; background:#444; }
     .cron-cell__dot--lit { background:#c4a35a; }
-    .cron-cell__filler-note { font-size:10px; opacity:0.7; margin-top:2px; }
-    .cron-cell__placeholder { font-size:11px; color:#888; padding:28px 4px; text-align:center; }
     /* Vertical stack: details wrapper is layout-transparent so the children
        behave as if they were direct .cron-cell siblings. */
     .cron-cell__details { display:contents; }

@@ -22,10 +22,14 @@ describe('renderCronCell', () => {
     expect(html).toContain('https://example/callout.png');
   });
 
-  it('marks filler crons with a "(filler)" annotation', () => {
+  it('renders filler crons identically to assigned crons (no badge, no dim)', () => {
+    const assigned: AssignedCron = { candidate: sampleCron, score: 30, filler: false };
     const filler: AssignedCron = { candidate: sampleCron, score: 6, filler: true };
-    const html = renderCronCell(filler, 'friendly');
-    expect(html.toLowerCase()).toContain('filler');
+    const a = renderCronCell(assigned, 'friendly');
+    const f = renderCronCell(filler, 'friendly');
+    // Output is identical regardless of the filler flag — no class, no label.
+    expect(f).toBe(a);
+    expect(f.toLowerCase()).not.toContain('filler');
   });
 
   it('uses the friendly border class for friendly side', () => {

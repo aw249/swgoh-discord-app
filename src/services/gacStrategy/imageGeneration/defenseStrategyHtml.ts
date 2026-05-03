@@ -333,8 +333,9 @@ export function generateDefenseStrategyHtml(
       margin-left:8px; }
     .cron-cell--friendly { border-color:#c4a35a; }
     .cron-cell--opponent { border-color:#b13c3c; }
-    .cron-cell--filler { opacity:0.85; }
-    /* Empty cell: invisible but preserves layout width so rows stay aligned. */
+    /* Empty cell: occupies the cron column's reserved width so rows stay
+       aligned, but renders nothing visible — no border, no background, no
+       inner content. The cell is purely a layout spacer. */
     .cron-cell--empty { visibility:hidden; border-color:transparent; background:transparent; }
     .cron-cell__art { position:relative; width:80px; height:80px; }
     .cron-cell__box { width:100%; height:100%; object-fit:contain; }
@@ -345,8 +346,6 @@ export function generateDefenseStrategyHtml(
     .cron-cell__dots { display:flex; gap:4px; margin-top:4px; }
     .cron-cell__dot { width:6px; height:6px; border-radius:50%; background:#444; }
     .cron-cell__dot--lit { background:#c4a35a; }
-    .cron-cell__filler-note { font-size:10px; opacity:0.7; margin-top:2px; color:#1a1a1a; }
-    .cron-cell__placeholder { font-size:11px; color:#888; padding:28px 4px; text-align:center; }
     .cron-cell__details { width:100%; margin-top:6px; padding-top:4px; border-top:1px solid #d8c79a;
       display:flex; flex-direction:row; gap:8px; align-items:flex-start; }
     .cron-cell__tiers { flex:0 0 auto; min-width:60px; display:flex; flex-direction:column; gap:1px; }

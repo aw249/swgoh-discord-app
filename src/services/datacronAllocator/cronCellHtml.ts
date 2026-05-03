@@ -45,7 +45,6 @@ function renderTierSummary(c: DatacronCandidate): string {
 export function renderCronCell(assigned: AssignedCron, side: CronSide): string {
   const c = assigned.candidate;
   const sideClass = side === 'friendly' ? 'cron-cell--friendly' : 'cron-cell--opponent';
-  const fillerClass = assigned.filler ? 'cron-cell--filler' : '';
 
   const dots = PRIMARY_TIERS.map(t => {
     const lit = c.currentTier >= t ? 'cron-cell__dot--lit' : '';
@@ -54,10 +53,6 @@ export function renderCronCell(assigned: AssignedCron, side: CronSide): string {
 
   const calloutImg = c.calloutImageUrl
     ? `<img class="cron-cell__callout" src="${escape(c.calloutImageUrl)}" alt="" />`
-    : '';
-
-  const fillerNote = assigned.filler
-    ? `<div class="cron-cell__filler-note">(filler)</div>`
     : '';
 
   // Tiers + stats sit side-by-side in a single details panel (tier list on
@@ -70,14 +65,13 @@ export function renderCronCell(assigned: AssignedCron, side: CronSide): string {
     : '';
 
   return `
-    <div class="cron-cell ${sideClass} ${fillerClass}">
+    <div class="cron-cell ${sideClass}">
       <div class="cron-cell__art">
         <img class="cron-cell__box" src="${escape(c.boxImageUrl)}" alt="" />
         ${calloutImg}
       </div>
       <div class="cron-cell__name">${escape(c.name || `Set ${c.setId}`)}</div>
       <div class="cron-cell__dots">${dots}</div>
-      ${fillerNote}
       ${detailsHtml}
     </div>
   `;
