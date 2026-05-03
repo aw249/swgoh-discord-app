@@ -7,6 +7,12 @@ import {
 import { PlayerService } from '../services/playerService';
 import { GacService } from '../services/gacService';
 import { GacStrategyService } from '../services/gacStrategyService';
+import { DatacronSnapshotStore } from '../storage/datacronSnapshotStore';
+
+// Module-level snapshot store — single instance shared across all /gac strategy
+// invocations so the in-memory cache is consistent and the on-disk file isn't
+// racing between concurrent calls.
+const datacronSnapshotStore = new DatacronSnapshotStore('app/data/datacronSnapshots.json');
 import { logger } from '../utils/logger';
 import { RequestQueue } from '../utils/requestQueue';
 import { normaliseAllyCode } from '../utils/allyCodeUtils';
@@ -181,6 +187,7 @@ export const gacCommand = {
               counterClient: swgohGgApiClient,
               defenseClient: swgohGgApiClient,
               playerClient: swgohGgApiClient,
+              snapshotStore: datacronSnapshotStore,
             });
             // For strategy command, also update the main reply with status
             const updateMainReply = async (content: string): Promise<void> => {

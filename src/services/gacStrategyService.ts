@@ -16,6 +16,18 @@ import { generateDefenseStrategyHtml } from './gacStrategy/imageGeneration/defen
 import { generateOffenseStrategyHtml } from './gacStrategy/imageGeneration/offenseStrategyHtml';
 import { getTop80CharactersRoster } from './gacStrategy/utils/rosterUtils';
 
+// Datacron allocation
+import { ComlinkDatacron } from '../integrations/comlink/comlinkClient';
+import { DatacronSnapshotStore } from '../storage/datacronSnapshotStore';
+import {
+  fromComlink,
+  ScopeResolver,
+  allocateDatacrons,
+  AllocationResult,
+  SquadInput,
+} from './datacronAllocator';
+import { GameDataService } from './gameDataService';
+
 // Re-export types for backward compatibility
 export { UniqueDefensiveSquad, UniqueDefensiveSquadUnit, MatchedCounterSquad } from '../types/gacStrategyTypes';
 
@@ -41,6 +53,8 @@ export interface GacStrategyServiceOptions {
   counterClient?: CounterClient;
   defenseClient?: DefenseClient;
   playerClient?: PlayerClient;
+  /** Optional. When provided, enables datacron lock-in via per-season snapshots. */
+  snapshotStore?: DatacronSnapshotStore;
 }
 
 export class GacStrategyService {
@@ -52,12 +66,14 @@ export class GacStrategyService {
   private readonly counterClient?: CounterClient;
   private readonly defenseClient?: DefenseClient;
   private readonly playerClient?: PlayerClient;
+  private readonly snapshotStore?: DatacronSnapshotStore;
 
   constructor(options: GacStrategyServiceOptions) {
     this.apiClient = options.historyClient;
     this.counterClient = options.counterClient;
     this.defenseClient = options.defenseClient;
     this.playerClient = options.playerClient;
+    this.snapshotStore = options.snapshotStore;
   }
 
   /**
@@ -77,6 +93,78 @@ export class GacStrategyService {
 
   async closeBrowser(): Promise<void> {
     await this.browserService.close();
+  }
+
+  /**
+   * Run the datacron allocator over a player's eligible cron pool against the
+   * defense + offense squads chosen for this GAC.
+   *
+   * `seasonId` (from `combinedClient.getCurrentGacInstance().eventInstanceId`)
+   * keys the lock-in snapshot. The first call within a season writes a snapshot
+   * of the player's current cron IDs; subsequent calls within the same season
+   * filter the live pool to that snapshot — mid-season acquisitions are excluded.
+   *
+   * Returns `null` when no crons are passed (no allocation possible).
+   */
+  async allocateDatacrons(
+    allyCode: string,
+    datacrons: ComlinkDatacron[] | undefined,
+    seasonId: string | null,
+    defenseSquads: SquadInput[],
+    offenseSquads: SquadInput[]
+  ): Promise<AllocationResult | null> {
+    if (!datacrons || datacrons.length === 0) return null;
+
+    let eligibleIds: Set<string> | null = null;
+    if (seasonId && this.snapshotStore) {
+      try {
+        const stored = await this.snapshotStore.get(allyCode, seasonId);
+        if (stored) {
+          eligibleIds = new Set(stored);
+        } else {
+          await this.snapshotStore.set(allyCode, seasonId, datacrons.map(c => c.id));
+          // First observation — fall through with no filter.
+        }
+      } catch (err) {
+        logger.warn('Datacron snapshot lookup failed; using full live pool:', err);
+      }
+    }
+
+    const filtered = eligibleIds
+      ? datacrons.filter(c => eligibleIds!.has(c.id))
+      : datacrons;
+
+    if (filtered.length === 0) return null;
+
+    const candidates = filtered.map(fromComlink);
+    const resolver = new ScopeResolver();
+    const allSquads = [...defenseSquads, ...offenseSquads];
+    return allocateDatacrons(allSquads, candidates, resolver);
+  }
+
+  /**
+   * Helper for callers building SquadInput[] from the existing UniqueDefensiveSquad
+   * shape. Looks up each member's categories via gameDataService for use by the
+   * allocator's faction-target scoring.
+   */
+  buildSquadInput(
+    squadKey: string,
+    leaderBaseId: string,
+    memberBaseIds: string[],
+    side: 'defense' | 'offense'
+  ): SquadInput {
+    const gd = GameDataService.getInstance();
+    const memberCategories = new Map<string, string[]>();
+    for (const id of [leaderBaseId, ...memberBaseIds]) {
+      memberCategories.set(id, gd.isReady() ? gd.getUnitCategories(id) : []);
+    }
+    return {
+      squadKey,
+      leaderBaseId,
+      memberBaseIds: [leaderBaseId, ...memberBaseIds],
+      memberCategories,
+      side,
+    };
   }
 
   /**
@@ -320,7 +408,11 @@ export class GacStrategyService {
     maxSquads: number = 11,
     userRoster?: SwgohGgFullPlayerResponse,
     strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
-    opponentAllyCode?: string
+    opponentAllyCode?: string,
+    /** Per-squad cron assignments. Keys: 'def-{idx}' for defense, 'off-{idx}' for offense. */
+    assignedCrons?: Map<string, import('./datacronAllocator').AssignedCron | null>,
+    /** Opponent's actual cron per offense battle (scraped from swgoh.gg). Keys: 'opp-def-{idx}'. */
+    opponentCronsByDefenseKey?: Map<string, import('./datacronAllocator').AssignedCron | null>
   ): Promise<{ defenseImage: Buffer; offenseImages: Buffer[] }> {
     // Fetch opponent roster if ally code provided
     // Must use getFullPlayerWithStats to get calculated stats (Speed, Health, Protection)
@@ -380,7 +472,9 @@ export class GacStrategyService {
 
     // Generate defense image (2-column layout requires wider viewport)
     // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 620*2+40=1280)
-    const defenseWidth = format === '3v3' ? 1330 : 1950;
+    // Cron column adds ~120px per squad row when assignedCrons is provided.
+    const baseDefenseWidth = format === '3v3' ? 1330 : 1950;
+    const defenseWidth = baseDefenseWidth + (assignedCrons ? 240 : 0);
     const defenseHtml = generateDefenseStrategyHtml(
       opponentLabel,
       balancedDefense,
@@ -388,7 +482,8 @@ export class GacStrategyService {
       maxSquads,
       userRoster,
       strategyPreference,
-      unusedGLs
+      unusedGLs,
+      assignedCrons
     );
     const defenseImage = await this.browserService.renderHtml(defenseHtml, { width: defenseWidth, height: 2400 });
 
@@ -400,7 +495,9 @@ export class GacStrategyService {
     //   - countered: entries with a real offense leader, become battle rows
     //   - uncountered: entries with empty offense.leader.baseId, rendered in
     //     a separate "Uncountered Defenses" section on the LAST chunk only
-    const offenseWidth = format === '3v3' ? 1100 : 1650;
+    // Cron columns add ~240px (your cron + opponent cron) when crons are provided.
+    const baseOffenseWidth = format === '3v3' ? 1100 : 1650;
+    const offenseWidth = baseOffenseWidth + (assignedCrons || opponentCronsByDefenseKey ? 240 : 0);
     const visible = balancedOffense.slice(0, maxSquads);
     const counteredBattles = visible.filter(c => !!c.offense.leader.baseId);
     const uncounteredDefenses = visible.filter(c => !c.offense.leader.baseId);
@@ -428,7 +525,9 @@ export class GacStrategyService {
         isLast ? unusedGLs : undefined,
         cursor,
         chunkInfo,
-        isLast ? uncounteredDefenses : undefined
+        isLast ? uncounteredDefenses : undefined,
+        assignedCrons,
+        opponentCronsByDefenseKey
       );
       const offenseImage = await this.browserService.renderHtml(offenseHtml, { width: offenseWidth, height: 2400 });
       offenseImages.push(offenseImage);

@@ -9,6 +9,12 @@ import { getCharacterPortraitUrl } from '../../../config/characterPortraits';
 import { logger } from '../../../utils/logger';
 import { buildCharacterStatsMap } from '../utils/rosterUtils';
 import { SPEED_ICON, HEALTH_ICON, PROTECTION_ICON } from '../../../config/imageConstants';
+import { AssignedCron, renderCronCell, renderEmptyCronCell } from '../../datacronAllocator';
+
+/** Squad-key convention for defense rows (used by /gac strategy datacron allocator). */
+export function defenseSquadKey(idx: number): string {
+  return `def-${idx}`;
+}
 
 export function generateDefenseStrategyHtml(
   playerName: string,
@@ -17,7 +23,8 @@ export function generateDefenseStrategyHtml(
   maxSquads: number = 11,
   userRoster?: SwgohGgFullPlayerResponse,
   strategyPreference: 'defensive' | 'balanced' | 'offensive' = 'balanced',
-  unusedGLs?: string[]
+  unusedGLs?: string[],
+  assignedCrons?: Map<string, AssignedCron | null>
 ): string {
   logger.info(`[Defense Image] Starting HTML generation for ${playerName} (${format} format)`);
   logger.info(`[Defense Image] Input data: ${defenseSquads.length} defense squad(s)`);
@@ -156,6 +163,13 @@ export function generateDefenseStrategyHtml(
       }
     }
 
+    const cronHtml = (() => {
+      if (!assignedCrons) return '';
+      const a = assignedCrons.get(defenseSquadKey(index));
+      if (a === undefined) return '';
+      return a ? renderCronCell(a, 'friendly') : renderEmptyCronCell();
+    })();
+
     return `
       <div class="squad-row">
         <div class="squad-header">
@@ -168,6 +182,7 @@ export function generateDefenseStrategyHtml(
         </div>
         <div class="squad-characters">
           ${paddedUnits.map(u => renderUnit(u)).join('')}
+          ${cronHtml}
         </div>
       </div>
     `;
@@ -308,7 +323,27 @@ export function generateDefenseStrategyHtml(
       display: flex;
       gap: 8px;
       justify-content: center;
+      align-items: center;
     }
+    /* Datacron cell — appended to squad-characters by /gac strategy datacron allocator */
+    .cron-cell { display:flex; flex-direction:column; align-items:center; width:100px;
+      padding:4px; border:2px solid transparent; border-radius:4px; background:rgba(0,0,0,0.18);
+      margin-left:8px; }
+    .cron-cell--friendly { border-color:#c4a35a; }
+    .cron-cell--opponent { border-color:#b13c3c; }
+    .cron-cell--filler { opacity:0.55; }
+    .cron-cell--empty { opacity:0.3; }
+    .cron-cell__art { position:relative; width:80px; height:80px; }
+    .cron-cell__box { width:100%; height:100%; object-fit:contain; }
+    .cron-cell__callout { position:absolute; bottom:-6px; right:-6px; width:36px; height:36px;
+      border-radius:50%; border:2px solid #1a1a1a; }
+    .cron-cell__name { font-size:11px; font-weight:600; margin-top:6px; text-align:center;
+      max-width:96px; word-break:break-word; color:#1a1a1a; }
+    .cron-cell__dots { display:flex; gap:4px; margin-top:4px; }
+    .cron-cell__dot { width:6px; height:6px; border-radius:50%; background:#444; }
+    .cron-cell__dot--lit { background:#c4a35a; }
+    .cron-cell__filler-note { font-size:10px; opacity:0.7; margin-top:2px; color:#1a1a1a; }
+    .cron-cell__placeholder { font-size:11px; color:#888; padding:28px 4px; text-align:center; }
     .character-cell {
       display: flex;
       flex-direction: column;

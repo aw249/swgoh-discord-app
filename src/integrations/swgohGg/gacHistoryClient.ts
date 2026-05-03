@@ -115,9 +115,23 @@ export class GacHistoryClient {
           }
         }
 
+        // Datacron capture (added 2026-05-03, plan
+        // 2026-05-03-gac-strategy-datacrons.md DC-10): swgoh.gg embeds the
+        // opponent's per-squad cron as a JSON tooltip-app attribute.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const cronEl = (side as any).querySelector('.gac-counters-battle-summary__datacron-simple .datacron-icon');
+        let datacron: unknown = undefined;
+        if (cronEl) {
+          const raw = cronEl.getAttribute('data-player-datacron-tooltip-app');
+          if (raw) {
+            try { datacron = JSON.parse(raw); } catch { /* leave undefined */ }
+          }
+        }
+
         result.push({
           leader,
-          members
+          members,
+          ...(datacron ? { datacron: datacron as never } : {}),
         });
       }
 

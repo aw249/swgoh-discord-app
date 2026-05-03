@@ -1,0 +1,37 @@
+{
+  "id": "AORkllTcR_argyeY0lWbUw",
+  "set_id": 28,
+  "template_id": "datacron_set_28_base",
+  "tags": [],
+  "reroll_count": 0,
+  "focused": false,
+  "derived": {
+    "name": "Power for Hire",
+    "tier": 9,
+    "accumulated_stats": [
+      { "stat_type": 16, "stat_name": "Critical Damage", "stat_value": 0.23778142, "display_stat_value": "23.78%" },
+      { "stat_type": 25, "stat_name": "Armor Penetration", "stat_value": 0.53125472, "display_stat_value": "53.13%" },
+      { "stat_type": 48, "stat_name": "Offense", "stat_value": 0.23284457, "display_stat_value": "23.28%" },
+      { "stat_type": 55, "stat_name": "Health", "stat_value": 0.3158456, "display_stat_value": "31.58%" }
+    ],
+    "tiers": [
+      { "target_rule_id": "", "ability_id": "", "stat_type": 16, "stat_value": 0.23778142, "required_unit_tier": 2, "required_relic_tier": 1, "scope_icon": null, "derived": { "has_data": true, "tier_id": 1, "scope_identifier": 1, "scope_target_name": "Critical Damage", "is_primary_tier": false, "primary_tier_number": 0, "ability_description": null } },
+      { "target_rule_id": "", "ability_id": "", "stat_type": 55, "stat_value": 0.05970028, "required_unit_tier": 2, "required_relic_tier": 1, "scope_icon": null, "derived": { "has_data": true, "tier_id": 2, "scope_identifier": 1, "scope_target_name": "Health", "is_primary_tier": false, "primary_tier_number": 0, "ability_description": null } },
+      { "target_rule_id": "target_datacron_darkside", "ability_id": "datacron_alignment_generic_018", "stat_type": 1, "stat_value": 0.0, "required_unit_tier": 2, "required_relic_tier": 1, "scope_icon": "https://game-assets.swgoh.gg/textures/tex.datacronui_affix_darkside.png", "derived": { "has_data": true, "tier_id": 3, "scope_identifier": 2, "scope_target_name": "Dark Side", "is_primary_tier": true, "primary_tier_number": 1, "ability_description": "Dark Side allies recover 2% Health whenever they critically hit an enemy." } },
+      { "target_rule_id": "", "ability_id": "", "stat_type": 25, "stat_value": 0.53125472, "required_unit_tier": 4, "required_relic_tier": 1, "scope_icon": null, "derived": { "has_data": true, "tier_id": 4, "scope_identifier": 1, "scope_target_name": "Armor Penetration", "is_primary_tier": false, "primary_tier_number": 0, "ability_description": null } },
+      { "target_rule_id": "", "ability_id": "", "stat_type": 48, "stat_value": 0.08659169, "required_unit_tier": 4, "required_relic_tier": 1, "scope_icon": null, "derived": { "has_data": true, "tier_id": 5, "scope_identifier": 1, "scope_target_name": "Offense", "is_primary_tier": false, "primary_tier_number": 0, "ability_description": null } },
+      { "target_rule_id": "target_datacron_scoundrel", "ability_id": "datacron_faction_generic_019", "stat_type": 1, "stat_value": 0.0, "required_unit_tier": null, "required_relic_tier": 6, "scope_icon": "https://game-assets.swgoh.gg/textures/tex.datacronui_affix_scoundrels.png", "derived": { "has_data": true, "tier_id": 6, "scope_identifier": 3, "scope_target_name": "Scoundrel", "is_primary_tier": true, "primary_tier_number": 2, "ability_description": "Whenever a debuff on an enemy expires, Scoundrel allies gain 2% Turn Meter, doubled if that debuff was dispelled by an enemy." } },
+      { "target_rule_id": "", "ability_id": "", "stat_type": 55, "stat_value": 0.25614532, "required_unit_tier": null, "required_relic_tier": 8, "scope_icon": null, "derived": { "has_data": true, "tier_id": 7, "scope_identifier": 1, "scope_target_name": "Health", "is_primary_tier": false, "primary_tier_number": 0, "ability_description": null } },
+      { "target_rule_id": "", "ability_id": "", "stat_type": 48, "stat_value": 0.14625288, "required_unit_tier": null, "required_relic_tier": 8, "scope_icon": null, "derived": { "has_data": true, "tier_id": 8, "scope_identifier": 1, "scope_target_name": "Offense", "is_primary_tier": false, "primary_tier_number": 0, "ability_description": null } },
+      { "target_rule_id": "target_datacron_krrsantan", "ability_id": "datacron_character_generic_026", "stat_type": 1, "stat_value": 0.0, "required_unit_tier": null, "required_relic_tier": 8, "scope_icon": "https://game-assets.swgoh.gg/textures/tex.charui_krrsantan.png", "derived": { "has_data": true, "tier_id": 9, "scope_identifier": 4, "scope_target_name": "Krrsantan", "is_primary_tier": true, "primary_tier_number": 3, "ability_description": "Whenever Krrsantan loses Taunt, remove 50% Turn Meter from all enemies." } }
+    ],
+    "box_image_url": "https://game-assets.swgoh.gg/textures/tex.datacron_d_max.png",
+    "callout_image_url": "https://game-assets.swgoh.gg/textures/tex.charui_krrsantan.png",
+    "bg_tier_count": 3,
+    "has_first_tier": true,
+    "has_second_tier": true,
+    "has_third_tier": true,
+    "has_fourth_tier": false,
+    "has_fifth_tier": false
+  }
+}

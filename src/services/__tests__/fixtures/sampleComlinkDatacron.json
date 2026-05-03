@@ -1,0 +1,22 @@
+{
+  "id": "SRgZut27RnCQrbk5yLKZug",
+  "setId": 27,
+  "templateId": "datacron_set_27_focused_maulhatefueled",
+  "tag": ["maulhatefueled"],
+  "affix": [
+    { "tag": [], "targetRule": "", "abilityId": "", "statType": 17, "statValue": "20000000", "requiredUnitTier": 1, "requiredRelicTier": 1, "scopeIcon": "" },
+    { "tag": [], "targetRule": "", "abilityId": "", "statType": 16, "statValue": "20000000", "requiredUnitTier": 1, "requiredRelicTier": 1, "scopeIcon": "" },
+    { "tag": ["darkside"], "targetRule": "target_datacron_darkside", "abilityId": "datacron_alignment_generic_011", "statType": 1, "statValue": "0", "requiredUnitTier": 2, "requiredRelicTier": 1, "scopeIcon": "tex.datacronui_affix_darkside" },
+    { "tag": [], "targetRule": "", "abilityId": "", "statType": 48, "statValue": "30000000", "requiredUnitTier": 2, "requiredRelicTier": 1, "scopeIcon": "" },
+    { "tag": [], "targetRule": "", "abilityId": "", "statType": 16, "statValue": "40000000", "requiredUnitTier": 2, "requiredRelicTier": 1, "scopeIcon": "" },
+    { "tag": ["sith"], "targetRule": "target_datacron_sith", "abilityId": "datacron_faction_generic_011", "statType": 1, "statValue": "0", "requiredUnitTier": 2, "requiredRelicTier": 1, "scopeIcon": "tex.datacronui_affix_sith" },
+    { "tag": [], "targetRule": "", "abilityId": "", "statType": 55, "statValue": "30000000", "requiredUnitTier": 4, "requiredRelicTier": 1, "scopeIcon": "" },
+    { "tag": [], "targetRule": "", "abilityId": "", "statType": 48, "statValue": "20000000", "requiredUnitTier": 4, "requiredRelicTier": 1, "scopeIcon": "" },
+    { "tag": ["maulhatefueled"], "targetRule": "target_datacron_maulhatefueled", "abilityId": "datacron_character_generic_011", "statType": 1, "statValue": "0", "requiredUnitTier": 4, "requiredRelicTier": 1, "scopeIcon": "tex.charui_maul" }
+  ],
+  "rerollOption": [],
+  "rerollIndex": 0,
+  "rerollCount": 5,
+  "locked": true,
+  "focused": true
+}
