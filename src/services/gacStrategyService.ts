@@ -139,7 +139,16 @@ export class GacStrategyService {
 
     if (filtered.length === 0) return null;
 
-    const candidates = filtered.map(fromComlink);
+    // Drop unrolled crons (currentTier 0 = no stats and no abilities). They'd
+    // contribute zero score everywhere and just inflate the input pool.
+    const allCandidates = filtered.map(fromComlink);
+    const candidates = allCandidates.filter(c => c.currentTier >= 1);
+    const droppedCount = allCandidates.length - candidates.length;
+    if (droppedCount > 0) {
+      logger.info(`[Datacron pool] Excluded ${droppedCount} unrolled crons (tier < 1) from allocation pool.`);
+    }
+    if (candidates.length === 0) return null;
+
     const resolver = new ScopeResolver();
     const allSquads = [...defenseSquads, ...offenseSquads];
     return allocateDatacrons(allSquads, candidates, resolver);
