@@ -477,11 +477,9 @@ export class GacStrategyService {
 
     // Generate defense image (2-column layout requires wider viewport)
     // Width matches container: 2 columns of squads + gap (5v5: 920*2+40=1880, 3v3: 620*2+40=1280)
-    // Cron column grows singleSquadWidth by 140 in the template when assignedCrons is
-    // supplied → containerWidth grows by 280 (140 × 2 cols). Canvas adds 320 to give
-    // the surrounding layout (header + footer) some breathing room.
-    const baseDefenseWidth = format === '3v3' ? 1330 : 1950;
-    const defenseWidth = baseDefenseWidth + (assignedCrons ? 320 : 0);
+    // Defense uses the same compact character-cell sizing as the offense template,
+    // so the cron column fits inside the existing budget — no canvas growth.
+    const defenseWidth = format === '3v3' ? 1330 : 1950;
     const defenseHtml = generateDefenseStrategyHtml(
       opponentLabel,
       balancedDefense,
@@ -502,9 +500,9 @@ export class GacStrategyService {
     //   - countered: entries with a real offense leader, become battle rows
     //   - uncountered: entries with empty offense.leader.baseId, rendered in
     //     a separate "Uncountered Defenses" section on the LAST chunk only
-    // Cron columns add ~240px (your cron + opponent cron) when crons are provided.
-    const baseOffenseWidth = format === '3v3' ? 1100 : 1650;
-    const offenseWidth = baseOffenseWidth + (assignedCrons || opponentCronsByDefenseKey ? 240 : 0);
+    // Offense already uses compact character cells; cron columns fit within the
+    // existing budget. No canvas growth.
+    const offenseWidth = format === '3v3' ? 1100 : 1650;
     const visible = balancedOffense.slice(0, maxSquads);
     const counteredBattles = visible.filter(c => !!c.offense.leader.baseId);
     const uncounteredDefenses = visible.filter(c => !c.offense.leader.baseId);

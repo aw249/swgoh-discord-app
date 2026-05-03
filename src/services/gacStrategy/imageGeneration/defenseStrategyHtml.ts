@@ -231,10 +231,10 @@ export function generateDefenseStrategyHtml(
   const unusedGLsSection = renderUnusedGLsSection();
 
   // Calculate width based on format - doubled for 2-column layout
-  // Single squad width: 5v5 = 950px, 3v3 = 700px → doubled for 2 columns + gap
-  // Cron column adds ~120px (cell + margin) per squad row when assignedCrons is supplied.
-  const cronColumnPadding = assignedCrons ? 140 : 0;
-  const singleSquadWidth = (format === '3v3' ? 620 : 920) + cronColumnPadding;
+  // Defense uses the same compact character-cell sizing as the offense template
+  // (100/120 px wide cells, 56 px portraits) so a squad row + cron cell fits in
+  // the original singleSquadWidth budget with no canvas growth.
+  const singleSquadWidth = format === '3v3' ? 620 : 920;
   const containerWidth = singleSquadWidth * 2 + 40; // 2 columns + 40px gap
 
   const html = `<!DOCTYPE html>
@@ -346,20 +346,23 @@ export function generateDefenseStrategyHtml(
     .cron-cell__dot--lit { background:#c4a35a; }
     .cron-cell__filler-note { font-size:10px; opacity:0.7; margin-top:2px; color:#1a1a1a; }
     .cron-cell__placeholder { font-size:11px; color:#888; padding:28px 4px; text-align:center; }
+    /* Character cell + portrait sizing matches offenseStrategyHtml.ts so defense
+       and offense images render with consistent visual density and so the cron
+       column fits inside singleSquadWidth without canvas growth. */
     .character-cell {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      width: ${format === '3v3' ? 190 : 170}px;
+      gap: 4px;
+      width: ${format === '3v3' ? 120 : 100}px;
     }
     .character-cell.gl .character-portrait {
       border-color: #fbbf24;
       box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
     }
     .character-portrait {
-      width: ${format === '3v3' ? 80 : 70}px;
-      height: ${format === '3v3' ? 80 : 70}px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       border: 3px solid #c4a35a;
       position: relative;
@@ -391,22 +394,23 @@ export function generateDefenseStrategyHtml(
       padding: 2px 6px;
       border-radius: 4px;
     }
+    /* Stat panel sizing matches offenseStrategyHtml.ts for visual consistency. */
     .character-stats {
       background: #2a2a2a;
       border: 1px solid #8b7355;
       border-radius: 4px;
-      padding: 6px;
+      padding: 4px;
       width: 100%;
     }
     .stat-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 3px 6px;
+      padding: 2px 4px;
       background: #1a1a1a;
       border-radius: 2px;
-      margin-bottom: 2px;
-      font-size: 11px;
+      margin-bottom: 1px;
+      font-size: 10px;
     }
     .stat-row:last-child {
       margin-bottom: 0;
@@ -416,11 +420,11 @@ export function generateDefenseStrategyHtml(
       font-weight: bold;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 2px;
     }
     .stat-icon {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
     }
     .stat-value {
       color: #f5deb3;
