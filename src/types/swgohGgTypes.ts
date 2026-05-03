@@ -148,9 +148,37 @@ export interface GacDefensiveSquadUnit {
   portraitUrl: string | null;
 }
 
+/**
+ * Raw cron payload extracted from swgoh.gg's `data-player-datacron-tooltip-app`
+ * attribute on `.datacron-icon` elements within the GAC battle summary.
+ *
+ * Stored verbatim — `datacronAllocator/normalize.fromScraped` converts to
+ * DatacronCandidate.
+ */
+export type ScrapedCron = {
+  id: string;
+  set_id: number;
+  template_id: string;
+  tags: string[];
+  reroll_count: number;
+  focused: boolean;
+  derived: {
+    name: string;
+    tier: number;
+    tiers: unknown[];
+    box_image_url: string;
+    callout_image_url: string;
+    [k: string]: unknown;
+  };
+};
+
 export interface GacDefensiveSquad {
   leader: GacDefensiveSquadUnit;
   members: GacDefensiveSquadUnit[];
+  /** Datacron the opponent slotted on this defense squad. Absent when the
+   *  scraper couldn't find a `data-player-datacron-tooltip-app` element on
+   *  this squad block — typically because no cron was equipped. */
+  datacron?: ScrapedCron;
 }
 
 export interface GacCounterSquad {
