@@ -113,7 +113,7 @@ export function buildCounterListView(args: CounterListViewArgs): InteractionRepl
     args.counters.forEach((c, i) => {
       if (inRow === 5) { components.push(row); row = new ActionRowBuilder<ButtonBuilder>(); inRow = 0; }
       row.addComponents(new ButtonBuilder()
-        .setCustomId(`${CUSTOM_IDS.MARK_USED_PREFIX}${args.defenceLeader}:${c.leader.baseId}`)
+        .setCustomId(`${CUSTOM_IDS.MARK_USED_PREFIX}${args.defenceLeader}:${i}`)
         .setLabel(`Used #${i + 1}`).setStyle(ButtonStyle.Success));
       inRow++;
     });

@@ -77,7 +77,7 @@ describe('/gac offence — end-to-end smoke', () => {
     // 3) Mark used
     await handleOffenceButton({
       ...baseInteraction(),
-      customId: 'gac:offence:used:QUEEN_AMIDALA:GLREY',
+      customId: 'gac:offence:used:QUEEN_AMIDALA:0',
       isChatInputCommand: () => false, isButton: () => true,
     } as never, deps as never);
     expect((await used.getUsed('111', 'CW21:O1', 1)).size).toBe(5);

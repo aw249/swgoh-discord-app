@@ -113,7 +113,7 @@ describe('handleOffenceButton — flows', () => {
         { baseId: 'BB8', relicLevel: 6, portraitUrl: null },
       ], winPercentage: 75, seenCount: 100, avgBanners: 60 }] as never,
     });
-    const i = makeFakeInteraction({ customId: 'gac:offence:used:QUEEN_AMIDALA:GLREY' });
+    const i = makeFakeInteraction({ customId: 'gac:offence:used:QUEEN_AMIDALA:0' });
     await handleOffenceButton(i as never, deps as never);
     expect(deps.usedService.markUsed).toHaveBeenCalledWith(
       '111', 'CW21:O1', 2, 'GLREY',

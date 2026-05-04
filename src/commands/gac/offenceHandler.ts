@@ -187,18 +187,24 @@ export async function handleOffenceButton(
   }
 
   // Mark used → mutate then re-render View B:
+  // Custom ID shape: gac:offence:used:<defenceLeader>:<counterIndex>
+  // (counter leaders are NOT unique across the top 5 — Discord rejects
+  //  duplicate custom IDs, so we use the row index and re-rank to recover
+  //  the picked counter.)
   if (customId.startsWith(CUSTOM_IDS.MARK_USED_PREFIX)) {
-    const [defenceLeader, counterLeader] = customId.slice(CUSTOM_IDS.MARK_USED_PREFIX.length).split(':');
+    const parts = customId.slice(CUSTOM_IDS.MARK_USED_PREFIX.length).split(':');
+    const defenceLeader = parts[0];
+    const counterIndex = parseInt(parts[1] ?? '', 10);
     const def = (state.defences as Array<{ leader: { baseId: string } }>).find(d => d.leader.baseId === defenceLeader);
-    if (def) {
+    if (def && Number.isInteger(counterIndex)) {
       const counters = await deps.counterClient.getCounterSquads(defenceLeader, state.eventInstanceId).catch(() => [] as unknown[]);
       const top = selectTopCountersAvailable(
         counters as never, def as never, state.roster as never, state.used, state.format,
       );
-      const picked = top.find(c => c.leader.baseId === counterLeader);
+      const picked = top[counterIndex];
       if (picked) {
         const chars = [picked.leader.baseId, ...picked.members.map(m => m.baseId)];
-        await deps.usedService.markUsed(state.allyCode, state.eventInstanceId, state.currentRound, counterLeader, chars);
+        await deps.usedService.markUsed(state.allyCode, state.eventInstanceId, state.currentRound, picked.leader.baseId, chars);
       }
     }
     const fresh = await loadState(interaction.user.id, deps);
