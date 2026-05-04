@@ -12,8 +12,8 @@ export class FilePlayerStore implements PlayerStore {
   private initialized: boolean = false;
 
   constructor(filePath?: string, now: () => Date = () => new Date()) {
-    // Default to app/data/players.json in the project root
-    this.filePath = filePath || join(process.cwd(), 'app', 'data', 'players.json');
+    // Default to data/players.json relative to cwd (exec cwd is /opt/discord-bot/app)
+    this.filePath = filePath || join(process.cwd(), 'data', 'players.json');
     this.now = now;
   }
 
@@ -85,7 +85,11 @@ export class FilePlayerStore implements PlayerStore {
       // Preserve original registeredAt and legacy flag; only update allyCode
       this.data[discordUserId] = { ...existing, allyCode };
     } else {
-      this.data[discordUserId] = { allyCode, registeredAt: this.now().toISOString() };
+      // Early-adopter window is open: keep flagging new registrations as
+      // legacy=true until the paid tier launches. When that gate goes live,
+      // remove the `legacy: true` line below so post-cutoff registrations
+      // are distinguishable in playerService.getRegistration(...).
+      this.data[discordUserId] = { allyCode, registeredAt: this.now().toISOString(), legacy: true };
     }
     await this.save();
     logger.info(`Registered player: ${discordUserId} -> ${allyCode}`);

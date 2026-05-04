@@ -94,15 +94,14 @@ describe('FilePlayerStore', () => {
   });
 
   describe('registerPlayer', () => {
-    it('creates a new registration with registeredAt and no legacy flag', async () => {
+    it('creates a new registration with registeredAt and legacy=true (early-adopter window open)', async () => {
       const filePath = await makeTempFile({});
       const store = new FilePlayerStore(filePath, mockNow);
 
       await store.registerPlayer('444', '444444444');
 
       const raw = JSON.parse(await fs.readFile(filePath, 'utf-8'));
-      expect(raw['444']).toEqual({ allyCode: '444444444', registeredAt: FIXED_NOW });
-      expect(raw['444'].legacy).toBeUndefined();
+      expect(raw['444']).toEqual({ allyCode: '444444444', registeredAt: FIXED_NOW, legacy: true });
     });
 
     it('preserves original registeredAt when player re-registers', async () => {
@@ -161,15 +160,14 @@ describe('FilePlayerStore', () => {
       expect(await store.getRegistration('nonexistent')).toBeNull();
     });
 
-    it('returns registration for a newly registered (non-legacy) player', async () => {
+    it('returns registration for a newly registered player (currently flagged legacy=true while early-adopter window is open)', async () => {
       const filePath = await makeTempFile({});
       const store = new FilePlayerStore(filePath, mockNow);
 
       await store.registerPlayer('999', '999999999');
       const reg = await store.getRegistration('999');
 
-      expect(reg).toEqual({ allyCode: '999999999', registeredAt: FIXED_NOW });
-      expect(reg?.legacy).toBeUndefined();
+      expect(reg).toEqual({ allyCode: '999999999', registeredAt: FIXED_NOW, legacy: true });
     });
   });
 });
