@@ -279,13 +279,16 @@ export const gacCommand = {
       // Try to get cached bracket data first (fast path)
       let bracketData = gacService.getCachedBracket(yourAllyCode);
 
-      // If no cache, try to fetch with a timeout (max 2 seconds to leave buffer for Discord's 3s limit)
+      // If no cache, try to fetch with a timeout (Discord allows 3s total —
+      // 2.7s gives the underlying live fetch a bit more headroom for the
+      // round-1 Top-80 GP enrichment fan-out, while still leaving buffer for
+      // interaction.respond() to round-trip).
       if (!bracketData) {
         try {
           bracketData = await Promise.race([
             gacService.getLiveBracket(yourAllyCode),
             new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error('Timeout')), 2000)
+              setTimeout(() => reject(new Error('Timeout')), 2700)
             )
           ]);
         } catch (timeoutError) {

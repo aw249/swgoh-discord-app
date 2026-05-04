@@ -63,6 +63,11 @@ export class GacService {
   // Cache bracket data for 5 minutes to support fast autocomplete responses
   private readonly bracketCache: Map<string, CachedBracketData> = new Map();
   private readonly cacheTTL = parseInt(process.env.BRACKET_CACHE_TTL_MS || '720000', 10); // 12 minutes default (covers 10-min warm interval)
+  // In-flight fetch de-duplication: when autocomplete fires rapidly during a
+  // cache miss, every keystroke would otherwise spawn its own live fetch and
+  // each one races out at 2s. Sharing the in-flight promise means rapid
+  // activations all wait on the same single fetch.
+  private readonly inFlightFetches: Map<string, Promise<LiveBracketData>> = new Map();
 
   constructor(private readonly apiClient: CombinedApiClient) {}
 
@@ -129,16 +134,26 @@ export class GacService {
       }
     }
 
-    // Fetch fresh data using hybrid approach
-    const bracketData = await this.apiClient.getLiveBracketWithOpponent(allyCode);
+    // Reuse any in-flight fetch for the same ally code. Multiple autocomplete
+    // keystrokes during a cache miss would each kick off their own fetch,
+    // saturate Comlink, and each one would race out — share the work instead.
+    const existing = this.inFlightFetches.get(allyCode);
+    if (existing) return existing;
 
-    // Update cache
-    this.bracketCache.set(allyCode, {
-      data: bracketData,
-      timestamp: Date.now()
-    });
+    const fetchPromise = this.apiClient.getLiveBracketWithOpponent(allyCode)
+      .then(bracketData => {
+        this.bracketCache.set(allyCode, {
+          data: bracketData,
+          timestamp: Date.now()
+        });
+        return bracketData;
+      })
+      .finally(() => {
+        this.inFlightFetches.delete(allyCode);
+      });
 
-    return bracketData;
+    this.inFlightFetches.set(allyCode, fetchPromise);
+    return fetchPromise;
   }
 
   /**
