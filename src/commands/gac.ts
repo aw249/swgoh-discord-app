@@ -20,6 +20,19 @@ import { GacApiClient, safeEditStatusMessage, handleGacError } from './gac/comma
 import { handleBracketCommand } from './gac/bracketHandler';
 import { handleOpponentCommand } from './gac/opponentHandler';
 import { handleStrategyCommand } from './gac/strategyHandler';
+import { OffenceUsedStore } from '../storage/offenceUsedStore';
+import { OffenceUsedService } from '../services/offenceUsedService';
+import { OffenceRosterCache } from './gac/offenceRosterCache';
+import { join } from 'path';
+
+const offenceUsedStore = new OffenceUsedStore(join(process.cwd(), 'app', 'data', 'offence-used-characters.json'));
+const offenceUsedService = new OffenceUsedService(offenceUsedStore);
+const offenceRosterCache = new OffenceRosterCache({ ttlMs: 30_000 });
+
+function leagueToFormat(_league: string): '5v5' | '3v3' {
+  // For v1, default to 5v5. Revisit when 3v3 brackets are tested.
+  return '5v5';
+}
 
 // Separate queues for API-only commands (bracket, opponent) and
 // strategy commands (which use Puppeteer). This allows lightweight
@@ -92,7 +105,11 @@ export const gacCommand = {
             { name: 'Offensive', value: 'offensive' }
           )
         )
-    ),
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName('offence')
+        .setDescription('Counter recommendations for the round you\'re currently fighting')),
 
   async execute(
     interaction: ChatInputCommandInteraction,
@@ -121,7 +138,7 @@ export const gacCommand = {
       // Defer the interaction immediately so Discord knows we are working on it.
       await interaction.deferReply();
 
-      // Pick the right queue: strategy uses Puppeteer (heavy), bracket/opponent are API-only (light).
+      // Pick the right queue: strategy uses Puppeteer (heavy), bracket/opponent/offence are API-only (light).
       const queue = subcommand === 'strategy' ? strategyQueue : apiOnlyQueue;
 
       // Determine current queue position before enqueuing this request.
@@ -214,6 +231,35 @@ export const gacCommand = {
                 ]).catch(err => logger.warn('Error updating status messages:', err));
               }
             );
+          } else if (subcommand === 'offence') {
+            const { handleOffenceCommand } = await import('./gac/offenceHandler');
+            const { gameDataService } = await import('../services/gameDataService');
+            const { GacStrategyService: GacStrategyServiceClass } = await import('../services/gacStrategyService');
+
+            const strategyServiceInstance = new GacStrategyServiceClass({
+              historyClient: swgohGgApiClient,
+              counterClient: swgohGgApiClient,
+              defenseClient: swgohGgApiClient,
+              playerClient: swgohGgApiClient,
+              snapshotStore: datacronSnapshotStore,
+            });
+
+            await handleOffenceCommand(interaction, {
+              playerService,
+              gacService: {
+                getLiveBracketWithOpponent: (allyCode) => gacService.getLiveBracket(allyCode),
+              },
+              strategyService: {
+                getOpponentDefensiveSquads: (allyCode, format) =>
+                  strategyServiceInstance.getOpponentDefensiveSquads(allyCode, undefined, format),
+              },
+              counterClient: swgohGgApiClient,
+              swgohGgClient: swgohGgApiClient,
+              rosterCache: offenceRosterCache,
+              usedService: offenceUsedService,
+              formatFromLeague: leagueToFormat,
+              displayName: (baseId) => gameDataService.getUnitName(baseId),
+            });
           }
         },
         {
@@ -235,6 +281,8 @@ export const gacCommand = {
               completionMessage = 'Please find your opponent comparison below:';
             } else if (subcommand === 'strategy') {
               completionMessage = 'Please find your balanced offense and defense strategy below:';
+            } else if (subcommand === 'offence') {
+              completionMessage = 'Please find your counter recommendations below:';
             } else {
               // bracket command
               completionMessage = 'Please find your GAC bracket information below:';
@@ -342,6 +390,44 @@ export const gacCommand = {
         logger.debug('Autocomplete interaction expired or already responded:', respondError);
       }
     }
+  },
+
+  async handleButton(
+    interaction: import('discord.js').ButtonInteraction,
+    playerService: PlayerService,
+    gacService: GacService,
+    swgohGgApiClient: GacApiClient,
+  ): Promise<void> {
+    if (!interaction.customId.startsWith('gac:offence:')) return;
+
+    const { handleOffenceButton } = await import('./gac/offenceHandler');
+    const { gameDataService } = await import('../services/gameDataService');
+    const { GacStrategyService: GacStrategyServiceClass } = await import('../services/gacStrategyService');
+
+    const strategyServiceInstance = new GacStrategyServiceClass({
+      historyClient: swgohGgApiClient,
+      counterClient: swgohGgApiClient,
+      defenseClient: swgohGgApiClient,
+      playerClient: swgohGgApiClient,
+      snapshotStore: datacronSnapshotStore,
+    });
+
+    await handleOffenceButton(interaction, {
+      playerService,
+      gacService: {
+        getLiveBracketWithOpponent: (allyCode) => gacService.getLiveBracket(allyCode),
+      },
+      strategyService: {
+        getOpponentDefensiveSquads: (allyCode, format) =>
+          strategyServiceInstance.getOpponentDefensiveSquads(allyCode, undefined, format),
+      },
+      counterClient: swgohGgApiClient,
+      swgohGgClient: swgohGgApiClient,
+      rosterCache: offenceRosterCache,
+      usedService: offenceUsedService,
+      formatFromLeague: leagueToFormat,
+      displayName: (baseId) => gameDataService.getUnitName(baseId),
+    });
   },
 
 };
