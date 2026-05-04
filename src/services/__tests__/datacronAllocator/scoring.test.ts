@@ -5,6 +5,7 @@ import {
   T9_CHARACTER_ANCHOR_BONUS,
   STAT_MAGNITUDE_SCALE,
   MAX_STAT_MAGNITUDE_BONUS,
+  TIER_TIEBREAK_PER_LEVEL,
 } from '../../datacronAllocator/scoring';
 import { DatacronCandidate, DatacronTier, SquadInput } from '../../datacronAllocator/types';
 import { ScopeResolver } from '../../datacronAllocator/scopeResolver';
@@ -53,8 +54,8 @@ describe('scoreCronOnSquad', () => {
     const c = cron();
     const s = squad(['REY']);
     const r = fakeResolver({}, {});
-    // 6 stat tiers × 1 = 6
-    expect(scoreCronOnSquad(c, s, r)).toBe(6 * TIER_WEIGHTS.stat);
+    // 6 stat tiers × 1 + L9 tier tie-break
+    expect(scoreCronOnSquad(c, s, r)).toBe(6 * TIER_WEIGHTS.stat + 9 * TIER_TIEBREAK_PER_LEVEL);
   });
 
   it('adds tier-3 weight when faction primary matches a squad member', () => {
@@ -67,8 +68,10 @@ describe('scoreCronOnSquad', () => {
     });
     const s = squad(['MAUL'], 'MAUL', { MAUL: ['alignment_dark'] });
     const r = fakeResolver({}, { 'dark side': 'alignment_dark' });
-    // 6 stat tiers + 1 tier-3 primary
-    expect(scoreCronOnSquad(c, s, r)).toBe(6 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary3);
+    // 6 stat tiers + 1 tier-3 primary + L9 tier tie-break
+    expect(scoreCronOnSquad(c, s, r)).toBe(
+      6 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary3 + 9 * TIER_TIEBREAK_PER_LEVEL
+    );
   });
 
   it('adds tier-9 weight + leader bonus when tier-9 character is the leader', () => {
@@ -80,9 +83,10 @@ describe('scoreCronOnSquad', () => {
     });
     const s = squad(['KRRSANTAN', 'CADBANE'], 'KRRSANTAN');
     const r = fakeResolver({ krrsantan: 'KRRSANTAN' }, {});
-    // 6 stat tiers + tier-9 × leader-bonus + character-anchor bonus
+    // 6 stat tiers + tier-9 × leader-bonus + character-anchor bonus + L9 tier tie-break
     expect(scoreCronOnSquad(c, s, r)).toBe(
       6 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary9 * LEADER_BONUS_MULTIPLIER + T9_CHARACTER_ANCHOR_BONUS
+        + 9 * TIER_TIEBREAK_PER_LEVEL
     );
   });
 
@@ -99,6 +103,7 @@ describe('scoreCronOnSquad', () => {
     // regardless of leader slot.
     expect(scoreCronOnSquad(c, s, r)).toBe(
       6 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary9 + T9_CHARACTER_ANCHOR_BONUS
+        + 9 * TIER_TIEBREAK_PER_LEVEL
     );
   });
 
@@ -144,7 +149,7 @@ describe('scoreCronOnSquad', () => {
     });
     const s = squad(['BOBAFETT']);
     const r = fakeResolver({ krrsantan: 'KRRSANTAN' }, {});
-    expect(scoreCronOnSquad(c, s, r)).toBe(6 * TIER_WEIGHTS.stat);
+    expect(scoreCronOnSquad(c, s, r)).toBe(6 * TIER_WEIGHTS.stat + 9 * TIER_TIEBREAK_PER_LEVEL);
   });
 
   it('caps unfocused crons at tier 6 — tier-9 ability does NOT contribute', () => {
@@ -165,8 +170,9 @@ describe('scoreCronOnSquad', () => {
       { krrsantan: 'KRRSANTAN' },
       { 'dark side': 'alignment_dark', scoundrel: 'role_scoundrel' }
     );
-    // tiers 1-6 only: 4 stat tiers + tier-3 primary + tier-6 primary
-    const expected = 4 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary3 + TIER_WEIGHTS.primary6;
+    // tiers 1-6 only: 4 stat tiers + tier-3 primary + tier-6 primary + L6 tier tie-break
+    const expected = 4 * TIER_WEIGHTS.stat + TIER_WEIGHTS.primary3 + TIER_WEIGHTS.primary6
+      + 6 * TIER_TIEBREAK_PER_LEVEL;
     expect(scoreCronOnSquad(c, s, r)).toBe(expected);
   });
 
@@ -179,8 +185,8 @@ describe('scoreCronOnSquad', () => {
     });
     const s = squad(['REY']);
     const r = fakeResolver({}, {});
-    // 5 stat tiers (skipped tier 1)
-    expect(scoreCronOnSquad(c, s, r)).toBe(5 * TIER_WEIGHTS.stat);
+    // 5 stat tiers (skipped tier 1) + L9 tier tie-break
+    expect(scoreCronOnSquad(c, s, r)).toBe(5 * TIER_WEIGHTS.stat + 9 * TIER_TIEBREAK_PER_LEVEL);
   });
 
   it('uses cumulative stat magnitude as a tie-breaker between otherwise-equal crons', () => {
@@ -229,7 +235,52 @@ describe('scoreCronOnSquad', () => {
     });
     const s = squad(['REY']);
     const r = fakeResolver({}, {});
-    // 6 stat tiers (no primaries match) + capped magnitude bonus.
-    expect(scoreCronOnSquad(c, s, r)).toBe(6 * TIER_WEIGHTS.stat + MAX_STAT_MAGNITUDE_BONUS);
+    // 6 stat tiers (no primaries match) + L9 tier tie-break + capped magnitude bonus.
+    expect(scoreCronOnSquad(c, s, r)).toBe(
+      6 * TIER_WEIGHTS.stat + 9 * TIER_TIEBREAK_PER_LEVEL + MAX_STAT_MAGNITUDE_BONUS
+    );
+  });
+
+  it('always ranks a higher-tier duplicate above a lower-tier one, regardless of stat rolls', () => {
+    // L9 + L8 of the "same template" — identical primary scoping. Even when
+    // the L9 has zero stat rolls and the L8 is maxed out, the L9 must beat
+    // the L8 on every squad. This protects the user-visible invariant: when
+    // duplicates exist, the bot always picks the higher-tier copy.
+    const sharedTiers = [
+      tier(1), tier(2),
+      tier(3, { targetRuleId: 'target_datacron_darkside', scopeTargetName: 'Dark Side' }),
+      tier(4), tier(5),
+      tier(6, { targetRuleId: 'target_datacron_scoundrel', scopeTargetName: 'Scoundrel' }),
+      tier(7), tier(8),
+      tier(9, { targetRuleId: 'target_datacron_krrsantan', scopeTargetName: 'Krrsantan' }),
+    ];
+    const l9NoRolls = cron({
+      id: 'l9', currentTier: 9, tiers: sharedTiers,
+      accumulatedStats: [],
+    });
+    const l8MaxedRolls = cron({
+      id: 'l8', currentTier: 8,
+      // L8 means tier 9 is unrolled — replicate sharedTiers but mark tier 9 hasData=false.
+      tiers: [
+        ...sharedTiers.slice(0, 8),
+        tier(9, { targetRuleId: 'target_datacron_krrsantan', scopeTargetName: 'Krrsantan', hasData: false }),
+      ],
+      accumulatedStats: [
+        { name: 'Crit Dam',  displayValue: '+9999.00%', value: 9999 },
+        { name: 'Armor Pen', displayValue: '+9999.00%', value: 9999 },
+      ],
+    });
+    // Squad without the tier-9 anchor character — both crons score identically
+    // on primary tiers, so the tie-break is the only differentiator.
+    const sNoAnchor = squad(['BOBAFETT', 'EMBO'], 'BOBAFETT', {
+      BOBAFETT: ['alignment_dark', 'role_scoundrel'],
+      EMBO: ['alignment_dark', 'role_scoundrel'],
+    });
+    const r = fakeResolver(
+      { krrsantan: 'KRRSANTAN' },
+      { 'dark side': 'alignment_dark', scoundrel: 'role_scoundrel' }
+    );
+    expect(scoreCronOnSquad(l9NoRolls, sNoAnchor, r))
+      .toBeGreaterThan(scoreCronOnSquad(l8MaxedRolls, sNoAnchor, r));
   });
 });

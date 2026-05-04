@@ -24,18 +24,27 @@ export const LEADER_BONUS_MULTIPLIER = 1.5;
  *  Grand Inquisitor, etc. */
 export const T9_CHARACTER_ANCHOR_BONUS = 30;
 
+/** Per-level bonus added to a cron's score. Forces the higher-tier copy of
+ *  any duplicate template to always rank above lower-tier copies on every
+ *  squad: a 1-tier advantage adds TIER_TIEBREAK_PER_LEVEL, which is
+ *  strictly greater than MAX_STAT_MAGNITUDE_BONUS — so even an L9 with
+ *  zero stat rolls beats an L8 with maxed stats when their primary
+ *  contributions are equal. */
+export const TIER_TIEBREAK_PER_LEVEL = 0.2;
+
 /** Multiplier applied to the cron's total stat magnitude when adding the
- *  tie-break contribution to its score. Kept small so the magnitude bonus
- *  for a fully-rolled cron (~150 magnitude points) stays under
- *  TIER_WEIGHTS.primary3 (6) — guaranteeing it can never override a primary
- *  tier match, only differentiate two otherwise-equal crons. */
-export const STAT_MAGNITUDE_SCALE = 0.01;
+ *  finer tie-break contribution. Sized so a fully-rolled cron (~200
+ *  magnitude points) saturates at MAX_STAT_MAGNITUDE_BONUS, and the cap
+ *  itself stays smaller than TIER_TIEBREAK_PER_LEVEL so magnitude can
+ *  never flip the order between adjacent-tier duplicates. */
+export const STAT_MAGNITUDE_SCALE = 0.0005;
 
 /** Hard cap on the magnitude tie-break contribution, regardless of how
- *  inflated a cron's accumulated stats are. Guarantees the bonus never
- *  spills into primary-tier territory and keeps filler detection clean
- *  (a cron with no primary match cannot exceed STAT_TIER_TOTAL + this cap). */
-export const MAX_STAT_MAGNITUDE_BONUS = 3;
+ *  inflated a cron's accumulated stats are. Strictly less than
+ *  TIER_TIEBREAK_PER_LEVEL, and combined with the tier bonus it stays
+ *  below TIER_WEIGHTS.primary3 — so neither tie-break ever spills into
+ *  primary-tier territory. */
+export const MAX_STAT_MAGNITUDE_BONUS = 0.1;
 
 const STAT_TIER_INDEXES = new Set([1, 2, 4, 5, 7, 8]);
 
@@ -107,10 +116,18 @@ export function scoreCronOnSquad(
     total += TIER_WEIGHTS.stat;
   }
 
-  // Magnitude tie-breaker: a higher-rolled cron beats a lower-rolled one to
-  // the same squad. Stays neutral on which stats matter — only rewards the
-  // rolls the user has actually invested in. Hard-capped at
-  // MAX_STAT_MAGNITUDE_BONUS so it can never override a primary-tier match.
+  // Tier tie-breaker: prefer the higher-tier copy of any duplicate template.
+  // Two crons with identical scoping (e.g. an L8 + L9 of the same focused
+  // Maul template) will differ only here on a squad whose tier-9 anchor
+  // doesn't fire, and this bonus exceeds the largest possible magnitude
+  // differential — so the L9 always beats the L8 head-to-head.
+  total += cron.currentTier * TIER_TIEBREAK_PER_LEVEL;
+
+  // Magnitude tie-breaker: among same-tier crons, a higher-rolled cron beats
+  // a lower-rolled one. Capped strictly below TIER_TIEBREAK_PER_LEVEL so it
+  // can never invert the tier ordering above; combined with the tier bonus
+  // it stays below TIER_WEIGHTS.primary3 so neither tie-break can override
+  // a primary-tier match.
   const magnitudeBonus = Math.min(
     MAX_STAT_MAGNITUDE_BONUS,
     computeStatMagnitude(cron.accumulatedStats) * STAT_MAGNITUDE_SCALE
