@@ -1,7 +1,9 @@
-import { PlayerStore } from '../storage/inMemoryStore';
+import { PlayerStore, PlayerRegistration } from '../storage/inMemoryStore';
 import { normaliseAllyCode } from '../utils/allyCodeUtils';
 
-export interface PlayerRegistration {
+export { PlayerRegistration };
+
+export interface PlayerRegistrationInfo {
   discordUserId: string;
   allyCode: string;
 }
@@ -23,5 +25,11 @@ export class PlayerService {
     const allyCode = await this.getAllyCode(discordUserId);
     return allyCode !== null;
   }
-}
 
+  async getRegistration(discordUserId: string): Promise<PlayerRegistration | null> {
+    if (!this.store.getRegistration) {
+      return null;
+    }
+    return await this.store.getRegistration(discordUserId);
+  }
+}

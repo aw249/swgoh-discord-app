@@ -9,7 +9,8 @@ describe('PlayerService', () => {
     mockStore = {
       registerPlayer: jest.fn(),
       getAllyCode: jest.fn(),
-      removePlayer: jest.fn()
+      removePlayer: jest.fn(),
+      getRegistration: jest.fn()
     };
     playerService = new PlayerService(mockStore);
   });
@@ -93,5 +94,37 @@ describe('PlayerService', () => {
       expect(result).toBe(false);
     });
   });
-});
 
+  describe('getRegistration', () => {
+    it('should return registration for a known player', async () => {
+      const discordUserId = '123456789';
+      const reg = { allyCode: '987654321', registeredAt: '2025-01-01T00:00:00.000Z', legacy: true as true };
+      (mockStore.getRegistration as jest.Mock).mockResolvedValue(reg);
+
+      const result = await playerService.getRegistration(discordUserId);
+
+      expect(result).toEqual(reg);
+      expect(mockStore.getRegistration).toHaveBeenCalledWith(discordUserId);
+    });
+
+    it('should return null for an unregistered player', async () => {
+      (mockStore.getRegistration as jest.Mock).mockResolvedValue(null);
+
+      const result = await playerService.getRegistration('unknown');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when store does not implement getRegistration', async () => {
+      const storeWithoutMethod: PlayerStore = {
+        registerPlayer: jest.fn(),
+        getAllyCode: jest.fn(),
+        removePlayer: jest.fn()
+      };
+      const service = new PlayerService(storeWithoutMethod);
+
+      const result = await service.getRegistration('123');
+      expect(result).toBeNull();
+    });
+  });
+});

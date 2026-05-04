@@ -1,20 +1,20 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { logger } from '../utils/logger';
-import { PlayerStore } from './inMemoryStore';
+import { PlayerStore, PlayerRegistration } from './inMemoryStore';
 
-interface PlayerData {
-  [discordUserId: string]: string;
-}
+type PlayerData = Record<string, PlayerRegistration>;
 
-class FilePlayerStore implements PlayerStore {
+export class FilePlayerStore implements PlayerStore {
   private readonly filePath: string;
+  private readonly now: () => Date;
   private data: PlayerData = {};
   private initialized: boolean = false;
 
-  constructor(filePath?: string) {
-    // Default to data/players.json in the project root
-    this.filePath = filePath || join(process.cwd(), 'data', 'players.json');
+  constructor(filePath?: string, now: () => Date = () => new Date()) {
+    // Default to app/data/players.json in the project root
+    this.filePath = filePath || join(process.cwd(), 'app', 'data', 'players.json');
+    this.now = now;
   }
 
   private async ensureInitialized(): Promise<void> {
@@ -30,8 +30,26 @@ class FilePlayerStore implements PlayerStore {
       // Try to read existing data
       try {
         const fileContent = await fs.readFile(this.filePath, 'utf-8');
-        this.data = JSON.parse(fileContent);
-        logger.info(`Loaded ${Object.keys(this.data).length} player registrations from ${this.filePath}`);
+        const parsed: Record<string, string | PlayerRegistration> = JSON.parse(fileContent);
+
+        let migratedAny = false;
+        for (const [k, v] of Object.entries(parsed)) {
+          if (typeof v === 'string') {
+            migratedAny = true;
+            this.data[k] = { allyCode: v, registeredAt: this.now().toISOString(), legacy: true };
+          } else {
+            this.data[k] = v as PlayerRegistration;
+          }
+        }
+
+        if (migratedAny) {
+          await this.save();
+          logger.info(
+            `Migrated ${Object.keys(this.data).length} legacy player registrations to new schema with registeredAt + legacy=true`
+          );
+        } else {
+          logger.info(`Loaded ${Object.keys(this.data).length} player registrations from ${this.filePath}`);
+        }
       } catch (error: any) {
         // File doesn't exist yet, start with empty data
         if (error.code === 'ENOENT') {
@@ -51,7 +69,9 @@ class FilePlayerStore implements PlayerStore {
 
   private async save(): Promise<void> {
     try {
-      await fs.writeFile(this.filePath, JSON.stringify(this.data, null, 2), 'utf-8');
+      const tmp = `${this.filePath}.tmp`;
+      await fs.writeFile(tmp, JSON.stringify(this.data, null, 2), 'utf-8');
+      await fs.rename(tmp, this.filePath);
     } catch (error) {
       logger.error('Error saving player data:', error);
       throw error;
@@ -60,14 +80,20 @@ class FilePlayerStore implements PlayerStore {
 
   async registerPlayer(discordUserId: string, allyCode: string): Promise<void> {
     await this.ensureInitialized();
-    this.data[discordUserId] = allyCode;
+    const existing = this.data[discordUserId];
+    if (existing) {
+      // Preserve original registeredAt and legacy flag; only update allyCode
+      this.data[discordUserId] = { ...existing, allyCode };
+    } else {
+      this.data[discordUserId] = { allyCode, registeredAt: this.now().toISOString() };
+    }
     await this.save();
     logger.info(`Registered player: ${discordUserId} -> ${allyCode}`);
   }
 
   async getAllyCode(discordUserId: string): Promise<string | null> {
     await this.ensureInitialized();
-    return this.data[discordUserId] || null;
+    return this.data[discordUserId]?.allyCode ?? null;
   }
 
   async removePlayer(discordUserId: string): Promise<void> {
@@ -85,9 +111,16 @@ class FilePlayerStore implements PlayerStore {
    */
   async getAllAllyCodes(): Promise<string[]> {
     await this.ensureInitialized();
-    return Object.values(this.data);
+    return Object.values(this.data).map(r => r.allyCode);
+  }
+
+  /**
+   * Get the full registration record for a player, or null if not registered.
+   */
+  async getRegistration(discordUserId: string): Promise<PlayerRegistration | null> {
+    await this.ensureInitialized();
+    return this.data[discordUserId] ?? null;
   }
 }
 
 export const filePlayerStore: PlayerStore = new FilePlayerStore();
-
