@@ -115,6 +115,21 @@ async function main(): Promise<void> {
         return;
       }
 
+      if (interaction.isButton()) {
+        try {
+          if (interaction.customId.startsWith('gac:')) {
+            await gacCommand.handleButton(interaction, playerService, gacService, combinedClient);
+          }
+        } catch (error) {
+          logger.error(`Error handling button ${interaction.customId}:`, error);
+          if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({ content: 'Something went wrong. Please try the command again.', ephemeral: true })
+              .catch(() => undefined);
+          }
+        }
+        return;
+      }
+
       if (!interaction.isChatInputCommand()) {
         return;
       }
