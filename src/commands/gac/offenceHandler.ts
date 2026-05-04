@@ -131,7 +131,11 @@ export async function handleOffenceCommand(
   interaction: ChatInputCommandInteraction,
   deps: OffenceDeps,
 ): Promise<void> {
-  await interaction.deferReply({ ephemeral: true });
+  // gac.ts already calls interaction.deferReply() before dispatching subcommands;
+  // calling it here would throw InteractionAlreadyReplied. The deferred reply is
+  // public (matches the /gac strategy / /gac opponent pattern) so editReply on
+  // it produces a public message; ephemeral flags in the view payloads are
+  // silently ignored by Discord and that's fine for v1.
   const state = await loadState(interaction.user.id, deps);
   if ('error' in state) { await interaction.editReply(asEditPayload(buildErrorView(state.error))); return; }
   await interaction.editReply(asEditPayload(renderViewA(state, deps)));
