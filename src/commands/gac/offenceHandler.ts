@@ -3,7 +3,7 @@ import { selectTopCountersAvailable } from '../../services/gacStrategy/squadMatc
 import { OffenceRosterCache } from './offenceRosterCache';
 import {
   buildOpponentListView, buildCounterListView, buildResetConfirmView, buildErrorView,
-  CUSTOM_IDS,
+  buildLoadingView, CUSTOM_IDS,
 } from './offenceViews';
 
 // The view builders return InteractionReplyOptions (which includes ephemeral).
@@ -156,6 +156,14 @@ export async function handleOffenceButton(
 
   await interaction.deferUpdate();
 
+  // Show a loading view immediately so the user has visible feedback that
+  // the click landed. Skip on the genuinely-instant paths (Reset shows the
+  // confirm view; Reset Cancel is a no-op return-to-View-A).
+  const isInstant = customId === CUSTOM_IDS.RESET || customId === CUSTOM_IDS.RESET_CANCEL;
+  if (!isInstant) {
+    await interaction.editReply(asEditPayload(buildLoadingView(describeLoading(customId, deps))));
+  }
+
   const state = await loadState(interaction.user.id, deps);
   if ('error' in state) { await interaction.editReply(asEditPayload(buildErrorView(state.error))); return; }
 
@@ -221,4 +229,22 @@ export async function handleOffenceButton(
 
   // Unknown — fall back to View A.
   await interaction.editReply(asEditPayload(renderViewA(state, deps)));
+}
+
+/** Build a context-aware loading message based on the button that was clicked.
+ *  Surfaces the opponent leader where we have it, generic copy otherwise. */
+function describeLoading(customId: string, deps: OffenceDeps): string {
+  if (customId.startsWith(CUSTOM_IDS.PICK_DEFENCE_PREFIX)) {
+    const leader = customId.slice(CUSTOM_IDS.PICK_DEFENCE_PREFIX.length);
+    return `Fetching counters for **${deps.displayName(leader)}**...`;
+  }
+  if (customId.startsWith(CUSTOM_IDS.MARK_USED_PREFIX)) {
+    const leader = customId.slice(CUSTOM_IDS.MARK_USED_PREFIX.length).split(':')[0];
+    return `Marking counter used and refreshing **${deps.displayName(leader)}**...`;
+  }
+  if (customId === CUSTOM_IDS.BACK) return 'Loading opponent defences...';
+  if (customId === CUSTOM_IDS.UNDO) return 'Undoing last selection...';
+  if (customId === CUSTOM_IDS.REFRESH) return 'Refreshing data...';
+  if (customId === CUSTOM_IDS.RESET_CONFIRM) return 'Clearing used set...';
+  return 'Working...';
 }

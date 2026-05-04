@@ -101,7 +101,9 @@ export function buildCounterListView(args: CounterListViewArgs): InteractionRepl
     args.counters.forEach((c, i) => {
       const team = [c.leader.baseId, ...c.members.map(m => m.baseId)]
         .map(args.displayName).join(' · ');
+      const stats = formatCounterStats(c.winPercentage, c.seenCount);
       lines.push(`**${i + 1}.** ${team}`);
+      if (stats) lines.push(`   ${stats}`);
     });
   }
   embed.setDescription(lines.join('\n'));
@@ -130,6 +132,22 @@ export function buildCounterListView(args: CounterListViewArgs): InteractionRepl
   components.push(toolbar);
 
   return { embeds: [embed], components, ephemeral: true };
+}
+
+/** "72% win · 124 seen" — both fields elide gracefully when null. */
+function formatCounterStats(winPercentage: number | null, seenCount: number | null): string {
+  const parts: string[] = [];
+  if (winPercentage != null) parts.push(`\`${Math.round(winPercentage)}%\` win`);
+  if (seenCount != null) parts.push(`\`${seenCount.toLocaleString('en-GB')}\` seen`);
+  return parts.join(' · ');
+}
+
+export function buildLoadingView(message: string): InteractionReplyOptions {
+  const embed = new EmbedBuilder()
+    .setTitle('⏳ Working...')
+    .setDescription(message)
+    .setColor(COLOR_WARN);
+  return { embeds: [embed], components: [], ephemeral: true };
 }
 
 export function buildResetConfirmView(): InteractionReplyOptions {
